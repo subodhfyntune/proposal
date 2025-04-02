@@ -41,32 +41,7 @@ public class ProposerDto {
 	private String city;
 	
 	private String state;
-	public ProposerDto(String title, String fullName, String gender, String dateOfBirth, String annualIncome,
-			String panNumber, String aadharNumber, String maritalStatus, String email, String mobileNumber,
-			String alternateMobileNumber, String addressLine1, String addressLine2, String addressLine3, String pincode,
-			String area, String town, String city, String state) {
-		super();
-		this.title = title;
-		this.fullName = fullName;
-		this.gender = gender;
-		this.dateOfBirth = dateOfBirth;
-		this.annualIncome = annualIncome;
-		this.panNumber = panNumber;
-		this.aadharNumber = aadharNumber;
-		this.maritalStatus = maritalStatus;
-		this.email = email;
-		this.mobileNumber = mobileNumber;
-		this.alternateMobileNumber = alternateMobileNumber;
-		this.addressLine1 = addressLine1;
-		this.addressLine2 = addressLine2;
-		this.addressLine3 = addressLine3;
-		this.pincode = pincode;
-		this.area = area;
-		this.town = town;
-		this.city = city;
-		this.state = state;
-	}
-
+	
 	public String getTitle() {
 		return title;
 	}

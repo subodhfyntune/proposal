@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.ProposerDto;
 import com.example.demo.model.Proposer;
 import com.example.demo.service.ProposerService;
 
@@ -30,11 +31,11 @@ public class ProposerController {
 		super();
 		this.proposerService = proposerService;
 	}
-	@PostMapping("/registerProposer")
-	public ResponseEntity<Proposer>  registerProposer(@RequestBody Proposer proposer){
-		Proposer registeredPraposer =proposerService.registerProposer(proposer);
-		return new ResponseEntity<Proposer>(registeredPraposer,HttpStatus.OK);
-	}
+//	@PostMapping("/registerProposer")
+//	public ResponseEntity<Proposer>  registerProposer(@RequestBody Proposer proposer){
+//		Proposer registeredPraposer =proposerService.registerProposer(proposer);
+//		return new ResponseEntity<Proposer>(registeredPraposer,HttpStatus.OK);
+//	}
 	
 	@GetMapping("/get")
 	public ResponseEntity<List<Proposer>> getProposer(){
@@ -50,9 +51,25 @@ public class ProposerController {
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<?> deletePraposer(@PathVariable Long id) {
-		  proposerService.deleteProposer(id);
-		  return ResponseEntity.ok().build();
+	public ResponseEntity<?> deleteProposer(@PathVariable Long id) {
+	    proposerService.deleteProposer(id);
+	    // Returning a custom message in the response body
+	    return ResponseEntity.ok("Proposer with ID " + id + " has been successfully deleted.");
+	}
+
+	
+	@PostMapping("/registerwithDto")
+	public ResponseEntity<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto){
+		Proposer registeredPraposer = proposerService.registerProposer(proposerDto);
+		return new  ResponseEntity<Proposer>(registeredPraposer,HttpStatus.CREATED);
+	}
+	
+
+	@PutMapping("/updatewithDto/{id}")
+	public ResponseEntity<Proposer> updateProposer(@PathVariable Long id,@RequestBody ProposerDto updateProposer){
+		
+		Proposer updatedProposer =  proposerService.updateProposerUsingDto(id, updateProposer);
+		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
 	}
 	
 	
