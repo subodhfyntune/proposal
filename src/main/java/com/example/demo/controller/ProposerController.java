@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ProposerDto;
+
+import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.MaritalStatus;
@@ -75,12 +78,21 @@ public class ProposerController {
 	}
 
 	
+//	@PostMapping("/registerwithDto")
+//	public ResponseEntity<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto){
+//		Proposer registeredPraposer = proposerService.registerProposer(proposerDto);
+//		return new  ResponseEntity<>(registeredPraposer,HttpStatus.CREATED);
+//	}
 	@PostMapping("/registerwithDto")
-	public ResponseEntity<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto){
-		Proposer registeredPraposer = proposerService.registerProposer(proposerDto);
-		return new  ResponseEntity<Proposer>(registeredPraposer,HttpStatus.CREATED);
+	public ResponseEntity<ResponseHandler<Proposer>> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
+	    
+	    Proposer registeredProposer = proposerService.registerProposer(proposerDto);
+	    
+	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>("sucess", registeredProposer, "registred");
+		return new ResponseEntity<>(responseHandler,HttpStatus.OK);
+	    
 	}
-	
+
 
 	@PutMapping("/updatewithDto/{id}")
 	public ResponseEntity<Proposer> updateProposer(@PathVariable Long id,@RequestBody ProposerDto updateProposer){
