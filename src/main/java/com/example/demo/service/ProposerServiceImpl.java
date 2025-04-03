@@ -15,8 +15,6 @@ import com.example.demo.repository.ProposerRepository;
 public class ProposerServiceImpl implements ProposerService
 {
 
-    
-
 	private ProposerRepository proposerRepository;
 	@Autowired
 	public ProposerServiceImpl(ProposerRepository proposerRepository, HealthApplication healthApplication) {
@@ -87,6 +85,28 @@ public class ProposerServiceImpl implements ProposerService
 	@Override
 	public Proposer registerProposer(ProposerDto proposerDto) {
 		// TODO Auto-generated method stub
+		if(proposerDto.getFullName() == null || proposerDto.getFullName().isEmpty()) {
+			throw new RuntimeException("Enter the FullName");
+		}
+		if(proposerDto.getEmail() == null || !proposerDto.getEmail().contains("@")) {
+			throw new RuntimeException("Enter the Email");
+		}
+		if(proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 
+				 ) {
+			throw new RuntimeException("Enter the Mobile Number");
+		}
+		if(proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 
+				 ) {
+			throw new RuntimeException("Enter the Aadhar Number");
+		}
+		if(proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 
+				) {
+			throw new RuntimeException("Enter the Mobile Number");
+		}
+		if(proposerDto.getPincode() == null || proposerDto.getPincode().length() != 6 
+				) {
+			throw new RuntimeException("Enter the pincode");
+		} 
 		Proposer proposer = new Proposer();
 		proposer.setStatus('Y');
 		proposer.setTitle(proposerDto.getTitle());
