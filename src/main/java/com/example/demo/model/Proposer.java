@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 
 @Entity
@@ -18,20 +20,27 @@ public class Proposer {
 	private Long id;
 	@Column(name = "title")
 	private String title;
+	@NotBlank(message = "Please enter full name")
 	@Column(name = "full_Name")
 	private String fullName;
+	
 	@Column(name = "gender")
 	private String gender;
+	
 	@Column(name = "date_Of_Birth")
 	private String dateOfBirth;
+	@NotBlank(message = "Please enter Annual Income")
 	@Column(name = "annual_Income")
 	private String annualIncome;
+	@NotBlank(message = "Please enter Pan Number")
 	@Column(name = "panNumber")
 	private String panNumber;
+	@NotBlank(message = "Please enter Aadhar Number")
 	@Column(name = "aadhar_Number")
 	private String aadharNumber;
 	@Column(name = "marital_status")
 	private String maritalStatus;
+	@Email(message = "Plase enter correct email")
 	@Column(name = "email")
 	private String email;
 	@Column(name = "mobile_Number")

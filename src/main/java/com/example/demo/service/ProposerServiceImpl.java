@@ -85,28 +85,51 @@ public class ProposerServiceImpl implements ProposerService
 	@Override
 	public Proposer registerProposer(ProposerDto proposerDto) {
 		// TODO Auto-generated method stub
-		if(proposerDto.getFullName() == null || proposerDto.getFullName().isEmpty()) {
-			throw new RuntimeException("Enter the FullName");
+		if (proposerDto.getFullName() == null || proposerDto.getFullName().trim().isEmpty()) {
+		    throw new RuntimeException("Enter the Full Name");
 		}
-		if(proposerDto.getEmail() == null || !proposerDto.getEmail().contains("@")) {
-			throw new RuntimeException("Enter the Email");
+
+		if (proposerDto.getEmail() == null || proposerDto.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$\r\n"
+				+ "") ) {
+		    throw new RuntimeException("Enter a valid Email");
 		}
-		if(proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 
-				 ) {
-			throw new RuntimeException("Enter the Mobile Number");
+
+		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+")) {
+		    throw new RuntimeException("Enter a valid Mobile Number");
 		}
-		if(proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 
-				 ) {
-			throw new RuntimeException("Enter the Aadhar Number");
+//		
+		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$")) {
+		    throw new RuntimeException("Enter a valid PAN number");
 		}
-		if(proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 
-				) {
-			throw new RuntimeException("Enter the Mobile Number");
+
+		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+")) {
+		    throw new RuntimeException("Enter a valid Aadhar Number");
 		}
-		if(proposerDto.getPincode() == null || proposerDto.getPincode().length() != 6 
-				) {
-			throw new RuntimeException("Enter the pincode");
-		} 
+
+		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+		    throw new RuntimeException("Enter a valid Alternate Mobile Number");
+		}
+
+		if (proposerDto.getPincode() == null || proposerDto.getPincode().length() != 6 || !proposerDto.getPincode().matches("\\d+")) {
+		    throw new RuntimeException("Enter a valid Pincode");
+		}
+
+		if (proposerDto.getAnnualIncome() == null || proposerDto.getAnnualIncome().isEmpty() || !proposerDto.getAnnualIncome().matches("\\d+")) {
+		    throw new RuntimeException("Enter a valid Annual Income");
+		}
+
+		if (proposerDto.getAddressLine1() == null || proposerDto.getAddressLine1().trim().isEmpty()) {
+		    throw new RuntimeException("Enter Address Line 1");
+		}
+
+		if (proposerDto.getAddressLine2() == null || proposerDto.getAddressLine2().trim().isEmpty()) {
+		    throw new RuntimeException("Enter Address Line 2");
+		}
+
+		if (proposerDto.getAddressLine3() == null || proposerDto.getAddressLine3().trim().isEmpty()) {
+		    throw new RuntimeException("Enter Address Line 3");
+		}
+
 		Proposer proposer = new Proposer();
 		proposer.setStatus('Y');
 		proposer.setTitle(proposerDto.getTitle());
