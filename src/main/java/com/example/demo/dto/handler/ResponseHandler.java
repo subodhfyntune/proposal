@@ -11,6 +11,9 @@ public class ResponseHandler<T> {
 		this.data = data;
 		this.message = message;
 	}
+	public ResponseHandler() {
+		// TODO Auto-generated constructor stub
+	}
 	public String getStatus() {
 		return status;
 	}

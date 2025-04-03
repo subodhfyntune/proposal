@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,23 +84,71 @@ public class ProposerController {
 //		Proposer registeredPraposer = proposerService.registerProposer(proposerDto);
 //		return new  ResponseEntity<>(registeredPraposer,HttpStatus.CREATED);
 //	}
+//	@PostMapping("/registerwithDto")
+//	public ResponseEntity<ResponseHandler<Proposer>> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
+//	    
+//	    Proposer registeredProposer = proposerService.registerProposer(proposerDto);
+//	    
+//	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>("sucess", registeredProposer, "registred");
+//		return new ResponseEntity<>(responseHandler,HttpStatus.OK);
+//	    
+//	}
+	
 	@PostMapping("/registerwithDto")
-	public ResponseEntity<ResponseHandler<Proposer>> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
+	public ResponseHandler<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
+	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
 	    
-	    Proposer registeredProposer = proposerService.registerProposer(proposerDto);
+	    try {
+	        Proposer registeredProposer = proposerService.registerProposer(proposerDto);
+	        
+	        // Set fields in the response handler for success case
+	        responseHandler.setStatus("success");
+	        responseHandler.setData(registeredProposer);
+	        responseHandler.setMessage("Registered");
+	        
+	    } catch (Exception e) {
+	        // Set fields in the response handler for error case
+	    	e.printStackTrace();
+	        responseHandler.setStatus("Registration Failed");
+	        responseHandler.setData(null);
+	        responseHandler.setMessage(e.getMessage());
+	    }
 	    
-	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>("sucess", registeredProposer, "registred");
-		return new ResponseEntity<>(responseHandler,HttpStatus.OK);
-	    
+	    return responseHandler;
 	}
 
 
+
+//	@PutMapping("/updatewithDto/{id}")
+//	public ResponseEntity<Proposer> updateProposer(@PathVariable Long id,@RequestBody ProposerDto updateProposer){
+//		
+//		Proposer updatedProposer =  proposerService.updateProposerUsingDto(id, updateProposer);
+//		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
+//	}
+	
 	@PutMapping("/updatewithDto/{id}")
-	public ResponseEntity<Proposer> updateProposer(@PathVariable Long id,@RequestBody ProposerDto updateProposer){
-		
-		Proposer updatedProposer =  proposerService.updateProposerUsingDto(id, updateProposer);
-		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
+	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id, @RequestBody ProposerDto updateProposer) {
+	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
+	    
+	    try {
+	        Proposer updatedProposer = proposerService.updateProposerUsingDto(id, updateProposer);
+	        
+	        // Set fields in the response handler for success case
+	        responseHandler.setStatus("success");
+	        responseHandler.setData(updatedProposer);  // Set the updated proposer object
+	        responseHandler.setMessage("Proposer updated successfully");
+	        
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        // Set fields in the response handler for error case
+	        responseHandler.setStatus("failed to update proposal");
+	        responseHandler.setData(new ArrayList<>());  // Set an empty ArrayList on error
+	        responseHandler.setMessage(  e.getMessage());
+	    }
+	    
+	    return responseHandler;
 	}
+
 	
 	@GetMapping("/getOccupation")
 	public List<Occupation> getAllOcupations(){

@@ -94,19 +94,19 @@ public class ProposerServiceImpl implements ProposerService
 		    throw new RuntimeException("Enter a valid Email");
 		}
 
-		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+")) {
-		    throw new RuntimeException("Enter a valid Mobile Number");
+		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+") || proposerRepository.existsByMobileNumber(proposerDto.getMobileNumber())) {
+		    throw new IllegalArgumentException("Enter valid mobile no.");
 		}
-//		
-		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$")) {
+		
+		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || proposerRepository.existsByPanNumber(proposerDto.getPanNumber())) {
 		    throw new RuntimeException("Enter a valid PAN number");
 		}
 
-		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+")) {
+		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+") || proposerRepository.existsByAadharNumber(proposerDto.getAadharNumber())) {
 		    throw new RuntimeException("Enter a valid Aadhar Number");
 		}
 
-		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+") || proposerRepository.existsByAlternateMobileNumber(proposerDto.getAlternateMobileNumber())) {
 		    throw new RuntimeException("Enter a valid Alternate Mobile Number");
 		}
 
@@ -158,7 +158,9 @@ public class ProposerServiceImpl implements ProposerService
 	public Proposer updateProposerUsingDto(Long id, ProposerDto proposerDto) {
 		// TODO Auto-generated method stub
 		Optional<Proposer> getProposer = proposerRepository.findById(id);
-		
+		if(!getProposer.isPresent()) {
+			throw new IllegalArgumentException("invalid id");
+		}
 		 Proposer proposer = getProposer.get() ;
 	
 			proposer.setTitle(proposerDto.getTitle());
