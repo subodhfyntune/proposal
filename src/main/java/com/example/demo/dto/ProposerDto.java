@@ -1,14 +1,17 @@
 package com.example.demo.dto;
 
-
+import com.example.demo.model.Area;
+import com.example.demo.model.Gender;
+import com.example.demo.model.Title;
+import com.example.demo.model.Town;
 
 public class ProposerDto {
 	
-	private String title;
+	private Title title;
 	
 	private String fullName;
 	
-	private String gender;
+	private Gender gender;
 	
 	private String dateOfBirth;
 	
@@ -34,19 +37,19 @@ public class ProposerDto {
 	
 	private String pincode;
 	
-	private String area;
+	private Area area;
 	
-	private String town;
+	private Town town;
 
 	private String city;
 	
 	private String state;
-	
-	public String getTitle() {
+
+	public Title getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(Title title) {
 		this.title = title;
 	}
 
@@ -58,11 +61,11 @@ public class ProposerDto {
 		this.fullName = fullName;
 	}
 
-	public String getGender() {
+	public Gender getGender() {
 		return gender;
 	}
 
-	public void setGender(String gender) {
+	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 
@@ -162,19 +165,19 @@ public class ProposerDto {
 		this.pincode = pincode;
 	}
 
-	public String getArea() {
+	public Area getArea() {
 		return area;
 	}
 
-	public void setArea(String area) {
+	public void setArea(Area area) {
 		this.area = area;
 	}
 
-	public String getTown() {
+	public Town getTown() {
 		return town;
 	}
 
-	public void setTown(String town) {
+	public void setTown(Town town) {
 		this.town = town;
 	}
 
@@ -193,6 +196,5 @@ public class ProposerDto {
 	public void setState(String state) {
 		this.state = state;
 	}
-
 	
 }

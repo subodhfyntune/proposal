@@ -13,7 +13,7 @@ public interface ProposerService {
 	public Proposer deleteProposer(Long id);
 	
 	public Proposer registerProposer(ProposerDto proposerDto);
-	public Proposer updateProposerUsingDto(Long id ,ProposerDto proposerDto);
+	public Proposer updateProposerUsingDto(Long id  ,ProposerDto proposerDto);
 	
 	
 }

@@ -3,6 +3,8 @@ package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,29 +20,30 @@ public class Proposer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Enumerated(EnumType.STRING)
 	@Column(name = "title")
-	private String title;
-	@NotBlank(message = "Please enter full name")
+	private Title title;
+	
 	@Column(name = "full_Name")
 	private String fullName;
-	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "gender")
-	private String gender;
+	private Gender gender;
 	
 	@Column(name = "date_Of_Birth")
 	private String dateOfBirth;
-	@NotBlank(message = "Please enter Annual Income")
+	
 	@Column(name = "annual_Income")
 	private String annualIncome;
-	@NotBlank(message = "Please enter Pan Number")
+	
 	@Column(name = "panNumber")
 	private String panNumber;
-	@NotBlank(message = "Please enter Aadhar Number")
+	
 	@Column(name = "aadhar_Number")
 	private String aadharNumber;
 	@Column(name = "marital_status")
 	private String maritalStatus;
-	@Email(message = "Plase enter correct email")
+	
 	@Column(name = "email")
 	private String email;
 	@Column(name = "mobile_Number")
@@ -55,31 +58,62 @@ public class Proposer {
 	private String addressLine3;
 	@Column(name = "pincode")
 	private String pincode;
+	@Enumerated(EnumType.STRING)
 	@Column(name = "area")
-	private String area;
+	private Area area;
+	@Enumerated(EnumType.STRING)
 	@Column(name = "town" )
-	private String town;
+	private Town town;
 	@Column(name = "city")
 	private String city;
 	@Column(name = "state")
 	private String state;
-	private Character status ;
-	public Character getStatus() {
-		return status;
+	private char status ;
+	public Proposer() {
+		
 	}
-	public void setStatus(Character status) {
+	
+	
+	public Proposer(Long id, Title title, String fullName, Gender gender, String dateOfBirth, String annualIncome,
+			String panNumber, String aadharNumber, String maritalStatus,
+			 String email, String mobileNumber,
+			String alternateMobileNumber, String addressLine1, String addressLine2, String addressLine3, String pincode,
+			Area area, Town town, String city, String state, char status) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.fullName = fullName;
+		this.gender = gender;
+		this.dateOfBirth = dateOfBirth;
+		this.annualIncome = annualIncome;
+		this.panNumber = panNumber;
+		this.aadharNumber = aadharNumber;
+		this.maritalStatus = maritalStatus;
+		this.email = email;
+		this.mobileNumber = mobileNumber;
+		this.alternateMobileNumber = alternateMobileNumber;
+		this.addressLine1 = addressLine1;
+		this.addressLine2 = addressLine2;
+		this.addressLine3 = addressLine3;
+		this.pincode = pincode;
+		this.area = area;
+		this.town = town;
+		this.city = city;
+		this.state = state;
 		this.status = status;
 	}
+
+
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getTitle() {
+	public Title getTitle() {
 		return title;
 	}
-	public void setTitle(String title) {
+	public void setTitle(Title title) {
 		this.title = title;
 	}
 	public String getFullName() {
@@ -88,10 +122,10 @@ public class Proposer {
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
 	}
-	public String getGender() {
+	public Gender getGender() {
 		return gender;
 	}
-	public void setGender(String gender) {
+	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 	public String getDateOfBirth() {
@@ -166,16 +200,16 @@ public class Proposer {
 	public void setPincode(String pincode) {
 		this.pincode = pincode;
 	}
-	public String getArea() {
+	public Area getArea() {
 		return area;
 	}
-	public void setArea(String area) {
+	public void setArea(Area area) {
 		this.area = area;
 	}
-	public String getTown() {
+	public Town getTown() {
 		return town;
 	}
-	public void setTown(String town) {
+	public void setTown(Town town) {
 		this.town = town;
 	}
 	public String getCity() {
@@ -190,10 +224,11 @@ public class Proposer {
 	public void setState(String state) {
 		this.state = state;
 	}
-	
-	
-	
-	
-	
+	public char getStatus() {
+		return status;
+	}
+	public void setStatus(char status) {
+		this.status = status;
+	}
 	
 }

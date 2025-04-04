@@ -3,6 +3,9 @@ package com.example.demo.repository;
 
 
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +24,8 @@ public interface ProposerRepository extends JpaRepository<Proposer, Long> {
 	 boolean existsByMobileNumber(String mobileNumber);
 	 
 	 boolean existsByAlternateMobileNumber(String alternateMobileNumber);
+	 
+	 List<Proposer> findByStatus(char status);
+	 
+	 Optional<Proposer> findByIdAndStatus(Long id, char status);
 }

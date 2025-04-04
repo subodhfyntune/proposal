@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ProposerDto;
@@ -36,7 +35,7 @@ import com.example.demo.model.Town;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
 
-import jakarta.persistence.Id;
+
 
 @RestController
 @RequestMapping("/api")
@@ -59,23 +58,58 @@ public class ProposerController {
 //	}
 	
 	@GetMapping("/get")
-	public ResponseEntity<List<Proposer>> getProposer(){
-		List<Proposer>allProposers =proposerService.getAllProposer();
-		return new ResponseEntity<List<Proposer>>(allProposers,HttpStatus.OK);
+	public ResponseHandler<List<Proposer>> getProposer(){
+		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
+		try {
+			List<Proposer>allProposers =proposerService.getAllProposer();
+			 responseHandler.setStatus("success");
+		        responseHandler.setData(allProposers);
+		        responseHandler.setMessage("get all Proposer data");
+		        
+		} catch (Exception e) {
+			e.printStackTrace();
+	        responseHandler.setStatus("Registration Failed");
+	        responseHandler.setData(new ArrayList<>());
+	        responseHandler.setMessage(e.getMessage());
+		}
+		return responseHandler;	
+		
 	}
 	
 	@PutMapping("/update/{id}")
-	public ResponseEntity<Proposer> updateProposer(@PathVariable Long id,@RequestBody Proposer updateProposer){
+	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id,@RequestBody Proposer updateProposer){
+		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
+		try {
+			Proposer updatedProposer =  proposerService.updateProposer(id, updateProposer);
+			 responseHandler.setStatus("success");
+	        responseHandler.setData(updatedProposer);
+	        responseHandler.setMessage("Updated Successfull");
+		} catch (Exception e) {
+			e.printStackTrace();
+	        responseHandler.setStatus("Update Failed");
+	        responseHandler.setData(new ArrayList<>());
+	        responseHandler.setMessage(e.getMessage());
+		}
 		
-		Proposer updatedProposer =  proposerService.updateProposer(id, updateProposer);
-		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
+		return responseHandler;
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<?> deleteProposer(@PathVariable Long id) {
-	    proposerService.deleteProposer(id);
+	public ResponseHandler<?> deleteProposer(@PathVariable Long id) {
+		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
+		try {
+			 proposerService.deleteProposer(id);
+			 responseHandler.setStatus("success");
+		        responseHandler.setData(null);
+		        responseHandler.setMessage("Proposer with ID " + id + " has been successfully deleted.");
+		} catch (Exception e) {
+			e.printStackTrace();
+	        responseHandler.setStatus("delete Failed");
+	        responseHandler.setData(new ArrayList<>());
+	        responseHandler.setMessage(e.getMessage());
+		}
+		return responseHandler;
 	    
-	    return ResponseEntity.ok("Proposer with ID " + id + " has been successfully deleted.");
 	}
 
 	
@@ -101,13 +135,13 @@ public class ProposerController {
 	    try {
 	        Proposer registeredProposer = proposerService.registerProposer(proposerDto);
 	        
-	        // Set fields in the response handler for success case
+	        
 	        responseHandler.setStatus("success");
 	        responseHandler.setData(registeredProposer);
 	        responseHandler.setMessage("Registered");
 	        
 	    } catch (Exception e) {
-	        // Set fields in the response handler for error case
+	        
 	    	e.printStackTrace();
 	        responseHandler.setStatus("Registration Failed");
 	        responseHandler.setData(null);
@@ -133,17 +167,16 @@ public class ProposerController {
 	    try {
 	        Proposer updatedProposer = proposerService.updateProposerUsingDto(id, updateProposer);
 	        
-	        // Set fields in the response handler for success case
 	        responseHandler.setStatus("success");
-	        responseHandler.setData(updatedProposer);  // Set the updated proposer object
+	        responseHandler.setData(updatedProposer);  
 	        responseHandler.setMessage("Proposer updated successfully");
 	        
 	    } catch (Exception e) {
 	    	e.printStackTrace();
-	        // Set fields in the response handler for error case
+	        
 	        responseHandler.setStatus("failed to update proposal");
-	        responseHandler.setData(new ArrayList<>());  // Set an empty ArrayList on error
-	        responseHandler.setMessage(  e.getMessage());
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
 	    }
 	    
 	    return responseHandler;
@@ -151,38 +184,130 @@ public class ProposerController {
 
 	
 	@GetMapping("/getOccupation")
-	public List<Occupation> getAllOcupations(){
-		return
-				Arrays.asList(Occupation.values());
+	public ResponseHandler<List<Occupation>> getAllOccupations() {
+	    ResponseHandler<List<Occupation>> responseHandler = new ResponseHandler<>();
+	    try {
+	        
+	        responseHandler.setStatus("success");
+	        responseHandler.setData(Arrays.asList(Occupation.values()));
+	        return responseHandler;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        responseHandler.setStatus("failed to get occupation");
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
+	        return responseHandler;
+	    }
 	}
+
 	
 	@GetMapping("/getGender")
-	public List<Gender> getAllGender(){
-		return
-				Arrays.asList(Gender.values());
+	public ResponseHandler<List<Gender>> getAllGender() {
+	    ResponseHandler<List<Gender>> responseHandler = new ResponseHandler<>();
+	    try {
+	        
+	        responseHandler.setStatus("success");
+	        responseHandler.setData(Arrays.asList(Gender.values()));
+	        return responseHandler;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        responseHandler.setStatus("failed to get Gender");
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
+	        return responseHandler;
+	    }
 	}
 	
 	@GetMapping("/getMaritalStatus")
-	public List<MaritalStatus> getAllMaritalStatus(){
-		return
-				Arrays.asList(MaritalStatus.values());
+	public ResponseHandler<List<MaritalStatus>> getAllMaritalStatus(){
+		ResponseHandler<List<MaritalStatus>> responseHandler = new ResponseHandler<>();
+		try {
+	        
+	        responseHandler.setStatus("success");
+	        responseHandler.setData(Arrays.asList(MaritalStatus.values()));
+	        return responseHandler;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        responseHandler.setStatus("failed to get Marital Status");
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
+	        return responseHandler;
+	    }
 	}
+	
 	@GetMapping("/getNationality")
-	public List<Nationality> getAllNationality(){
-		return Arrays.asList(Nationality.values());
+	public ResponseHandler<List<Nationality>>  getAllNationality(){
+		ResponseHandler<List<Nationality>> responseHandler = new ResponseHandler<>();
+		
+		try {
+			 	responseHandler.setStatus("success");
+		        responseHandler.setData(Arrays.asList(Nationality.values()));
+		        return responseHandler;
+		} catch (Exception e) {
+			e.printStackTrace();
+	        responseHandler.setStatus("failed to get Nationality");
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
+	        return responseHandler;
+		}
+		
 	}
 	
 	@GetMapping("/getTitle")
-	public List<Title> getAllTitle(){
-		return Arrays.asList(Title.values());
+	public ResponseHandler<List<Title>>  getAllTitle(){
+		ResponseHandler<List<Title>> responseHandler = new ResponseHandler<>();
+		
+		try {
+			 	responseHandler.setStatus("success");
+		        responseHandler.setData(Arrays.asList(Title.values()));
+		        return responseHandler;
+		} catch (Exception e) {
+			e.printStackTrace();
+	        responseHandler.setStatus("failed to get Title");
+	        responseHandler.setData(new ArrayList<>());  
+	        responseHandler.setMessage(e.getMessage());
+	        return responseHandler;
+		}
 	}
+
 	@GetMapping("/getTown")
-	public List<Town> getAllTown(){
-		return Arrays.asList(Town.values());
+	public ResponseHandler<List<Town>> getAllTown() {
+		ResponseHandler<List<Town>> responseHandler = new ResponseHandler<>();
+		try {
+			responseHandler.setStatus("success");
+			responseHandler.setData(Arrays.asList(Town.values()));
+			return responseHandler;
+
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			responseHandler.setStatus("failed to get town");
+			responseHandler.setData(new ArrayList<>());
+			responseHandler.setMessage(e.getMessage());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseHandler.setStatus("failed to get town");
+			responseHandler.setData(new ArrayList<>());
+			responseHandler.setMessage(e.getMessage());
+
+		}
+		return responseHandler;
 	}
 	@GetMapping("/getArea")
-	public List<Area> getAllArea(){
-		return Arrays.asList(Area.values());
+	public ResponseHandler<List<Area>> getAllArea(){
+		ResponseHandler<List<Area>> responseHandler = new ResponseHandler<>();
+		try {
+			responseHandler.setStatus("success");
+			responseHandler.setData(Arrays.asList(Area.values()));
+			return responseHandler;
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseHandler.setStatus("failed to get status");
+			responseHandler.setData(new ArrayList<>());
+			responseHandler.setMessage(e.getMessage());
+			return responseHandler;
+		}
+		
 	}
 	
 	@GetMapping("/pagination/{name}")

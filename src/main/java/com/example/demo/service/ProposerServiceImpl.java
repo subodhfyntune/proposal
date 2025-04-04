@@ -14,14 +14,9 @@ import com.example.demo.repository.ProposerRepository;
 @Service
 public class ProposerServiceImpl implements ProposerService
 {
-
-	private ProposerRepository proposerRepository;
 	@Autowired
-	public ProposerServiceImpl(ProposerRepository proposerRepository, HealthApplication healthApplication) {
-		super();
-		this.proposerRepository = proposerRepository;
-		
-	}
+	private ProposerRepository proposerRepository;
+	
 
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
@@ -32,7 +27,7 @@ public class ProposerServiceImpl implements ProposerService
 
 	@Override
 	public List<Proposer> getAllProposer() {
-		List<Proposer> proposers = proposerRepository.findAll();
+		List<Proposer> proposers = proposerRepository.findByStatus('Y');
 		return proposers;
 	}
 
@@ -86,49 +81,51 @@ public class ProposerServiceImpl implements ProposerService
 	public Proposer registerProposer(ProposerDto proposerDto) {
 		// TODO Auto-generated method stub
 		if (proposerDto.getFullName() == null || proposerDto.getFullName().trim().isEmpty()) {
-		    throw new RuntimeException("Enter the Full Name");
+		    throw new IllegalArgumentException("Enter the Full Name");
 		}
 
 		if (proposerDto.getEmail() == null || proposerDto.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$\r\n"
 				+ "") ) {
-		    throw new RuntimeException("Enter a valid Email");
+		    throw new IllegalArgumentException("Enter a valid Email");
 		}
 
-		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+") || proposerRepository.existsByMobileNumber(proposerDto.getMobileNumber())) {
+		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+") ) {
 		    throw new IllegalArgumentException("Enter valid mobile no.");
 		}
-		
-		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || proposerRepository.existsByPanNumber(proposerDto.getPanNumber())) {
-		    throw new RuntimeException("Enter a valid PAN number");
+		boolean pan = proposerRepository.existsByPanNumber(proposerDto.getPanNumber());
+		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan) {
+		    throw new IllegalArgumentException("Enter a valid PAN number");
+		}
+		boolean aadhar =proposerRepository.existsByAadharNumber(proposerDto.getAadharNumber());
+		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+") || aadhar ) {
+		    throw new IllegalArgumentException("Enter a valid Aadhar Number");
 		}
 
-		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+") || proposerRepository.existsByAadharNumber(proposerDto.getAadharNumber())) {
-		    throw new RuntimeException("Enter a valid Aadhar Number");
-		}
-
-		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+") || proposerRepository.existsByAlternateMobileNumber(proposerDto.getAlternateMobileNumber())) {
-		    throw new RuntimeException("Enter a valid Alternate Mobile Number");
+		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+		    throw new IllegalArgumentException("Enter a valid Alternate Mobile Number");
 		}
 
 		if (proposerDto.getPincode() == null || proposerDto.getPincode().length() != 6 || !proposerDto.getPincode().matches("\\d+")) {
-		    throw new RuntimeException("Enter a valid Pincode");
+		    throw new IllegalArgumentException("Enter a valid Pincode");
 		}
 
 		if (proposerDto.getAnnualIncome() == null || proposerDto.getAnnualIncome().isEmpty() || !proposerDto.getAnnualIncome().matches("\\d+")) {
-		    throw new RuntimeException("Enter a valid Annual Income");
+		    throw new IllegalArgumentException("Enter a valid Annual Income");
 		}
 
 		if (proposerDto.getAddressLine1() == null || proposerDto.getAddressLine1().trim().isEmpty()) {
-		    throw new RuntimeException("Enter Address Line 1");
+		    throw new IllegalArgumentException("Enter Address Line 1");
 		}
 
 		if (proposerDto.getAddressLine2() == null || proposerDto.getAddressLine2().trim().isEmpty()) {
-		    throw new RuntimeException("Enter Address Line 2");
+		    throw new IllegalArgumentException("Enter Address Line 2");
 		}
 
 		if (proposerDto.getAddressLine3() == null || proposerDto.getAddressLine3().trim().isEmpty()) {
-		    throw new RuntimeException("Enter Address Line 3");
+		    throw new IllegalArgumentException("Enter Address Line 3");
 		}
+		
+		
 
 		Proposer proposer = new Proposer();
 		proposer.setStatus('Y');
@@ -151,15 +148,59 @@ public class ProposerServiceImpl implements ProposerService
 		proposer.setTown(proposerDto.getTown());
 		proposer.setCity(proposerDto.getCity());
 		proposer.setState(proposerDto.getState());
-		return proposerRepository.save(proposer);
+		proposerRepository.save(proposer);
+		
+		return proposer;
 	}
 
 	@Override
 	public Proposer updateProposerUsingDto(Long id, ProposerDto proposerDto) {
 		// TODO Auto-generated method stub
-		Optional<Proposer> getProposer = proposerRepository.findById(id);
-		if(!getProposer.isPresent()) {
-			throw new IllegalArgumentException("invalid id");
+		Optional<Proposer> getProposer = proposerRepository.findByIdAndStatus(id,'Y');
+		
+		if (proposerDto.getFullName() == null || proposerDto.getFullName().trim().isEmpty()) {
+		    throw new IllegalArgumentException("Enter the Full Name");
+		}
+
+		if (proposerDto.getEmail() == null || proposerDto.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$\r\n"
+				+ "") ) {
+		    throw new IllegalArgumentException("Enter a valid Email");
+		}
+
+		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+") ) {
+		    throw new IllegalArgumentException("Enter valid mobile no.");
+		}
+		boolean pan =proposerRepository.existsByPanNumber(proposerDto.getPanNumber());
+		if (proposerDto.getPanNumber() == null || proposerDto.getPanNumber().length() != 10 || !proposerDto.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan  ) {
+		    throw new IllegalArgumentException("Enter a valid PAN number");
+		}
+		boolean aadhar = proposerRepository.existsByAadharNumber(proposerDto.getAadharNumber());
+		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+") || aadhar  ) {
+		    throw new IllegalArgumentException("Enter a valid Aadhar Number");
+		}
+
+		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10 || !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+		    throw new IllegalArgumentException("Enter a valid Alternate Mobile Number");
+		}
+
+		if (proposerDto.getPincode() == null || proposerDto.getPincode().length() != 6 || !proposerDto.getPincode().matches("\\d+")) {
+		    throw new IllegalArgumentException("Enter a valid Pincode");
+		}
+
+		if (proposerDto.getAnnualIncome() == null || proposerDto.getAnnualIncome().isEmpty() || !proposerDto.getAnnualIncome().matches("\\d+")) {
+		    throw new IllegalArgumentException("Enter a valid Annual Income");
+		}
+
+		if (proposerDto.getAddressLine1() == null || proposerDto.getAddressLine1().trim().isEmpty()) {
+		    throw new IllegalArgumentException("Enter Address Line 1");
+		}
+
+		if (proposerDto.getAddressLine2() == null || proposerDto.getAddressLine2().trim().isEmpty()) {
+		    throw new IllegalArgumentException("Enter Address Line 2");
+		}
+
+		if (proposerDto.getAddressLine3() == null || proposerDto.getAddressLine3().trim().isEmpty()) {
+		    throw new IllegalArgumentException("Enter Address Line 3");
 		}
 		 Proposer proposer = getProposer.get() ;
 	
