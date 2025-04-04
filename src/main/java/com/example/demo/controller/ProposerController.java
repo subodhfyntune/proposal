@@ -140,12 +140,18 @@ public class ProposerController {
 	        responseHandler.setData(registeredProposer);
 	        responseHandler.setMessage("Registered");
 	        
-	    } catch (Exception e) {
+	    }catch (IllegalArgumentException e) {
 	        
 	    	e.printStackTrace();
 	        responseHandler.setStatus("Registration Failed");
 	        responseHandler.setData(null);
 	        responseHandler.setMessage(e.getMessage());
+	    } catch (Exception e) {
+	        
+	    	e.printStackTrace();
+	        responseHandler.setStatus("Registration Failed");
+	        responseHandler.setData(null);
+	        responseHandler.setMessage("failed");
 	    }
 	    
 	    return responseHandler;
@@ -171,12 +177,18 @@ public class ProposerController {
 	        responseHandler.setData(updatedProposer);  
 	        responseHandler.setMessage("Proposer updated successfully");
 	        
+	    }catch (IllegalArgumentException e) {
+	        
+	    	e.printStackTrace();
+	        responseHandler.setStatus("update Failed");
+	        responseHandler.setData(null);
+	        responseHandler.setMessage(e.getMessage());
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	        
 	        responseHandler.setStatus("failed to update proposal");
 	        responseHandler.setData(new ArrayList<>());  
-	        responseHandler.setMessage(e.getMessage());
+	        responseHandler.setMessage("failed to update");
 	    }
 	    
 	    return responseHandler;
@@ -191,13 +203,20 @@ public class ProposerController {
 	        responseHandler.setStatus("success");
 	        responseHandler.setData(Arrays.asList(Occupation.values()));
 	        return responseHandler;
+	    }catch (IllegalArgumentException e) {
+	        
+	    	e.printStackTrace();
+	        responseHandler.setStatus("occupation Failed");
+	        responseHandler.setData(null);
+	        responseHandler.setMessage(e.getMessage());
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        responseHandler.setStatus("failed to get occupation");
 	        responseHandler.setData(new ArrayList<>());  
-	        responseHandler.setMessage(e.getMessage());
+	        responseHandler.setMessage("occupation failed");
 	        return responseHandler;
 	    }
+		return responseHandler;
 	}
 
 	
@@ -209,13 +228,20 @@ public class ProposerController {
 	        responseHandler.setStatus("success");
 	        responseHandler.setData(Arrays.asList(Gender.values()));
 	        return responseHandler;
+	    }catch (IllegalArgumentException e) {
+	        
+	    	e.printStackTrace();
+	        responseHandler.setStatus("failed to get Gender");
+	        responseHandler.setData(null);
+	        responseHandler.setMessage(e.getMessage());
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        responseHandler.setStatus("failed to get Gender");
 	        responseHandler.setData(new ArrayList<>());  
-	        responseHandler.setMessage(e.getMessage());
+	        responseHandler.setMessage("failed to get Gender");
 	        return responseHandler;
 	    }
+		return responseHandler;
 	}
 	
 	@GetMapping("/getMaritalStatus")

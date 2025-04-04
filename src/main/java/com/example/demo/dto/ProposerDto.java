@@ -11,7 +11,7 @@ public class ProposerDto {
 	
 	private String fullName;
 	
-	private Gender gender;
+	private String gender;
 	
 	private String dateOfBirth;
 	
@@ -61,11 +61,11 @@ public class ProposerDto {
 		this.fullName = fullName;
 	}
 
-	public Gender getGender() {
+	public String getGender() {
 		return gender;
 	}
 
-	public void setGender(Gender gender) {
+	public void setGender(String gender) {
 		this.gender = gender;
 	}
 

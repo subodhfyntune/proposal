@@ -125,8 +125,8 @@ public class Proposer {
 	public Gender getGender() {
 		return gender;
 	}
-	public void setGender(Gender gender) {
-		this.gender = gender;
+	public void setGender(Gender string) {
+		this.gender = string;
 	}
 	public String getDateOfBirth() {
 		return dateOfBirth;
