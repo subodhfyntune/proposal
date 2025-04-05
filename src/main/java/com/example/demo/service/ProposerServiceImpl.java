@@ -142,11 +142,11 @@ public class ProposerServiceImpl implements ProposerService
 		
 		 String gender =  proposerDto.getGender();
 		    if(gender != null && !gender.isEmpty()) {
-		    	if("MALE".equalsIgnoreCase(Gender.MALE.toString())) {
+		    	if(gender.equalsIgnoreCase(Gender.MALE.toString())) {
 		    		proposer.setGender(Gender.MALE);
-		    	}else if( gender.equalsIgnoreCase("FEMALE")) {
+		    	}else if( gender.equalsIgnoreCase(Gender.FEMALE.toString())) {
 		    		proposer.setGender(Gender.FEMALE);
-		    	}else if( gender.equalsIgnoreCase("OTHER")) {
+		    	}else if( gender.equalsIgnoreCase(Gender.OTHER.toString())) {
 		    		proposer.setGender(Gender.OTHER);
 		    	}else {
 		    		throw new IllegalArgumentException("enter corrrect gender");
@@ -357,11 +357,11 @@ public class ProposerServiceImpl implements ProposerService
 	    
 	    String gender =  proposerDto.getGender();
 	    if(gender != null && !gender.isEmpty()) {
-	    	if("MALE".equalsIgnoreCase(Gender.MALE.toString())) {
+	    	if(gender.equalsIgnoreCase(Gender.MALE.toString())) {
 	    		proposer.setGender(Gender.MALE);
-	    	}else if( gender.equalsIgnoreCase("FEMALE")) {
+	    	}else if( gender.equalsIgnoreCase(Gender.FEMALE.toString())) {
 	    		proposer.setGender(Gender.FEMALE);
-	    	}else if( gender.equalsIgnoreCase("OTHER")) {
+	    	}else if( gender.equalsIgnoreCase(Gender.OTHER.toString())) {
 	    		proposer.setGender(Gender.OTHER);
 	    	}else {
 	    		throw new IllegalArgumentException("enter corrrect gender");

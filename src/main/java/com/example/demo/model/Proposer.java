@@ -26,6 +26,7 @@ public class Proposer {
 	
 	@Column(name = "full_Name")
 	private String fullName;
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "gender")
 	private Gender gender;
