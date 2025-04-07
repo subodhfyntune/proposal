@@ -11,7 +11,14 @@ import com.example.demo.dto.ProposerDto;
 import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Gender;
 import com.example.demo.model.Proposer;
+import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 @Service
 public class ProposerServiceImpl implements ProposerService
@@ -380,5 +387,39 @@ public class ProposerServiceImpl implements ProposerService
 	   
 	    return proposerRepository.save(proposer);
 	}
+
+	@Autowired
+	private EntityManager entityManager;
+
+	@Override
+	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+		Root<Proposer> root = criteriaQuery.from(Proposer.class);
+
+		if (proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null) {
+			String sortBy = proposerPage.getSortBy();
+			if ("ASC".equalsIgnoreCase(proposerPage.getSortBy())) {
+				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+			} else {
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+			}
+		}
+
+		if (proposerPage.getPageNumber() <= 0 && proposerPage.getPageSize() <= 0) {
+			return entityManager.createQuery(criteriaQuery).getResultList();
+		} else {
+			Integer size = proposerPage.getPageSize();
+			Integer page = proposerPage.getPageNumber();
+
+			TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+			typedQuery.setFirstResult((page - 1) * size);
+			typedQuery.setMaxResults(size);
+			return typedQuery.getResultList();
+
+		}
 	}
+
+
+}
 

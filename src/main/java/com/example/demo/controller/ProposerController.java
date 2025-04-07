@@ -31,6 +31,7 @@ import com.example.demo.model.Occupation;
 import com.example.demo.model.Proposer;
 import com.example.demo.model.Title;
 import com.example.demo.model.Town;
+import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
 
@@ -342,7 +343,32 @@ public class ProposerController {
 		return proposerRepository.findByFullName(name,PageRequest.of(page, size));
 	}
 	
-	
-	
+	@PostMapping("/getbyPageAndSize")
+	public ResponseHandler<List<Proposer>> getAllBysortingAndPagination(@RequestBody ProposerPage proposerPage){
+	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
+	    try {
+	        // Fetch proposers using pagination and sorting
+	        List<Proposer> proposers = proposerService.getAllProposersByPagingAndSorting(proposerPage);
+
+	        if (proposers.isEmpty()) {
+	            responseHandler.setStatus("no records found");
+	            responseHandler.setData(new ArrayList<>());
+	            responseHandler.setMessage("No proposers found matching the criteria");
+	        } else {
+	            responseHandler.setStatus("success");
+	            responseHandler.setData(proposers);
+	            responseHandler.setMessage("Proposers fetched successfully");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        responseHandler.setStatus("error");
+	        responseHandler.setData(new ArrayList<>());
+	        responseHandler.setMessage("An error occurred while fetching details");
+	    }
+	    return responseHandler;
+	}
+
+		
+
 	
 }

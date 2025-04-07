@@ -1,6 +1,11 @@
 package com.example.demo.model;
 
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -70,16 +75,43 @@ public class Proposer {
 	@Column(name = "state")
 	private String state;
 	private char status ;
+	@CreationTimestamp
+	@Column(name = "created-At")
+	private LocalDateTime createAt;
+	@UpdateTimestamp
+	@Column(name = "updated-At")
+	private LocalDateTime updatedAt;
+	public LocalDateTime getCreateAt() {
+		return createAt;
+	}
+
+
+	public void setCreateAt(LocalDateTime createAt) {
+		this.createAt = createAt;
+	}
+
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+	
 	public Proposer() {
 		
 	}
 	
 	
+	
+
 	public Proposer(Long id, Title title, String fullName, Gender gender, String dateOfBirth, String annualIncome,
-			String panNumber, String aadharNumber, String maritalStatus,
-			 String email, String mobileNumber,
+			String panNumber, String aadharNumber, String maritalStatus, String email, String mobileNumber,
 			String alternateMobileNumber, String addressLine1, String addressLine2, String addressLine3, String pincode,
-			Area area, Town town, String city, String state, char status) {
+			Area area, Town town, String city, String state, char status, LocalDateTime createAt,
+			LocalDateTime updatedAt) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -102,6 +134,8 @@ public class Proposer {
 		this.city = city;
 		this.state = state;
 		this.status = status;
+		this.createAt = createAt;
+		this.updatedAt = updatedAt;
 	}
 
 
