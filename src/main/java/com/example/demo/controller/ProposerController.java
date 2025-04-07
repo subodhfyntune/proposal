@@ -347,7 +347,7 @@ public class ProposerController {
 	public ResponseHandler<List<Proposer>> getAllBysortingAndPagination(@RequestBody ProposerPage proposerPage){
 	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 	    try {
-	        // Fetch proposers using pagination and sorting
+	        
 	        List<Proposer> proposers = proposerService.getAllProposersByPagingAndSorting(proposerPage);
 
 	        if (proposers.isEmpty()) {
@@ -359,6 +359,12 @@ public class ProposerController {
 	            responseHandler.setData(proposers);
 	            responseHandler.setMessage("Proposers fetched successfully");
 	        }
+	    }catch (IllegalArgumentException e) {
+	        
+	    	e.printStackTrace();
+	        responseHandler.setStatus("Failed");
+	        responseHandler.setData(new ArrayList<>());
+	        responseHandler.setMessage(e.getMessage());
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        responseHandler.setStatus("error");

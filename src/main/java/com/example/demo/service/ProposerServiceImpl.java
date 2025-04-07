@@ -396,17 +396,26 @@ public class ProposerServiceImpl implements ProposerService
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
 		Root<Proposer> root = criteriaQuery.from(Proposer.class);
-
+		
+//		if(proposerPage.getPageNumber() == 0 && proposerPage.getPageSize() == 0) {
+//			if (proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null) {
+//				proposerPage.setSortBy("id");
+//				proposerPage.setSortOrder("DESC");
+//			}else {
+//				throw new IllegalArgumentException();
+//			}
+//		}else {
 		if (proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null) {
 			String sortBy = proposerPage.getSortBy();
-			if ("ASC".equalsIgnoreCase(proposerPage.getSortBy())) {
+			if ("ASC".equalsIgnoreCase(proposerPage.getSortOrder())) {
 				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
 			} else {
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
 			}
 		}
-
+//		}
 		if (proposerPage.getPageNumber() <= 0 && proposerPage.getPageSize() <= 0) {
+			
 			return entityManager.createQuery(criteriaQuery).getResultList();
 		} else {
 			Integer size = proposerPage.getPageSize();
