@@ -12,6 +12,7 @@ import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Gender;
 import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
+import com.example.demo.pagination.SearchFilter;
 import com.example.demo.repository.ProposerRepository;
 
 import jakarta.persistence.EntityManager;
@@ -429,11 +430,68 @@ public class ProposerServiceImpl implements ProposerService {
 //	}
 //	
 
+	
+	//  working 
 	@Override
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
 		Root<Proposer> root = criteriaQuery.from(Proposer.class);
+		if (proposerPage.getPageNumber() >= 0 && proposerPage.getPageSize() >= 0) {
+			if (proposerPage.getSortBy() == null || proposerPage.getSortOrder().isEmpty()) {
+				proposerPage.setSortBy("id");
+				proposerPage.setSortOrder("DESC");
+			}
+
+		} else {
+			throw new IllegalArgumentException("Error occured");
+		}
+		if (proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null) {
+			String sortBy = proposerPage.getSortBy();
+			if ("ASC".equalsIgnoreCase(proposerPage.getSortOrder())) {
+				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+			} else {
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+			}
+		}
+
+		if (proposerPage.getPageNumber() <= 0 && proposerPage.getPageSize() <= 0) {
+			return entityManager.createQuery(criteriaQuery).getResultList();
+		} else {
+
+			Integer size = proposerPage.getPageSize();
+			Integer page = proposerPage.getPageNumber();
+
+			TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+			typedQuery.setFirstResult((page - 1) * size);
+			typedQuery.setMaxResults(size);
+			return typedQuery.getResultList();
+		}
+	}
+
+	@Override
+	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+		Root<Proposer> root = criteriaQuery.from(Proposer.class);
+		
+		SearchFilter[] searchFilters = proposerPage.getSearchFilters();
+		
+		if(searchFilters != null) {
+			for(SearchFilter filter : searchFilters) {
+				if(filter.getFullName() != null && !filter.getFullName().isEmpty()) {
+					criteriaQuery.where(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName() + "%"));
+				}
+				if(filter.getEmail() != null && !filter.getEmail().isEmpty()) {
+					criteriaQuery.where(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail() + "%"));
+				}if(filter.getCity() != null && !filter.getCity().isEmpty()) {
+					criteriaQuery.where(criteriaBuilder.like(root.get("city"), "%" + filter.getCity() + "%"));
+				}if(filter.getStatus() != null ) {
+					criteriaQuery.where(criteriaBuilder.equal(root.get("status"),  filter.getStatus() ));
+				}
+				
+			}
+		}
 		if (proposerPage.getPageNumber() >= 0 && proposerPage.getPageSize() >= 0) {
 			if (proposerPage.getSortBy() == null || proposerPage.getSortOrder().isEmpty()) {
 				proposerPage.setSortBy("id");

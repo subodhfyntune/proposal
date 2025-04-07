@@ -6,6 +6,15 @@ public class ProposerPage {
 	private Integer pageSize;
 	private String sortOrder; //asc
 	private String sortBy ; //fullname
+	private SearchFilter [] searchFilters;
+
+	public SearchFilter[] getSearchFilters() {
+		return searchFilters;
+	}
+
+	public void setSearchFilters(SearchFilter[] searchFilters) {
+		this.searchFilters = searchFilters;
+	}
 
 	public Integer getPageNumber() {
 		return pageNumber;

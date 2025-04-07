@@ -17,6 +17,7 @@ public interface ProposerService {
 	public Proposer updateProposerUsingDto(Long id  ,ProposerDto proposerDto);
 	
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage);
+	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage);
 	
 	
 }

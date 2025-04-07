@@ -74,7 +74,7 @@ public class Proposer {
 	private String city;
 	@Column(name = "state")
 	private String state;
-	private char status ;
+	private Character status ;
 	@CreationTimestamp
 	@Column(name = "created-At")
 	private LocalDateTime createAt;
