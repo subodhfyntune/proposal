@@ -65,6 +65,7 @@ public class ProposerController {
 			 responseHandler.setStatus("success");
 		        responseHandler.setData(allProposers);
 		        responseHandler.setMessage("get all Proposer data");
+		        responseHandler.setTotalCount(proposerRepository.count());
 		        
 		} catch (Exception e) {
 			e.printStackTrace();

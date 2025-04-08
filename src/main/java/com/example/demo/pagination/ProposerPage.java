@@ -1,18 +1,23 @@
 package com.example.demo.pagination;
 
+import java.util.List;
+
 public class ProposerPage {
 
 	private Integer pageNumber;
 	private Integer pageSize;
 	private String sortOrder; //asc
 	private String sortBy ; //fullname
-	private SearchFilter [] searchFilters;
+	private List<SearchFilter> searchFilters;
 
-	public SearchFilter[] getSearchFilters() {
+	
+	
+
+	public List<SearchFilter> getSearchFilters() {
 		return searchFilters;
 	}
 
-	public void setSearchFilters(SearchFilter[] searchFilters) {
+	public void setSearchFilters(List<SearchFilter> searchFilters) {
 		this.searchFilters = searchFilters;
 	}
 

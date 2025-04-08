@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.HealthApplication;
@@ -471,57 +473,58 @@ public class ProposerServiceImpl implements ProposerService {
 
 	@Override
 	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage) {
-		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
-		Root<Proposer> root = criteriaQuery.from(Proposer.class);
-		
-		SearchFilter[] searchFilters = proposerPage.getSearchFilters();
-		
-		if(searchFilters != null) {
-			for(SearchFilter filter : searchFilters) {
-				if(filter.getFullName() != null && !filter.getFullName().isEmpty()) {
-					criteriaQuery.where(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName() + "%"));
-				}
-				if(filter.getEmail() != null && !filter.getEmail().isEmpty()) {
-					criteriaQuery.where(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail() + "%"));
-				}if(filter.getCity() != null && !filter.getCity().isEmpty()) {
-					criteriaQuery.where(criteriaBuilder.like(root.get("city"), "%" + filter.getCity() + "%"));
-				}if(filter.getStatus() != null ) {
-					criteriaQuery.where(criteriaBuilder.equal(root.get("status"),  filter.getStatus() ));
-				}
-				
-			}
-		}
-		if (proposerPage.getPageNumber() >= 0 && proposerPage.getPageSize() >= 0) {
-			if (proposerPage.getSortBy() == null || proposerPage.getSortOrder().isEmpty()) {
-				proposerPage.setSortBy("id");
-				proposerPage.setSortOrder("DESC");
-			}
+	    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+	    CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+	    Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
-		} else {
-			throw new IllegalArgumentException("Error occured");
-		}
-		if (proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null) {
-			String sortBy = proposerPage.getSortBy();
-			if ("ASC".equalsIgnoreCase(proposerPage.getSortOrder())) {
-				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
-			} else {
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
-			}
-		}
+	    List<Predicate> predicates = new ArrayList<>();
 
-		if (proposerPage.getPageNumber() <= 0 && proposerPage.getPageSize() <= 0) {
-			return entityManager.createQuery(criteriaQuery).getResultList();
-		} else {
+	    List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+	    if (searchFilters != null) {
+	        for (SearchFilter filter : searchFilters) {
+	            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
+	                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
+	            }
+	            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
+	                predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
+	            }
+	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+	                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
+	            }
+	            if (filter.getStatus() != null ) {
+	                predicates.add(criteriaBuilder.equal(root.get("status"), filter.getStatus()));
+	            }
+	        }
+	    }
 
-			Integer size = proposerPage.getPageSize();
-			Integer page = proposerPage.getPageNumber();
+	    if (!predicates.isEmpty()) {
+	        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+	    }
 
-			TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
-			typedQuery.setFirstResult((page - 1) * size);
-			typedQuery.setMaxResults(size);
-			return typedQuery.getResultList();
-		}
+	    // ✅ Set default sorting if blank or null
+	    String sortBy = proposerPage.getSortBy();
+	    if (sortBy == null || sortBy.trim().isEmpty()) {
+	        sortBy = "id"; // fallback field
+	    }
+
+	    String sortOrder = proposerPage.getSortOrder();
+	    if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+	        criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+	    } else {
+	        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+	    }
+
+	    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+
+	    // ✅ Pagination
+	    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
+	        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
+	        typedQuery.setFirstResult(firstResult);
+	        typedQuery.setMaxResults(proposerPage.getPageSize());
+	    }
+
+	    return typedQuery.getResultList();
 	}
+
 
 }
