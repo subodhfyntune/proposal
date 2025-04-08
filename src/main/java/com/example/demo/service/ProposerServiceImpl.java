@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.HealthApplication;
 import com.example.demo.dto.ProposerDto;
+import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Gender;
 import com.example.demo.model.Proposer;
@@ -472,7 +473,7 @@ public class ProposerServiceImpl implements ProposerService {
 	}
 
 	@Override
-	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage) {
+	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler) {
 	    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 	    CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
 	    Root<Proposer> root = criteriaQuery.from(Proposer.class);
@@ -491,7 +492,7 @@ public class ProposerServiceImpl implements ProposerService {
 	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
 	                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
 	            }
-	            if (filter.getStatus() != null ) {
+	            if (filter.getStatus() != null) {
 	                predicates.add(criteriaBuilder.equal(root.get("status"), filter.getStatus()));
 	            }
 	        }
@@ -501,10 +502,9 @@ public class ProposerServiceImpl implements ProposerService {
 	        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
 	    }
 
-	    // ✅ Set default sorting if blank or null
 	    String sortBy = proposerPage.getSortBy();
 	    if (sortBy == null || sortBy.trim().isEmpty()) {
-	        sortBy = "id"; // fallback field
+	        sortBy = "id";
 	    }
 
 	    String sortOrder = proposerPage.getSortOrder();
@@ -516,15 +516,45 @@ public class ProposerServiceImpl implements ProposerService {
 
 	    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
-	    // ✅ Pagination
 	    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
 	        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
 	        typedQuery.setFirstResult(firstResult);
 	        typedQuery.setMaxResults(proposerPage.getPageSize());
 	    }
 
+	   
+	    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+	    Root<Proposer> countRoot = countQuery.from(Proposer.class);
+	    countQuery.select(criteriaBuilder.count(countRoot));
+
+	    List<Predicate> countPredicates = new ArrayList<>();
+	    if (searchFilters != null) {
+	        for (SearchFilter filter : searchFilters) {
+	            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
+	                countPredicates.add(criteriaBuilder.like(countRoot.get("fullName"), "%" + filter.getFullName().trim() + "%"));
+	            }
+	            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
+	                countPredicates.add(criteriaBuilder.like(countRoot.get("email"), "%" + filter.getEmail().trim() + "%"));
+	            }
+	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+	                countPredicates.add(criteriaBuilder.like(countRoot.get("city"), "%" + filter.getCity().trim() + "%"));
+	            }
+	            if (filter.getStatus() != null) {
+	                countPredicates.add(criteriaBuilder.equal(countRoot.get("status"), filter.getStatus()));
+	            }
+	        }
+	    }
+
+	    if (!countPredicates.isEmpty()) {
+	        countQuery.where(criteriaBuilder.and(countPredicates.toArray(new Predicate[0])));
+	    }
+
+	    Long totalCount = entityManager.createQuery(countQuery).getSingleResult();
+	    responseHandler.setTotalCount(totalCount);
+
 	    return typedQuery.getResultList();
 	}
+
 
 
 }
