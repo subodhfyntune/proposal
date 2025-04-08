@@ -20,6 +20,7 @@ public interface ProposerService {
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage);
 	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler);
 
+	public Integer getTotalRecord();
 	
 	
 }

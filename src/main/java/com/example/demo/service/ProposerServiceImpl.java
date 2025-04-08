@@ -29,6 +29,8 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ProposerRepository proposerRepository;
 
+	Integer totalRecord = 0;
+	
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
 //		        proposer.setStatus('Y');
@@ -516,43 +518,24 @@ public class ProposerServiceImpl implements ProposerService {
 
 	    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
+	    List<Proposer> resultList =typedQuery.getResultList();
+	    int totalSize =  resultList.size();
+	    totalRecord = totalSize;
 	    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
 	        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
 	        typedQuery.setFirstResult(firstResult);
 	        typedQuery.setMaxResults(proposerPage.getPageSize());
 	    }
 
-	   
-	    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-	    Root<Proposer> countRoot = countQuery.from(Proposer.class);
-	    countQuery.select(criteriaBuilder.count(countRoot));
-
-	    List<Predicate> countPredicates = new ArrayList<>();
-	    if (searchFilters != null) {
-	        for (SearchFilter filter : searchFilters) {
-	            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
-	                countPredicates.add(criteriaBuilder.like(countRoot.get("fullName"), "%" + filter.getFullName().trim() + "%"));
-	            }
-	            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
-	                countPredicates.add(criteriaBuilder.like(countRoot.get("email"), "%" + filter.getEmail().trim() + "%"));
-	            }
-	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
-	                countPredicates.add(criteriaBuilder.like(countRoot.get("city"), "%" + filter.getCity().trim() + "%"));
-	            }
-	            if (filter.getStatus() != null) {
-	                countPredicates.add(criteriaBuilder.equal(countRoot.get("status"), filter.getStatus()));
-	            }
-	        }
-	    }
-
-	    if (!countPredicates.isEmpty()) {
-	        countQuery.where(criteriaBuilder.and(countPredicates.toArray(new Predicate[0])));
-	    }
-
-	    Long totalCount = entityManager.createQuery(countQuery).getSingleResult();
-	    responseHandler.setTotalCount(totalCount);
+	  
 
 	    return typedQuery.getResultList();
+	}
+
+	@Override
+	public Integer getTotalRecord() {
+		// TODO Auto-generated method stub
+		return totalRecord;
 	}
 
 

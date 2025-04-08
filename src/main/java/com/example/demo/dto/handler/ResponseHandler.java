@@ -5,19 +5,7 @@ public class ResponseHandler<T> {
 	private String status;
 	private Object data;
 	private String message;
-	private Long totalCount;
-	
-	
-	public ResponseHandler(String status, Object data, String message, Long totalCount) {
-		super();
-		this.status = status;
-		this.data = data;
-		this.message = message;
-		this.totalCount = totalCount;
-	}
-	public ResponseHandler() {
-		// TODO Auto-generated constructor stub
-	}
+	private Integer totalRecord;
 	public String getStatus() {
 		return status;
 	}
@@ -36,11 +24,24 @@ public class ResponseHandler<T> {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public Long getTotalCount() {
-		return totalCount;
+	public Integer getTotalRecord() {
+		return totalRecord;
 	}
-	public void setTotalCount(Long totalCount) {
-		this.totalCount = totalCount;
+	public void setTotalRecord(Integer totalRecord) {
+		this.totalRecord = totalRecord;
 	}
+	public ResponseHandler(String status, Object data, String message, Integer totalRecord) {
+		super();
+		this.status = status;
+		this.data = data;
+		this.message = message;
+		this.totalRecord = totalRecord;
+	}
+	public ResponseHandler() {
+		super();
+	}
+	
+	
+	
 	
 }

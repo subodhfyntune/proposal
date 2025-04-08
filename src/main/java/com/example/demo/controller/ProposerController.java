@@ -65,7 +65,7 @@ public class ProposerController {
 			 responseHandler.setStatus("success");
 		        responseHandler.setData(allProposers);
 		        responseHandler.setMessage("get all Proposer data");
-		        responseHandler.setTotalCount(proposerRepository.count());
+		        
 		        
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -380,7 +380,7 @@ public class ProposerController {
 	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 	    try {
 	        List<Proposer> proposers = proposerService.getAllProposersByPagingAndSortingAndfiltering(proposerPage, responseHandler);
-
+	        Integer totalRecord  =  proposerService.getTotalRecord();
 	        if (proposers.isEmpty()) {
 	            responseHandler.setStatus("no records found");
 	            responseHandler.setData(new ArrayList<>());
@@ -389,19 +389,20 @@ public class ProposerController {
 	            responseHandler.setStatus("success");
 	            responseHandler.setData(proposers);
 	            responseHandler.setMessage("Proposers fetched successfully");
+	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
 	        }
 	    } catch (IllegalArgumentException e) {
 	        e.printStackTrace();
 	        responseHandler.setStatus("failed");
 	        responseHandler.setData(new ArrayList<>());
 	        responseHandler.setMessage(e.getMessage());
-	        responseHandler.setTotalCount(0L);
+	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        responseHandler.setStatus("error");
 	        responseHandler.setData(new ArrayList<>());
 	        responseHandler.setMessage("An error occurred while fetching details");
-	        responseHandler.setTotalCount(0L);
+	        
 	    }
 	    return responseHandler;
 	}

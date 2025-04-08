@@ -50,6 +50,9 @@ public class Proposer {
 	@Column(name = "marital_status")
 	private String maritalStatus;
 	
+	@Column(name = "gender_id")
+	private Integer genderId;
+
 	@Column(name = "email")
 	private String email;
 	@Column(name = "mobile_Number")
