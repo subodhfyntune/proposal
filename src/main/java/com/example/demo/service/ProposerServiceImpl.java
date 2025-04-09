@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.io.ObjectInputFilter.Status;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
@@ -469,9 +470,12 @@ public class ProposerServiceImpl implements ProposerService {
 	    Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
 	    List<Predicate> predicates = new ArrayList<>();
-         
-	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
-	    List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+	    
+//	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+	    List<SearchFilter> searchFilter = proposerPage.getSearchFilters();
+	    
+	    
 	    if (searchFilters != null) {
 	        for (SearchFilter filter : searchFilters) {
 	            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
@@ -483,8 +487,11 @@ public class ProposerServiceImpl implements ProposerService {
 	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
 	                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
 	            }
-	            if (filter.getStatus() != null) {
+	            if (filter.getStatus() != null && filter.getStatus() == 'Y') {
 	                predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+	            }
+	            if (filter.getStatus() != null && filter.getStatus() == 'N') {
+	                predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
 	            }
 	        }
 	    }
