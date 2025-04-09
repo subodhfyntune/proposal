@@ -43,14 +43,10 @@ public class ProposerController {
 	@Autowired
     private  ProposerRepository proposerRepository;
 
-	
+	@Autowired
 	private ProposerService proposerService;
 	
-	public ProposerController(ProposerService proposerService) {
-		super();
-		
-		this.proposerService = proposerService;
-	}
+	
 //	@PostMapping("/registerProposer")
 //	public ResponseEntity<Proposer>  registerProposer(@RequestBody Proposer proposer){
 //		Proposer registeredPraposer =proposerService.registerProposer(proposer);
@@ -380,7 +376,8 @@ public class ProposerController {
 	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 	    try {
 	        List<Proposer> proposers = proposerService.getAllProposersByPagingAndSortingAndfiltering(proposerPage, responseHandler);
-	        Integer totalRecord  =  proposerService.getTotalRecord();
+//	        Integer totalRecord  =  proposerService.getTotalRecord();
+	        Integer total =  (int) proposerRepository.count();
 	        if (proposers.isEmpty()) {
 	            responseHandler.setStatus("no records found");
 	            responseHandler.setData(new ArrayList<>());
@@ -389,7 +386,8 @@ public class ProposerController {
 	            responseHandler.setStatus("success");
 	            responseHandler.setData(proposers);
 	            responseHandler.setMessage("Proposers fetched successfully");
-	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
+//	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
+	            responseHandler.setTotalRecord(total);
 	        }
 	    } catch (IllegalArgumentException e) {
 	        e.printStackTrace();

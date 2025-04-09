@@ -29,41 +29,40 @@ public class Proposer {
 	@Column(name = "title")
 	private Title title;
 	
-	@Column(name = "full_Name")
+	@Column(name = "full_name")
 	private String fullName;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "gender")
 	private Gender gender;
 	
-	@Column(name = "date_Of_Birth")
+	@Column(name = "date_of_birth")
 	private String dateOfBirth;
 	
-	@Column(name = "annual_Income")
+	@Column(name = "annual_income")
 	private String annualIncome;
 	
-	@Column(name = "panNumber")
+	@Column(name = "pan_number")
 	private String panNumber;
 	
-	@Column(name = "aadhar_Number")
+	@Column(name = "aadhar_number")
 	private String aadharNumber;
 	@Column(name = "marital_status")
 	private String maritalStatus;
 	
 	@Column(name = "gender_id")
 	private Integer genderId;
-
 	@Column(name = "email")
 	private String email;
-	@Column(name = "mobile_Number")
+	@Column(name = "mobile_number")
 	private String mobileNumber;
-	@Column(name = "alternate_Mobile_Number")
+	@Column(name = "alternate_mobile_number")
 	private String alternateMobileNumber;
-	@Column(name = "address_Line_1")
+	@Column(name = "address_line_1")
 	private String addressLine1;
-	@Column(name = "address_Line_2")
+	@Column(name = "address_line_2")
 	private String addressLine2;
-	@Column(name = "address_Line_3")
+	@Column(name = "address_line_3")
 	private String addressLine3;
 	@Column(name = "pincode")
 	private String pincode;
@@ -79,11 +78,25 @@ public class Proposer {
 	private String state;
 	private Character status ;
 	@CreationTimestamp
-	@Column(name = "created-At")
+	@Column(name = "created_at")
 	private LocalDateTime createAt;
 	@UpdateTimestamp
-	@Column(name = "updated-At")
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
+	public Integer getGenderId() {
+		return genderId;
+	}
+
+
+	public void setGenderId(Integer genderId) {
+		this.genderId = genderId;
+	}
+
+
+	public void setStatus(Character status) {
+		this.status = status;
+	}
+	
 	public LocalDateTime getCreateAt() {
 		return createAt;
 	}

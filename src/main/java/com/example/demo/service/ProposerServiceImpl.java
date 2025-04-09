@@ -13,9 +13,11 @@ import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Gender;
+import com.example.demo.model.GenderType;
 import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.pagination.SearchFilter;
+import com.example.demo.repository.GenderRepository;
 import com.example.demo.repository.ProposerRepository;
 
 import jakarta.persistence.EntityManager;
@@ -29,6 +31,9 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ProposerRepository proposerRepository;
 
+	
+	@Autowired
+	private GenderRepository genderRepository;
 	Integer totalRecord = 0;
 	
 //	@Override
@@ -166,7 +171,20 @@ public class ProposerServiceImpl implements ProposerService {
 		} else {
 			throw new IllegalArgumentException("gender can not be null");
 		}
-
+		
+		if(gender != null && !gender.isEmpty()) {
+			Optional<GenderType> genderType =  genderRepository.findByType(gender);
+			if(genderType.isPresent()) {
+				proposer.setGenderId(genderType.get().getGenderId());
+			}
+			else {
+				throw new IllegalArgumentException("enter corrrect gender");
+			}
+		}else {
+			throw new IllegalArgumentException("enter can not be null");
+		}
+		
+		
 		proposer.setDateOfBirth(proposerDto.getDateOfBirth());
 		proposer.setAnnualIncome(proposerDto.getAnnualIncome());
 		proposer.setPanNumber(proposerDto.getPanNumber());

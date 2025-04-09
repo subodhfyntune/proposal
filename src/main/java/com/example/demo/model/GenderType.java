@@ -17,7 +17,7 @@ public class GenderType {
 	
 	@Id
 	@Column(name = "gender_id")
-	private Long genderId;
+	private Integer genderId;
 	
 	
 	@Column(name = "gender_type")
@@ -26,21 +26,27 @@ public class GenderType {
 	public GenderType() {
 		super();
 	}
-	public GenderType(Long genderId, String type) {
+
+	public GenderType(Integer genderId, String type) {
 		super();
 		this.genderId = genderId;
 		this.type = type;
 	}
-	public Long getGenderId() {
+
+	public Integer getGenderId() {
 		return genderId;
 	}
-	public void setGenderId(Long genderId) {
+
+	public void setGenderId(Integer genderId) {
 		this.genderId = genderId;
 	}
+
 	public String getType() {
 		return type;
 	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
+	
 }
