@@ -11,7 +11,7 @@ public interface ProposerService {
 
 //	public Proposer registerProposer(Proposer proposer);
 	public List<Proposer> getAllProposer();
-	public Proposer updateProposer(Long id,Proposer proposer);
+//	public Proposer updateProposer(Long id,Proposer proposer);
 	public Proposer deleteProposer(Long id);
 	
 	public Proposer registerProposer(ProposerDto proposerDto);

@@ -73,23 +73,23 @@ public class ProposerController {
 		
 	}
 	
-	@PutMapping("/update/{id}")
-	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id,@RequestBody Proposer updateProposer){
-		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
-		try {
-			Proposer updatedProposer =  proposerService.updateProposer(id, updateProposer);
-			 responseHandler.setStatus("success");
-	        responseHandler.setData(updatedProposer);
-	        responseHandler.setMessage("Updated Successfull");
-		} catch (Exception e) {
-			e.printStackTrace();
-	        responseHandler.setStatus("Update Failed");
-	        responseHandler.setData(new ArrayList<>());
-	        responseHandler.setMessage(e.getMessage());
-		}
-		
-		return responseHandler;
-	}
+//	@PutMapping("/update/{id}")
+//	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id,@RequestBody Proposer updateProposer){
+//		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
+//		try {
+//			Proposer updatedProposer =  proposerService.updateProposer(id, updateProposer);
+//			 responseHandler.setStatus("success");
+//	        responseHandler.setData(updatedProposer);
+//	        responseHandler.setMessage("Updated Successfull");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//	        responseHandler.setStatus("Update Failed");
+//	        responseHandler.setData(new ArrayList<>());
+//	        responseHandler.setMessage(e.getMessage());
+//		}
+//		
+//		return responseHandler;
+//	}
 	
 	@DeleteMapping("/delete/{id}")
 	public ResponseHandler<?> deleteProposer(@PathVariable Long id) {
@@ -125,7 +125,7 @@ public class ProposerController {
 //	    
 //	}
 	
-	@PostMapping("/registerwithDto")
+	@PostMapping("/register_With_Dto")
 	public ResponseHandler<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
 	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
 	    
@@ -163,7 +163,7 @@ public class ProposerController {
 //		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
 //	}
 	
-	@PutMapping("/updatewithDto/{id}")
+	@PutMapping("/update_With_Dto/{id}")
 	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id, @RequestBody ProposerDto updateProposer) {
 	    ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
 	    
@@ -192,7 +192,7 @@ public class ProposerController {
 	}
 
 	
-	@GetMapping("/getOccupation")
+	@GetMapping("/get_Occupation")
 	public ResponseHandler<List<Occupation>> getAllOccupations() {
 	    ResponseHandler<List<Occupation>> responseHandler = new ResponseHandler<>();
 	    try {
@@ -217,7 +217,7 @@ public class ProposerController {
 	}
 
 	
-	@GetMapping("/getGender")
+	@GetMapping("/get_Gender")
 	public ResponseHandler<List<Gender>> getAllGender() {
 	    ResponseHandler<List<Gender>> responseHandler = new ResponseHandler<>();
 	    try {
@@ -241,7 +241,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 	
-	@GetMapping("/getMaritalStatus")
+	@GetMapping("/get_Marital_Status")
 	public ResponseHandler<List<MaritalStatus>> getAllMaritalStatus(){
 		ResponseHandler<List<MaritalStatus>> responseHandler = new ResponseHandler<>();
 		try {
@@ -258,7 +258,7 @@ public class ProposerController {
 	    }
 	}
 	
-	@GetMapping("/getNationality")
+	@GetMapping("/get_Nationality")
 	public ResponseHandler<List<Nationality>>  getAllNationality(){
 		ResponseHandler<List<Nationality>> responseHandler = new ResponseHandler<>();
 		
@@ -276,7 +276,7 @@ public class ProposerController {
 		
 	}
 	
-	@GetMapping("/getTitle")
+	@GetMapping("/get_Title")
 	public ResponseHandler<List<Title>>  getAllTitle(){
 		ResponseHandler<List<Title>> responseHandler = new ResponseHandler<>();
 		
@@ -293,7 +293,7 @@ public class ProposerController {
 		}
 	}
 
-	@GetMapping("/getTown")
+	@GetMapping("/get_Town")
 	public ResponseHandler<List<Town>> getAllTown() {
 		ResponseHandler<List<Town>> responseHandler = new ResponseHandler<>();
 		try {
@@ -316,7 +316,7 @@ public class ProposerController {
 		}
 		return responseHandler;
 	}
-	@GetMapping("/getArea")
+	@GetMapping("/get_Area")
 	public ResponseHandler<List<Area>> getAllArea(){
 		ResponseHandler<List<Area>> responseHandler = new ResponseHandler<>();
 		try {
@@ -340,7 +340,7 @@ public class ProposerController {
 		return proposerRepository.findByFullName(name,PageRequest.of(page, size));
 	}
 	
-	@PostMapping("/getbyPageAndSize")
+	@PostMapping("/getby_Page_And_Size")
 	public ResponseHandler<List<Proposer>> getAllBysortingAndPagination(@RequestBody ProposerPage proposerPage){
 	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 	    try {
@@ -371,13 +371,14 @@ public class ProposerController {
 	    return responseHandler;
 	}
 	
-	@PostMapping("/getbyPageAndSizeAndFilter")
+	@PostMapping("/get_By_Page_And_Size_And_Filter")
 	public ResponseHandler<List<Proposer>> getAllBysortingAndPaginationAndFiltering(@RequestBody ProposerPage proposerPage) {
 	    ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 	    try {
 	        List<Proposer> proposers = proposerService.getAllProposersByPagingAndSortingAndfiltering(proposerPage, responseHandler);
 //	        Integer totalRecord  =  proposerService.getTotalRecord();
 	        Integer total =  (int) proposerRepository.count();
+	        List<Proposer> getProposers =  proposerRepository.findByStatus('Y');
 	        if (proposers.isEmpty()) {
 	            responseHandler.setStatus("no records found");
 	            responseHandler.setData(new ArrayList<>());
@@ -387,7 +388,8 @@ public class ProposerController {
 	            responseHandler.setData(proposers);
 	            responseHandler.setMessage("Proposers fetched successfully");
 //	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
-	            responseHandler.setTotalRecord(total);
+//	            responseHandler.setTotalRecord(total);
+	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
 	        }
 	    } catch (IllegalArgumentException e) {
 	        e.printStackTrace();

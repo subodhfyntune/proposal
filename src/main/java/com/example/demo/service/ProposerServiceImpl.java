@@ -31,7 +31,6 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ProposerRepository proposerRepository;
 
-	
 	@Autowired
 	private GenderRepository genderRepository;
 	Integer totalRecord = 0;
@@ -49,36 +48,7 @@ public class ProposerServiceImpl implements ProposerService {
 		return proposers;
 	}
 
-	@Override
-	public Proposer updateProposer(Long id, Proposer proposer) {
-
-		Optional<Proposer> getProposer = proposerRepository.findById(id);
-
-		Proposer oldProposer = getProposer.get();
-		oldProposer.setTitle(proposer.getTitle());
-		oldProposer.setFullName(proposer.getFullName());
-		oldProposer.setGender(proposer.getGender());
-		oldProposer.setDateOfBirth(proposer.getDateOfBirth());
-		oldProposer.setAnnualIncome(proposer.getAnnualIncome());
-		oldProposer.setPanNumber(proposer.getPanNumber());
-		oldProposer.setAadharNumber(proposer.getAadharNumber());
-		oldProposer.setMaritalStatus(proposer.getMaritalStatus());
-		oldProposer.setEmail(proposer.getEmail());
-		oldProposer.setMobileNumber(proposer.getMobileNumber());
-		oldProposer.setAlternateMobileNumber(proposer.getAlternateMobileNumber());
-		oldProposer.setAddressLine1(proposer.getAddressLine1());
-		oldProposer.setAddressLine2(proposer.getAddressLine2());
-		oldProposer.setAddressLine3(proposer.getAddressLine3());
-		oldProposer.setPincode(proposer.getPincode());
-		oldProposer.setArea(proposer.getArea());
-		oldProposer.setTown(proposer.getTown());
-		oldProposer.setCity(proposer.getCity());
-		oldProposer.setState(proposer.getState());
-
-		Proposer updatedProposer = proposerRepository.save(oldProposer);
-		return updatedProposer;
-
-	}
+	       
 
 	@Override
 	public Proposer deleteProposer(Long id) {
@@ -499,7 +469,8 @@ public class ProposerServiceImpl implements ProposerService {
 	    Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
 	    List<Predicate> predicates = new ArrayList<>();
-
+         
+	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
 	    List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
 	    if (searchFilters != null) {
 	        for (SearchFilter filter : searchFilters) {
@@ -513,7 +484,7 @@ public class ProposerServiceImpl implements ProposerService {
 	                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
 	            }
 	            if (filter.getStatus() != null) {
-	                predicates.add(criteriaBuilder.equal(root.get("status"), filter.getStatus()));
+	                predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
 	            }
 	        }
 	    }
@@ -537,8 +508,9 @@ public class ProposerServiceImpl implements ProposerService {
 	    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
 	    List<Proposer> resultList =typedQuery.getResultList();
-	    int totalSize =  resultList.size();
-	    totalRecord = totalSize;
+	    totalRecord =  resultList.size();
+	    System.err.println("totalRecord<<<<"+totalRecord);
+	
 	    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
 	        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
 	        typedQuery.setFirstResult(firstResult);
@@ -555,6 +527,10 @@ public class ProposerServiceImpl implements ProposerService {
 		// TODO Auto-generated method stub
 		return totalRecord;
 	}
+
+
+
+	
 
 
 

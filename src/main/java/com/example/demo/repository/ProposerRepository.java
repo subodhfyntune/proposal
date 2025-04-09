@@ -28,4 +28,6 @@ public interface ProposerRepository extends JpaRepository<Proposer, Long> {
 	 List<Proposer> findByStatus(char status);
 	 
 	 Optional<Proposer> findByIdAndStatus(Long id, char status);
+	 
+	 
 }
