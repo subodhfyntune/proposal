@@ -1,11 +1,16 @@
 package com.example.demo.service;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface ProposerService {
 
@@ -21,6 +26,7 @@ public interface ProposerService {
 	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler);
 
 	public Integer getTotalRecord();
-	public List<Proposer> getAllProposerForExcel();
 	
+	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
+	public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException;
 }

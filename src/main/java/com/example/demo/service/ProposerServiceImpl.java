@@ -1,12 +1,23 @@
 package com.example.demo.service;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputFilter.Status;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.security.PrivateKey;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.persistence.criteria.*;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,6 +38,8 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class ProposerServiceImpl implements ProposerService {
@@ -36,7 +49,7 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private GenderRepository genderRepository;
 	Integer totalRecord = 0;
-	
+
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
 //		        proposer.setStatus('Y');
@@ -49,8 +62,6 @@ public class ProposerServiceImpl implements ProposerService {
 		List<Proposer> proposers = proposerRepository.findByStatus('Y');
 		return proposers;
 	}
-
-	       
 
 	@Override
 	public Proposer deleteProposer(Long id) {
@@ -143,20 +154,18 @@ public class ProposerServiceImpl implements ProposerService {
 		} else {
 			throw new IllegalArgumentException("gender can not be null");
 		}
-		
-		if(gender != null && !gender.isEmpty()) {
-			Optional<GenderType> genderType =  genderRepository.findByType(gender);
-			if(genderType.isPresent()) {
+
+		if (gender != null && !gender.isEmpty()) {
+			Optional<GenderType> genderType = genderRepository.findByType(gender);
+			if (genderType.isPresent()) {
 				proposer.setGenderId(genderType.get().getGenderId());
-			}
-			else {
+			} else {
 				throw new IllegalArgumentException("enter corrrect gender");
 			}
-		}else {
+		} else {
 			throw new IllegalArgumentException("enter can not be null");
 		}
-		
-		
+
 		proposer.setDateOfBirth(proposerDto.getDateOfBirth());
 		proposer.setAnnualIncome(proposerDto.getAnnualIncome());
 		proposer.setPanNumber(proposerDto.getPanNumber());
@@ -425,8 +434,7 @@ public class ProposerServiceImpl implements ProposerService {
 //	}
 //	
 
-	
-	//  working 
+	// working
 	@Override
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage) {
 		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -465,69 +473,67 @@ public class ProposerServiceImpl implements ProposerService {
 	}
 
 	@Override
-	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler) {
-	    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-	    CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
-	    Root<Proposer> root = criteriaQuery.from(Proposer.class);
+	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage,
+			ResponseHandler<List<Proposer>> responseHandler) {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+		Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
-	    List<Predicate> predicates = new ArrayList<>();
-        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
-	    
+		List<Predicate> predicates = new ArrayList<>();
+		List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+
 //	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
-	    List<SearchFilter> searchFilter = proposerPage.getSearchFilters();
-	    
-	    
-	    if (searchFilters != null) {
-	        for (SearchFilter filter : searchFilters) {
-	            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
-	                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
-	            }
-	            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
-	                predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
-	            }
-	            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
-	                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
-	            }
-	            if (filter.getStatus() != null && filter.getStatus() == 'Y') {
-	                predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
-	            }
-	            if (filter.getStatus() != null && filter.getStatus() == 'N') {
-	                predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
-	            }
-	        }
-	    }
+		List<SearchFilter> searchFilter = proposerPage.getSearchFilters();
 
-	    if (!predicates.isEmpty()) {
-	        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-	    }
+		if (searchFilters != null) {
+			for (SearchFilter filter : searchFilters) {
+				if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
+				}
+				if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
+				}
+				if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
+				}
+				if (filter.getStatus() != null && filter.getStatus() == 'Y') {
+					predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+				}
+				if (filter.getStatus() != null && filter.getStatus() == 'N') {
+					predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
+				}
+			}
+		}
 
-	    String sortBy = proposerPage.getSortBy();
-	    if (sortBy == null || sortBy.trim().isEmpty()) {
-	        sortBy = "id";
-	    }
+		if (!predicates.isEmpty()) {
+			criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+		}
 
-	    String sortOrder = proposerPage.getSortOrder();
-	    if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
-	        criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
-	    } else {
-	        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
-	    }
+		String sortBy = proposerPage.getSortBy();
+		if (sortBy == null || sortBy.trim().isEmpty()) {
+			sortBy = "id";
+		}
 
-	    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+		String sortOrder = proposerPage.getSortOrder();
+		if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+			criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+		} else {
+			criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+		}
 
-	    List<Proposer> resultList =typedQuery.getResultList();
-	    totalRecord =  resultList.size();
-	    System.err.println("totalRecord<<<<"+totalRecord);
-	
-	    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
-	        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
-	        typedQuery.setFirstResult(firstResult);
-	        typedQuery.setMaxResults(proposerPage.getPageSize());
-	    }
+		TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
-	  
+		List<Proposer> resultList = typedQuery.getResultList();
+		totalRecord = resultList.size();
+		System.err.println("totalRecord<<<<" + totalRecord);
 
-	    return typedQuery.getResultList();
+		if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
+			int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
+			typedQuery.setFirstResult(firstResult);
+			typedQuery.setMaxResults(proposerPage.getPageSize());
+		}
+
+		return typedQuery.getResultList();
 	}
 
 	@Override
@@ -536,18 +542,70 @@ public class ProposerServiceImpl implements ProposerService {
 		return totalRecord;
 	}
 
-
-
 	@Override
-	public List<Proposer> getAllProposerForExcel() {
+	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception {
 		// TODO Auto-generated method stub
-		return proposerRepository.findAll();
+		List<Proposer> praposers = proposerRepository.findAll();
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet("Proposer");
+		Row row = sheet.createRow(0);
+
+		row.createCell(0).setCellValue("ID");
+		row.createCell(1).setCellValue("Name");
+		row.createCell(2).setCellValue("Email");
+		row.createCell(3).setCellValue("City");
+
+		int rowCount = 1;
+
+		for (Proposer p : praposers) {
+
+			row.createCell(0).setCellValue(p.getId());
+			row.createCell(1).setCellValue(p.getFullName());
+			row.createCell(2).setCellValue(p.getEmail());
+			row.createCell(3).setCellValue(p.getCity());
+			rowCount++;
+		}
+		ServletOutputStream outputStream = httpServletResponse.getOutputStream();
+		workbook.write(outputStream);
+
+		workbook.close();
+
+		outputStream.close();
 	}
 
+	public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException {
+		String filePathString = "C:/subodh/";
 
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		var sheet = workbook.createSheet("Proposer");
 
-	
+		List<String> headers = Arrays.asList("ID", "Title", "Full Name", "Gender", "Date of Birth", "Annual Income",
+				"PAN Number", "Aadhar Number", "Marital Status", "Gender ID", "Email", "Mobile Number",
+				"Alternate Mobile Number", "Address Line 1", "Address Line 2", "Address Line 3", "Pincode", "Area",
+				"Town", "City", "State", "Status", "Created At", "Updated At");
 
+		Row headerRow = sheet.createRow(0);
+		for (int i = 0; i < headers.size(); i++) {
+			headerRow.createCell(i).setCellValue(headers.get(i));
+		}
+		String uuid = UUID.randomUUID().toString();
+		String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+		String fileName = "sample_" + uuid + "_" + currentDateTime + ".xlsx";
 
+        String fullFilePath = filePathString + fileName;
+
+		try {
+			FileOutputStream fileOutputStream= new FileOutputStream(fullFilePath);
+			workbook.write(fileOutputStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		httpServletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+		httpServletResponse.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+		workbook.write(httpServletResponse.getOutputStream());
+		workbook.close();
+	}
 
 }

@@ -411,18 +411,40 @@ public class ProposerController {
 	    return responseHandler;
 	}
 
+//	@GetMapping("export_excelfile")
+//	public void exportToExcel(HttpServletResponse response) throws IOException {
+//		 response.setContentType("application/octet-stream");
+//	        String headerKey = "Content-Disposition";
+//	        String headerValue = "attachment; filename=praposers.xlsx";
+//	        response.setHeader(headerKey, headerValue);
+//
+//	        List<Proposer> list = proposerRepository.findAll();
+//
+//	        ExcelExport exporter = new ExcelExport(list);
+//	        exporter.export(response);
+//	}
+	
 	@GetMapping("export_excelfile")
-	public void exportToExcel(HttpServletResponse response) throws IOException {
+	public void exportToExcel(HttpServletResponse response) throws Exception {
 		 response.setContentType("application/octet-stream");
 	        String headerKey = "Content-Disposition";
-	        String headerValue = "attachment; filename=praposers.xlsx";
+	        String headerValue = "attachment; filename=proposers.xlsx";
 	        response.setHeader(headerKey, headerValue);
+	        proposerService.generateExcel(response);
+	        response.flushBuffer();
+	        
 
-	        List<Proposer> list = proposerRepository.findAll();
-
-	        ExcelExport exporter = new ExcelExport(list);
-	        exporter.export(response);
 	}
+	
+	
+   
+    @GetMapping("/generateSampleExcel")
+    public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException {
+       
+        proposerService.generateSampleExcel(httpServletResponse);
+    }
+	 
+    
 
 		
 
