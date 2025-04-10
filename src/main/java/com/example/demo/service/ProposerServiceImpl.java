@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.demo.HealthApplication;
 import com.example.demo.dto.ProposerDto;
@@ -533,6 +534,14 @@ public class ProposerServiceImpl implements ProposerService {
 	public Integer getTotalRecord() {
 		// TODO Auto-generated method stub
 		return totalRecord;
+	}
+
+
+
+	@Override
+	public List<Proposer> getAllProposerForExcel() {
+		// TODO Auto-generated method stub
+		return proposerRepository.findAll();
 	}
 
 

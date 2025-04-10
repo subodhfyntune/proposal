@@ -21,6 +21,6 @@ public interface ProposerService {
 	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler);
 
 	public Integer getTotalRecord();
-	
+	public List<Proposer> getAllProposerForExcel();
 	
 }

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.ProposerDto;
 
 import com.example.demo.dto.handler.ResponseHandler;
+import com.example.demo.export.ExcelExport;
 import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.MaritalStatus;
@@ -34,6 +36,8 @@ import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 
 
@@ -407,6 +411,18 @@ public class ProposerController {
 	    return responseHandler;
 	}
 
+	@GetMapping("export_excelfile")
+	public void exportToExcel(HttpServletResponse response) throws IOException {
+		 response.setContentType("application/octet-stream");
+	        String headerKey = "Content-Disposition";
+	        String headerValue = "attachment; filename=praposers.xlsx";
+	        response.setHeader(headerKey, headerValue);
+
+	        List<Proposer> list = proposerRepository.findAll();
+
+	        ExcelExport exporter = new ExcelExport(list);
+	        exporter.export(response);
+	}
 
 		
 
