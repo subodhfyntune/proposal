@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputFilter.Status;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.PrivateKey;
@@ -9,25 +10,36 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.persistence.criteria.*;
 
+import org.apache.poi.sl.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.demo.HealthApplication;
 import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.exception.ProposerDeletedAlready;
+import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.GenderType;
 import com.example.demo.model.Proposer;
+import com.example.demo.model.Title;
+import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.pagination.SearchFilter;
 import com.example.demo.repository.GenderRepository;
@@ -573,8 +585,9 @@ public class ProposerServiceImpl implements ProposerService {
 		outputStream.close();
 	}
 
-	public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException {
-		String filePathString = "C:/subodh/";
+	public String generateSampleExcel() throws IOException {
+//		String filePathString = "C:/subodh/";
+		String filePathString = "C:\\subodh\\";
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		var sheet = workbook.createSheet("Proposer");
@@ -601,11 +614,74 @@ public class ProposerServiceImpl implements ProposerService {
 			e.printStackTrace();
 		}
 		
-		httpServletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		httpServletResponse.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+//		httpServletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//		httpServletResponse.setHeader("Content-Disposition", "attachment; filename=" + fileName);
 
-		workbook.write(httpServletResponse.getOutputStream());
+//		workbook.write(httpServletResponse.getOutputStream());
 		workbook.close();
+		return fullFilePath;
 	}
+
+	private String getCellValueAsString(Cell cell) {
+	    if (cell == null) return "";
+
+	    switch (cell.getCellType()) {
+	        case STRING:
+	            return cell.getStringCellValue().trim();
+	        case NUMERIC:
+	            if (DateUtil.isCellDateFormatted(cell)) {
+	                return cell.getDateCellValue().toString(); 
+	            } else {
+	                return String.valueOf((long) cell.getNumericCellValue()); 
+	            }
+	        case BOOLEAN:
+	            return String.valueOf(cell.getBooleanCellValue());
+	        case FORMULA:
+	            return cell.getCellFormula();
+	        case BLANK:
+	            return "";
+	        default:
+	            return "";
+	    }
+	}
+
+	public void saveProposersFromExcel(MultipartFile file) throws IOException {
+	    try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+	        XSSFSheet sheet = workbook.getSheetAt(0);
+
+	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+	            Row row = sheet.getRow(i);
+	            if (row == null) continue;
+
+	            Proposer proposer = new Proposer();
+
+	            proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+	            proposer.setFullName(getCellValueAsString(row.getCell(1)));
+	            proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
+	            proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+	            proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+	            proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
+	            proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
+	            proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+//	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
+	            proposer.setEmail(getCellValueAsString(row.getCell(8)));
+	            proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
+	            proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+	            proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
+	            proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
+	            proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
+	            proposer.setPincode(getCellValueAsString(row.getCell(14)));
+	            proposer.setState(getCellValueAsString(row.getCell(15)));
+//	            proposer.setStatus(getCellValueAsString(row.getCell(17)).charAt(0));
+	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(17)).toUpperCase()));
+	            proposer.setCity(getCellValueAsString(row.getCell(18)));
+
+	            proposerRepository.save(proposer);
+	        }
+	    }
+	}
+
+    
 
 }

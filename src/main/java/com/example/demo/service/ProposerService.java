@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
@@ -28,5 +30,7 @@ public interface ProposerService {
 	public Integer getTotalRecord();
 	
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
-	public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException;
+	public String generateSampleExcel() throws IOException;
+	
+	public void saveProposersFromExcel(MultipartFile file) throws IOException;
 }

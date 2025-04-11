@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import com.example.demo.dto.ProposerDto;
 
@@ -36,6 +38,7 @@ import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
+
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -424,7 +427,7 @@ public class ProposerController {
 //	        exporter.export(response);
 //	}
 	
-	@GetMapping("export_excelfile")
+	@GetMapping("export_excel_file")
 	public void exportToExcel(HttpServletResponse response) throws Exception {
 		 response.setContentType("application/octet-stream");
 	        String headerKey = "Content-Disposition";
@@ -438,12 +441,43 @@ public class ProposerController {
 	
 	
    
-    @GetMapping("/generateSampleExcel")
-    public void generateSampleExcel(HttpServletResponse httpServletResponse) throws IOException {
+    @GetMapping("/generate_sample_excel")
+    public ResponseHandler generateSampleExcel() throws IOException {
        
-        proposerService.generateSampleExcel(httpServletResponse);
+    	ResponseHandler responseHandler = new ResponseHandler<>();
+    	try {
+    		String downloadLink = proposerService.generateSampleExcel();
+    		responseHandler.setStatus("downloaded");
+            responseHandler.setData(downloadLink);
+            responseHandler.setMessage("download successfully");
+		} catch (IOException e) {
+			// TODO: handle exception
+			 e.printStackTrace();
+		        responseHandler.setStatus("error");
+		        responseHandler.setData(new ArrayList<>());
+		        responseHandler.setMessage("An error occurred while downloading");
+		}
+       
+		return responseHandler;
     }
 	 
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler<String> uploadExcel(@RequestPart("file") MultipartFile file) {
+        ResponseHandler<String> responseHandler = new ResponseHandler<>();
+        try {
+            proposerService.saveProposersFromExcel(file);
+            responseHandler.setStatus("success");
+            responseHandler.setData("Excel data uploaded and saved to database successfully.");
+            responseHandler.setMessage("Upload completed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+        return responseHandler;
+    }
+
     
 
 		
