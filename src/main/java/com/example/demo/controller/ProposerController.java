@@ -477,6 +477,22 @@ public class ProposerController {
         }
         return responseHandler;
     }
+    @PostMapping(value = "/upload_using_dto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler uploadExcelUsingDto(@RequestPart("file") MultipartFile file) {
+        ResponseHandler<String> responseHandler = new ResponseHandler<>();
+        try {
+           List<Proposer> savedProposers = proposerService.saveProposersFromExcelUsingDto(file);
+            responseHandler.setStatus("success");
+            responseHandler.setData(savedProposers);
+            responseHandler.setMessage("Upload completed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+        return responseHandler;
+    }
 
     
 

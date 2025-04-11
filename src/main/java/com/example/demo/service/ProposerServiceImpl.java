@@ -652,9 +652,7 @@ public class ProposerServiceImpl implements ProposerService {
 	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 	            Row row = sheet.getRow(i);
 	            if (row == null) continue;
-
 	            Proposer proposer = new Proposer();
-
 	            proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
 	            proposer.setFullName(getCellValueAsString(row.getCell(1)));
 	            proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
@@ -676,10 +674,64 @@ public class ProposerServiceImpl implements ProposerService {
 	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
 	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(17)).toUpperCase()));
 	            proposer.setCity(getCellValueAsString(row.getCell(18)));
-
 	            proposerRepository.save(proposer);
 	        }
 	    }
+	}
+
+	@Override
+	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException {
+	    List<Proposer> excelList = new ArrayList<>();
+
+		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+			XSSFSheet sheet = workbook.getSheetAt(0);
+
+			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				if (row == null)
+					continue;
+
+	            ProposerDto proposerdto = new ProposerDto();
+	            proposerdto.setTitle(safeEnumValueOf(Title.class, getCellValueAsString(row.getCell(0))));
+	            proposerdto.setFullName(getCellValueAsString(row.getCell(1)));
+	            proposerdto.setGender(getCellValueAsString(row.getCell(2)));
+	            proposerdto.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+	            proposerdto.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+	            proposerdto.setPanNumber(getCellValueAsString(row.getCell(5)));
+	            proposerdto.setAadharNumber(getCellValueAsString(row.getCell(6)));
+	            proposerdto.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+	            proposerdto.setEmail(getCellValueAsString(row.getCell(8)));
+	            proposerdto.setMobileNumber(getCellValueAsString(row.getCell(9)));
+	            proposerdto.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+	            proposerdto.setAddressLine1(getCellValueAsString(row.getCell(11)));
+	            proposerdto.setAddressLine2(getCellValueAsString(row.getCell(12)));
+	            proposerdto.setAddressLine3(getCellValueAsString(row.getCell(13)));
+	            proposerdto.setPincode(getCellValueAsString(row.getCell(14)));
+	            proposerdto.setState(getCellValueAsString(row.getCell(15)));
+	            proposerdto.setArea(safeEnumValueOf(Area.class, getCellValueAsString(row.getCell(16))));
+	            proposerdto.setTown(safeEnumValueOf(Town.class, getCellValueAsString(row.getCell(17))));
+	            proposerdto.setCity(getCellValueAsString(row.getCell(18)));
+
+	            Proposer savedProposer = registerProposer(proposerdto);
+	            excelList.add(savedProposer);
+	        }
+	    }
+
+	    return excelList;
+	}
+
+
+
+
+	public static <T extends Enum<T>> T safeEnumValueOf(Class<T> enumClass, String value) {
+	    if (value == null || value.trim().isEmpty()) {
+	        return null;
+	    }
+	    try {
+	        return Enum.valueOf(enumClass, value.trim().toUpperCase());
+	    } catch (IllegalArgumentException e) {
+	        System.err.println("Invalid enum value '" + value + "' for enum " + enumClass.getSimpleName());
+	        return null; }
 	}
 
     

@@ -33,4 +33,6 @@ public interface ProposerService {
 	public String generateSampleExcel() throws IOException;
 	
 	public void saveProposersFromExcel(MultipartFile file) throws IOException;
+	
+	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
 }
