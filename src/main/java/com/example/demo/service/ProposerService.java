@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
@@ -35,6 +36,6 @@ public interface ProposerService {
 	public String generateSampleExcel() throws IOException;
 	
 	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException;
-	
+	  
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
 }

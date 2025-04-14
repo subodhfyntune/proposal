@@ -654,6 +654,37 @@ public class ProposerServiceImpl implements ProposerService {
 	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 	            Row row = sheet.getRow(i);
 	            if (row == null) continue;
+	            String title = safeGet(row, 0);
+	            String fullName = safeGet(row, 1);
+	            String genderString = safeGet(row, 2);
+	            String dob = safeGet(row, 3);
+	            String income = safeGet(row, 4);
+	            String pan = safeGet(row, 5);
+	            String aadhar = safeGet(row, 6);
+	            String maritalStatus = safeGet(row, 7);
+	            String email = safeGet(row, 8);
+	            String mobile = safeGet(row, 9);
+	            String altMobile = safeGet(row, 10);
+	            String address1 = safeGet(row, 11);
+	            String address2 = safeGet(row, 12);
+	            String address3 = safeGet(row, 13);
+	            String pincode = safeGet(row, 14);
+	            String state = safeGet(row, 15);
+	            String area = safeGet(row, 16);
+	            String town = safeGet(row, 17);
+	            String city = safeGet(row, 18);
+//
+	            if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty()
+	            	    || income.isEmpty() || pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") 
+	            	    || aadhar.length() != 12 || !aadhar.matches("\\d{12}")
+	            	    || maritalStatus.isEmpty() || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+	            	    || !mobile.matches("\\d{10}") || pincode.length() != 6
+	            	    || area.isEmpty() || town.isEmpty()) {
+	            	System.out.println("Skipping row: " + i + " due to invalid data.");
+
+	            	    continue;
+	            	}
+
 	            Proposer proposer = new Proposer();
 	            
 	            proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
@@ -664,8 +695,6 @@ public class ProposerServiceImpl implements ProposerService {
 	            proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 	            proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
 	            proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
-	            
-	            
 //	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
 	            proposer.setEmail(getCellValueAsString(row.getCell(8)));
 	            proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
@@ -674,11 +703,12 @@ public class ProposerServiceImpl implements ProposerService {
 	            proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
 	            proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
 	            proposer.setPincode(getCellValueAsString(row.getCell(14)));
-	            proposer.setState(getCellValueAsString(row.getCell(15)));
+	           
 //	            proposer.setStatus(getCellValueAsString(row.getCell(17)).charAt(0));
-	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
-	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(17)).toUpperCase()));
-	            proposer.setCity(getCellValueAsString(row.getCell(18)));
+	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
+	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+	            proposer.setCity(getCellValueAsString(row.getCell(17)));
+	            proposer.setState(getCellValueAsString(row.getCell(18)));
 	            proposer.setStatus('Y');
 	            String gender = proposer.getGender().toString();
 	            if (gender != null && !gender.isEmpty()) {
@@ -700,6 +730,12 @@ public class ProposerServiceImpl implements ProposerService {
 	        }
 	    }
 		return excelList;
+	}
+
+	private String safeGet(Row row, int index) {
+	    Cell cell = row.getCell(index);
+	    if (cell == null) return "";
+	    return getCellValueAsString(cell).trim();
 	}
 
 	@Override
