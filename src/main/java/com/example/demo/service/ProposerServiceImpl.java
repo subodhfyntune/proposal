@@ -590,7 +590,7 @@ public class ProposerServiceImpl implements ProposerService {
 		String filePathString = "C:\\subodh\\";
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
-		var sheet = workbook.createSheet("Proposer");
+		XSSFSheet sheet = workbook.createSheet("Proposer");
 
 		List<String> headers = Arrays.asList("ID", "Title", "Full Name", "Gender", "Date of Birth", "Annual Income",
 				"PAN Number", "Aadhar Number", "Marital Status", "Gender ID", "Email", "Mobile Number",
@@ -645,98 +645,97 @@ public class ProposerServiceImpl implements ProposerService {
 			return "";
 		}
 	}
-
-	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException {
-		 List<Proposer> excelList = new ArrayList<>();
-	    try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
-	        XSSFSheet sheet = workbook.getSheetAt(0);
-
-	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-	            Row row = sheet.getRow(i);
-	            if (row == null) continue;
-	            String title = check(row, 0);
-	            String fullName = check(row, 1);
-	            String genderString = check(row, 2);
-	            String dob = check(row, 3);
-	            String income = check(row, 4);
-	            String pan = check(row, 5);
-	            String aadhar = check(row, 6);
-	            String maritalStatus = check(row, 7);
-	            String email = check(row, 8);
-	            String mobile = check(row, 9);
-	            String altMobile = check(row, 10);
-	            String address1 = check(row, 11);
-	            String address2 = check(row, 12);
-	            String address3 = check(row, 13);
-	            String pincode = check(row, 14);
-	            String area = check(row, 15);
-	            String town = check(row, 16);
-	            String city = check(row, 17);
-	            String state = check(row, 18);
-//
-	            if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty()
-	            	    || income.isEmpty() || pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") 
-	            	    || aadhar.length() != 12 || !aadhar.matches("\\d{12}")
-	            	    || maritalStatus.isEmpty() || !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-	            	    || !mobile.matches("\\d{10}") || pincode.length() != 6
-	            	    || area.isEmpty() || town.isEmpty()) {
-	            	System.out.println("Skipping row: " + i + " due to invalid data.");
-
-	            	    continue;
-	            	}
-
-	            Proposer proposer = new Proposer();
-	            
-	            proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
-	            proposer.setFullName(getCellValueAsString(row.getCell(1)));
-	            proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
-	            proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
-	            proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
-	            proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
-	            proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
-	            proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
-//	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
-	            proposer.setEmail(getCellValueAsString(row.getCell(8)));
-	            proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
-	            proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
-	            proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
-	            proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
-	            proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
-	            proposer.setPincode(getCellValueAsString(row.getCell(14)));
-	           
-//	            proposer.setStatus(getCellValueAsString(row.getCell(17)).charAt(0));
-	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
-	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
-	            proposer.setCity(getCellValueAsString(row.getCell(17)));
-	            proposer.setState(getCellValueAsString(row.getCell(18)));
-	            proposer.setStatus('Y');
-	            String gender = proposer.getGender().toString();
-	            if (gender != null && !gender.isEmpty()) {
-	    			Optional<GenderType> genderType = genderRepository.findByType(gender);
-	    			if (genderType.isPresent()) {
-	    				proposer.setGenderId(genderType.get().getGenderId());
-	    			} else {
-	    				throw new IllegalArgumentException("enter corrrect gender");
-	    			}
-	    		} else {
-	    			throw new IllegalArgumentException("enter can not be null");
-	    		}
-	            Proposer savedProposer =proposerRepository.save(proposer);
-//	            registerProposerExcel(proposer);
-//	            Proposer savedProposer = registerProposerExcel(proposer);
-//	            excelList.add(savedProposer);
-	            excelList.add(savedProposer);
-	            
-	        }
-	    }
-		return excelList;
-	}
-
 	private String check(Row row, int index) {
 	    Cell cell = row.getCell(index);
 	    if (cell == null) return "";
 	    return getCellValueAsString(cell).trim();
 	}
+	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException {
+		List<Proposer> excelList = new ArrayList<>();
+		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+			XSSFSheet sheet = workbook.getSheetAt(0);
+
+			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				if (row == null)
+					continue;
+				String title = check(row, 0);
+				String fullName = check(row, 1);
+				String genderString = check(row, 2);
+				String dob = check(row, 3);
+				String income = check(row, 4);
+				String pan = check(row, 5);
+				String aadhar = check(row, 6);
+				String maritalStatus = check(row, 7);
+				String email = check(row, 8);
+				String mobile = check(row, 9);
+				String altMobile = check(row, 10);
+				String address1 = check(row, 11);
+				String address2 = check(row, 12);
+				String address3 = check(row, 13);
+				String pincode = check(row, 14);
+				String area = check(row, 15);
+				String town = check(row, 16);
+				String city = check(row, 17);
+				String state = check(row, 18);
+//
+				if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty() || income.isEmpty()
+						|| pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || aadhar.length() != 12
+						|| !aadhar.matches("\\d{12}") || maritalStatus.isEmpty()
+						|| !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+						|| !mobile.matches("\\d{10}") || pincode.length() != 6 || area.isEmpty() || town.isEmpty()) {
+					System.out.println("Skipping row: " + i + " due to invalid data.");
+
+					continue;
+				}
+
+				Proposer proposer = new Proposer();
+
+				proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+				proposer.setFullName(getCellValueAsString(row.getCell(1)));
+				proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
+				proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+				proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+				proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
+				proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
+				proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+//	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
+				proposer.setEmail(getCellValueAsString(row.getCell(8)));
+				proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
+				proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+				proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
+				proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
+				proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
+				proposer.setPincode(getCellValueAsString(row.getCell(14)));
+//	            proposer.setStatus(getCellValueAsString(row.getCell(17)).charAt(0));
+				proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
+				proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+				proposer.setCity(getCellValueAsString(row.getCell(17)));
+				proposer.setState(getCellValueAsString(row.getCell(18)));
+				proposer.setStatus('Y');
+				String gender = proposer.getGender().toString();
+				if (gender != null && !gender.isEmpty()) {
+					Optional<GenderType> genderType = genderRepository.findByType(gender);
+					if (genderType.isPresent()) {
+						proposer.setGenderId(genderType.get().getGenderId());
+					} else {
+						throw new IllegalArgumentException("enter corrrect gender");
+					}
+				} else {
+					throw new IllegalArgumentException("enter can not be null");
+				}
+				Proposer savedProposer = proposerRepository.save(proposer);
+//	            registerProposerExcel(proposer);
+//	            Proposer savedProposer = registerProposerExcel(proposer);
+//	            excelList.add(savedProposer);
+				excelList.add(savedProposer);
+
+			}
+		}
+		return excelList;
+	}
+
+	
 
 	//do not use
 	@Override
