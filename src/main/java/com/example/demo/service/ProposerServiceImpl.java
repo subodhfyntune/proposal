@@ -654,25 +654,25 @@ public class ProposerServiceImpl implements ProposerService {
 	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 	            Row row = sheet.getRow(i);
 	            if (row == null) continue;
-	            String title = safeGet(row, 0);
-	            String fullName = safeGet(row, 1);
-	            String genderString = safeGet(row, 2);
-	            String dob = safeGet(row, 3);
-	            String income = safeGet(row, 4);
-	            String pan = safeGet(row, 5);
-	            String aadhar = safeGet(row, 6);
-	            String maritalStatus = safeGet(row, 7);
-	            String email = safeGet(row, 8);
-	            String mobile = safeGet(row, 9);
-	            String altMobile = safeGet(row, 10);
-	            String address1 = safeGet(row, 11);
-	            String address2 = safeGet(row, 12);
-	            String address3 = safeGet(row, 13);
-	            String pincode = safeGet(row, 14);
-	            String state = safeGet(row, 15);
-	            String area = safeGet(row, 16);
-	            String town = safeGet(row, 17);
-	            String city = safeGet(row, 18);
+	            String title = check(row, 0);
+	            String fullName = check(row, 1);
+	            String genderString = check(row, 2);
+	            String dob = check(row, 3);
+	            String income = check(row, 4);
+	            String pan = check(row, 5);
+	            String aadhar = check(row, 6);
+	            String maritalStatus = check(row, 7);
+	            String email = check(row, 8);
+	            String mobile = check(row, 9);
+	            String altMobile = check(row, 10);
+	            String address1 = check(row, 11);
+	            String address2 = check(row, 12);
+	            String address3 = check(row, 13);
+	            String pincode = check(row, 14);
+	            String area = check(row, 15);
+	            String town = check(row, 16);
+	            String city = check(row, 17);
+	            String state = check(row, 18);
 //
 	            if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty()
 	            	    || income.isEmpty() || pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") 
@@ -732,12 +732,13 @@ public class ProposerServiceImpl implements ProposerService {
 		return excelList;
 	}
 
-	private String safeGet(Row row, int index) {
+	private String check(Row row, int index) {
 	    Cell cell = row.getCell(index);
 	    if (cell == null) return "";
 	    return getCellValueAsString(cell).trim();
 	}
 
+	//do not use
 	@Override
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException {
 	    List<Proposer> excelList = new ArrayList<>();
