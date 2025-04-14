@@ -465,9 +465,9 @@ public class ProposerController {
     public ResponseHandler<String> uploadExcel(@RequestPart("file") MultipartFile file) {
         ResponseHandler<String> responseHandler = new ResponseHandler<>();
         try {
-            proposerService.saveProposersFromExcel(file);
+        	List<Proposer> savedProposers =  proposerService.saveProposersFromExcel(file);
             responseHandler.setStatus("success");
-            responseHandler.setData("Excel data uploaded and saved to database successfully.");
+            responseHandler.setData(savedProposers);
             responseHandler.setMessage("Upload completed.");
         } catch (Exception e) {
             e.printStackTrace();

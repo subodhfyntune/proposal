@@ -22,6 +22,8 @@ public interface ProposerService {
 	public Proposer deleteProposer(Long id);
 	
 	public Proposer registerProposer(ProposerDto proposerDto);
+	
+	public Proposer registerProposerExcel(Proposer proposer);
 	public Proposer updateProposerUsingDto(Long id  ,ProposerDto proposerDto);
 	
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage);
@@ -32,7 +34,7 @@ public interface ProposerService {
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
 	public String generateSampleExcel() throws IOException;
 	
-	public void saveProposersFromExcel(MultipartFile file) throws IOException;
+	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException;
 	
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
 }

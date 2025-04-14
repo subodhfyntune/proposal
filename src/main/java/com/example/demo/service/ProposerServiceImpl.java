@@ -623,29 +623,31 @@ public class ProposerServiceImpl implements ProposerService {
 	}
 
 	private String getCellValueAsString(Cell cell) {
-	    if (cell == null) return "";
+		if (cell == null)
+			return "";
 
-	    switch (cell.getCellType()) {
-	        case STRING:
-	            return cell.getStringCellValue().trim();
-	        case NUMERIC:
-	            if (DateUtil.isCellDateFormatted(cell)) {
-	                return cell.getDateCellValue().toString(); 
-	            } else {
-	                return String.valueOf((long) cell.getNumericCellValue()); 
-	            }
-	        case BOOLEAN:
-	            return String.valueOf(cell.getBooleanCellValue());
-	        case FORMULA:
-	            return cell.getCellFormula();
-	        case BLANK:
-	            return "";
-	        default:
-	            return "";
-	    }
+		switch (cell.getCellType()) {
+		case STRING:
+			return cell.getStringCellValue().trim();
+		case NUMERIC:
+			if (DateUtil.isCellDateFormatted(cell)) {
+				return cell.getDateCellValue().toString();
+			} else {
+				return String.valueOf((long) cell.getNumericCellValue());
+			}
+		case BOOLEAN:
+			return String.valueOf(cell.getBooleanCellValue());
+		case FORMULA:
+			return cell.getCellFormula();
+		case BLANK:
+			return "";
+		default:
+			return "";
+		}
 	}
 
-	public void saveProposersFromExcel(MultipartFile file) throws IOException {
+	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException {
+		 List<Proposer> excelList = new ArrayList<>();
 	    try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 	        XSSFSheet sheet = workbook.getSheetAt(0);
 
@@ -653,6 +655,7 @@ public class ProposerServiceImpl implements ProposerService {
 	            Row row = sheet.getRow(i);
 	            if (row == null) continue;
 	            Proposer proposer = new Proposer();
+	            
 	            proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
 	            proposer.setFullName(getCellValueAsString(row.getCell(1)));
 	            proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
@@ -661,6 +664,8 @@ public class ProposerServiceImpl implements ProposerService {
 	            proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 	            proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
 	            proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+	            
+	            
 //	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
 	            proposer.setEmail(getCellValueAsString(row.getCell(8)));
 	            proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
@@ -674,9 +679,27 @@ public class ProposerServiceImpl implements ProposerService {
 	            proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
 	            proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(17)).toUpperCase()));
 	            proposer.setCity(getCellValueAsString(row.getCell(18)));
-	            proposerRepository.save(proposer);
+	            proposer.setStatus('Y');
+	            String gender = proposer.getGender().toString();
+	            if (gender != null && !gender.isEmpty()) {
+	    			Optional<GenderType> genderType = genderRepository.findByType(gender);
+	    			if (genderType.isPresent()) {
+	    				proposer.setGenderId(genderType.get().getGenderId());
+	    			} else {
+	    				throw new IllegalArgumentException("enter corrrect gender");
+	    			}
+	    		} else {
+	    			throw new IllegalArgumentException("enter can not be null");
+	    		}
+	            Proposer savedProposer =proposerRepository.save(proposer);
+//	            registerProposerExcel(proposer);
+//	            Proposer savedProposer = registerProposerExcel(proposer);
+//	            excelList.add(savedProposer);
+	            excelList.add(savedProposer);
+	            
 	        }
 	    }
+		return excelList;
 	}
 
 	@Override
@@ -732,6 +755,111 @@ public class ProposerServiceImpl implements ProposerService {
 	    } catch (IllegalArgumentException e) {
 	        System.err.println("Invalid enum value '" + value + "' for enum " + enumClass.getSimpleName());
 	        return null; }
+	}
+
+	@Override
+	public Proposer registerProposerExcel(Proposer proposer) {
+		if (proposer.getFullName() == null || proposer.getFullName().trim().isEmpty()) {
+			throw new IllegalArgumentException("Enter the Full Name");
+		}
+
+		if (proposer.getEmail() == null
+				|| proposer.getEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$\r\n" + "")) {
+			throw new IllegalArgumentException("Enter a valid Email");
+		}
+
+		if (proposer.getMobileNumber() == null || proposer.getMobileNumber().length() != 10
+				|| !proposer.getMobileNumber().matches("\\d+")) {
+			throw new IllegalArgumentException("Enter valid mobile no.");
+		}
+		boolean pan = proposerRepository.existsByPanNumber(proposer.getPanNumber());
+		if (proposer.getPanNumber() == null || proposer.getPanNumber().length() != 10
+				|| !proposer.getPanNumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan) {
+			throw new IllegalArgumentException("Enter a valid PAN number");
+		}
+		boolean aadhar = proposerRepository.existsByAadharNumber(proposer.getAadharNumber());
+		if (proposer.getAadharNumber() == null || proposer.getAadharNumber().length() != 12
+				|| !proposer.getAadharNumber().matches("\\d+") || aadhar) {
+			throw new IllegalArgumentException("Enter a valid Aadhar Number");
+		}
+
+		if (proposer.getAlternateMobileNumber() == null || proposer.getAlternateMobileNumber().length() != 10
+				|| !proposer.getAlternateMobileNumber().matches("\\d+")) {
+			throw new IllegalArgumentException("Enter a valid Alternate Mobile Number");
+		}
+
+		if (proposer.getPincode() == null || proposer.getPincode().length() != 6
+				|| !proposer.getPincode().matches("\\d+")) {
+			throw new IllegalArgumentException("Enter a valid Pincode");
+		}
+
+		if (proposer.getAnnualIncome() == null || proposer.getAnnualIncome().isEmpty()
+				|| !proposer.getAnnualIncome().matches("\\d+")) {
+			throw new IllegalArgumentException("Enter a valid Annual Income");
+		}
+
+		if (proposer.getAddressLine1() == null || proposer.getAddressLine1().trim().isEmpty()) {
+			throw new IllegalArgumentException("Enter Address Line 1");
+		}
+
+		if (proposer.getAddressLine2() == null || proposer.getAddressLine2().trim().isEmpty()) {
+			throw new IllegalArgumentException("Enter Address Line 2");
+		}
+
+		if (proposer.getAddressLine3() == null || proposer.getAddressLine3().trim().isEmpty()) {
+			throw new IllegalArgumentException("Enter Address Line 3");
+		}
+
+		Proposer newProposer = new Proposer();
+		newProposer.setStatus('Y');
+		newProposer.setTitle(proposer.getTitle());
+		newProposer.setFullName(proposer.getFullName());
+
+		String gender = proposer.getGender().toString();
+		if (gender != null && !gender.isEmpty()) {
+			if (gender.equalsIgnoreCase(Gender.MALE.toString())) {
+				newProposer.setGender(Gender.MALE);
+			} else if (gender.equalsIgnoreCase(Gender.FEMALE.toString())) {
+				newProposer.setGender(Gender.FEMALE);
+			} else if (gender.equalsIgnoreCase(Gender.OTHER.toString())) {
+				newProposer.setGender(Gender.OTHER);
+			} else {
+				throw new IllegalArgumentException("enter corrrect gender");
+			}
+		} else {
+			throw new IllegalArgumentException("gender can not be null");
+		}
+
+		if (gender != null && !gender.isEmpty()) {
+			Optional<GenderType> genderType = genderRepository.findByType(gender);
+			if (genderType.isPresent()) {
+				newProposer.setGenderId(genderType.get().getGenderId());
+			} else {
+				throw new IllegalArgumentException("enter corrrect gender");
+			}
+		} else {
+			throw new IllegalArgumentException("enter can not be null");
+		}
+
+		newProposer.setDateOfBirth(proposer.getDateOfBirth());
+		newProposer.setAnnualIncome(proposer.getAnnualIncome());
+		newProposer.setPanNumber(proposer.getPanNumber());
+		newProposer.setAadharNumber(proposer.getAadharNumber());
+		newProposer.setMaritalStatus(proposer.getMaritalStatus());
+		newProposer.setEmail(proposer.getEmail());
+		newProposer.setMobileNumber(proposer.getMobileNumber());
+		newProposer.setAlternateMobileNumber(proposer.getAlternateMobileNumber());
+		newProposer.setAddressLine1(proposer.getAddressLine1());
+		newProposer.setAddressLine2(proposer.getAddressLine2());
+		newProposer.setAddressLine3(proposer.getAddressLine3());
+		newProposer.setPincode(proposer.getPincode());
+		newProposer.setArea(proposer.getArea());
+		newProposer.setTown(proposer.getTown());
+		newProposer.setCity(proposer.getCity());
+		newProposer.setState(proposer.getState());
+		proposerRepository.save(newProposer);
+
+		return newProposer;
 	}
 
     
