@@ -38,12 +38,14 @@ import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.GenderType;
 import com.example.demo.model.Proposer;
+import com.example.demo.model.ResponceExcel;
 import com.example.demo.model.Title;
 import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.pagination.SearchFilter;
 import com.example.demo.repository.GenderRepository;
 import com.example.demo.repository.ProposerRepository;
+import com.example.demo.repository.ResponceExcelRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -60,6 +62,9 @@ public class ProposerServiceImpl implements ProposerService {
 
 	@Autowired
 	private GenderRepository genderRepository;
+	
+	@Autowired
+	private ResponceExcelRepository responceExcelRepository;
 	Integer totalRecord = 0;
 
 //	@Override
@@ -650,12 +655,15 @@ public class ProposerServiceImpl implements ProposerService {
 	    if (cell == null) return "";
 	    return getCellValueAsString(cell).trim();
 	}
+
 	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException {
 		List<Proposer> excelList = new ArrayList<>();
 		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			XSSFSheet sheet = workbook.getSheetAt(0);
 
 			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+				ResponceExcel responceExcel = new ResponceExcel();
+
 				Row row = sheet.getRow(i);
 				if (row == null)
 					continue;
@@ -678,40 +686,166 @@ public class ProposerServiceImpl implements ProposerService {
 				String town = check(row, 16);
 				String city = check(row, 17);
 				String state = check(row, 18);
-//
-				if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty() || income.isEmpty()
-						|| pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || aadhar.length() != 12
-						|| !aadhar.matches("\\d{12}") || maritalStatus.isEmpty()
-						|| !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-						|| !mobile.matches("\\d{10}") || pincode.length() != 6 || area.isEmpty() || town.isEmpty()) {
-					System.out.println("Skipping row: " + i + " due to invalid data.");
 
+//
+//				if (title.isEmpty() || fullName.isEmpty() || genderString.isEmpty() || dob.isEmpty() || income.isEmpty()
+//						|| pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || aadhar.length() != 12
+//						|| !aadhar.matches("\\d{12}") || maritalStatus.isEmpty()
+//						|| !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+//						|| !mobile.matches("\\d{10}") || pincode.length() != 6 || area.isEmpty() || town.isEmpty()) {
+//					System.out.println("Skipping row: " + i + " due to invalid data.");
+//
+//					continue;
+//				}
+				Proposer proposer = new Proposer();
+				proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+				if (fullName == null || fullName.isEmpty()) {
+//					System.out.println(fullName + "error");
+//					System.err.println("errror ocured");
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("full Name");
+					responceExcel.setReason("error in full Name");
+					responceExcelRepository.save(responceExcel);
 					continue;
+
+				} else {
+					proposer.setFullName(getCellValueAsString(row.getCell(1)));
+
+				}
+				;
+				if (genderString.isEmpty() || genderString == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("gender");
+					responceExcel.setReason("error in gender");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
 				}
 
-				Proposer proposer = new Proposer();
+				if (dob.isEmpty() || dob == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("dob");
+					responceExcel.setReason("error in dob");
+					responceExcelRepository.save(responceExcel);
+					continue;
 
-				proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
-				proposer.setFullName(getCellValueAsString(row.getCell(1)));
-				proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
-				proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+				} else {
+					proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+				}
+
+				if (pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan == null || pan.isEmpty()) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("pancard");
+					responceExcel.setReason("error in pancard");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
+				}
+
 				proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
-				proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
-				proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
+				if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("aadhar card");
+					responceExcel.setReason("error in aadhar card");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
+				}
+
+				if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") || email.isEmpty()
+						|| email == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("email");
+					responceExcel.setReason("error in email");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setEmail(getCellValueAsString(row.getCell(8)));
+				}
+
+				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("mobile number");
+					responceExcel.setReason("error in mobile number");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
+				}
+
+				if (area.isEmpty() || area == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("area");
+					responceExcel.setReason("error in area");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
+				}
+
+				if (pincode.length() != 6 || pincode == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("pin code");
+					responceExcel.setReason("error in pin code");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setPincode(getCellValueAsString(row.getCell(14)));
+				}
+
+				if (town.isEmpty() || town == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("town");
+					responceExcel.setReason("error in town");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+				}
+
+				if (city.isEmpty() || city == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("city");
+					responceExcel.setReason("error in city");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setCity(getCellValueAsString(row.getCell(17)));
+				}
+
+				if (state.isEmpty() || state == null) {
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("state");
+					responceExcel.setReason("error in state");
+					responceExcelRepository.save(responceExcel);
+					continue;
+
+				} else {
+					proposer.setState(getCellValueAsString(row.getCell(18)));
+				}
+
 				proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
 //	            proposer.setGenderId((int) row.getCell(8).getNumericCellValue());
-				proposer.setEmail(getCellValueAsString(row.getCell(8)));
-				proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
+
 				proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 				proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 				proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
 				proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
-				proposer.setPincode(getCellValueAsString(row.getCell(14)));
+
 //	            proposer.setStatus(getCellValueAsString(row.getCell(17)).charAt(0));
-				proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
-				proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
-				proposer.setCity(getCellValueAsString(row.getCell(17)));
-				proposer.setState(getCellValueAsString(row.getCell(18)));
+
 				proposer.setStatus('Y');
 				String gender = proposer.getGender().toString();
 				if (gender != null && !gender.isEmpty()) {
@@ -725,10 +859,17 @@ public class ProposerServiceImpl implements ProposerService {
 					throw new IllegalArgumentException("enter can not be null");
 				}
 				Proposer savedProposer = proposerRepository.save(proposer);
+				excelList.add(savedProposer);
+				Long id = savedProposer.getId();
+				System.out.println(id);
+				responceExcel.setStatus("sucess");
+				responceExcel.setErrorField(String.valueOf(id));
+				responceExcel.setReason("sucessfully added");
+				responceExcelRepository.save(responceExcel);
+
 //	            registerProposerExcel(proposer);
 //	            Proposer savedProposer = registerProposerExcel(proposer);
 //	            excelList.add(savedProposer);
-				excelList.add(savedProposer);
 
 			}
 		}
