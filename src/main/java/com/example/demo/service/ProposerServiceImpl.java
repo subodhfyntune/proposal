@@ -1215,7 +1215,7 @@ public class ProposerServiceImpl implements ProposerService {
 					proposer.setEmail(getCellValueAsString(row.getCell(8)));
 				}
 
-				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null) {
+				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null || !mobile.matches("^[6-9]\\d{9}$") ) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("mobile number");
 					responceExcel.setReason("error in mobile number");
@@ -1304,34 +1304,32 @@ public class ProposerServiceImpl implements ProposerService {
 				}
 				if(town.isEmpty() || town == null) {
 					proposer.setTown(Town.PANVEL);
+					
 				}else {
 					proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
 				}
-				if( !altMobile.matches("\\d{10}")) {
-					proposer.setAlternateMobileNumber(null);
-				}else {
+				
+//				
+				if( altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$") ) {
 					proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 				}
 				if(!address1.matches("^[A-Za-z0-9\s,/-]+$") ) {
-					proposer.setAddressLine1(null);
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField("address1");
+					responceExcel.setReason("error in address1");
+					responceExcelRepository.save(responceExcel);
+					continue;
 				}else {
 					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 				}
-				if(!address2.matches("^[A-Za-z0-9\s,/-]+$") ) {
-					proposer.setAddressLine2(null);
-				}else {
+				if(address2.matches("^[A-Za-z0-9\s,/-]+$") ) {
 					proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
 				}
 				
-				if(!address3.matches("^[A-Za-z0-9\s,/-]+$")) {
-					proposer.setAddressLine3(null);
-				}else {
+				if(address3.matches("^[A-Za-z0-9\s,/-]+$")) {
 					proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
-				}
+				}  
 				
-
-
-
 				proposer.setStatus('Y');
 				String gender = proposer.getGender().toString();
 				if (gender != null && !gender.isEmpty()) {
