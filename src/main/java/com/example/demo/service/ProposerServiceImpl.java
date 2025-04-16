@@ -37,6 +37,7 @@ import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.GenderType;
+import com.example.demo.model.MaritalStatus;
 import com.example.demo.model.Proposer;
 import com.example.demo.model.ResponceExcel;
 import com.example.demo.model.Title;
@@ -1132,7 +1133,12 @@ public class ProposerServiceImpl implements ProposerService {
 //					continue;
 //				}
 				Proposer proposer = new Proposer();
-				proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+				if(title != Title.MRS.toString() || title != Title.MR.toString()) {
+					proposer.setTitle(null);
+				}else {
+					proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+				}
+				
 				if (fullName == null || fullName.isEmpty()) {
 //					System.out.println(fullName + "error");
 //					System.err.println("errror ocured");
@@ -1180,8 +1186,12 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 				}
-
-				proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+				if(!income.matches("\\d+")) {
+					proposer.setAnnualIncome(null);
+				}else {
+					proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+				}
+				
 				if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("aadhar card");
@@ -1287,14 +1297,38 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setState(getCellValueAsString(row.getCell(18)));
 				}
-
+				if(maritalStatus.isEmpty() || maritalStatus == null ) {
+					proposer.setMaritalStatus("SINGLE");
+				}else {
 				proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
-
-				proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
-				proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
-				proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
-				proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
-				proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
+				}
+				if(town.isEmpty() || town == null) {
+					proposer.setTown(Town.PANVEL);
+				}else {
+					proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+				}
+				if( !altMobile.matches("\\d{10}")) {
+					proposer.setAlternateMobileNumber(null);
+				}else {
+					proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+				}
+				if(!address1.matches("^[A-Za-z0-9\s,/-]+$") ) {
+					proposer.setAddressLine1(null);
+				}else {
+					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
+				}
+				if(!address2.matches("^[A-Za-z0-9\s,/-]+$") ) {
+					proposer.setAddressLine2(null);
+				}else {
+					proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
+				}
+				
+				if(!address3.matches("^[A-Za-z0-9\s,/-]+$")) {
+					proposer.setAddressLine3(null);
+				}else {
+					proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
+				}
+				
 
 
 
