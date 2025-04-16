@@ -34,8 +34,10 @@ public interface ProposerService {
 	
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
 	public String generateSampleExcel() throws IOException;
+	public String generateSampleExcelMandatory() throws IOException;
 	
 	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException;
+	public List<Proposer> saveProposersFromExcelMandatory(MultipartFile file) throws IOException;
 	  
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
 }

@@ -460,12 +460,48 @@ public class ProposerController {
        
 		return responseHandler;
     }
+    @GetMapping("/generate_sample_excel_mandatory")
+    public ResponseHandler generateSampleExcelMandatory() throws IOException {
+       
+    	ResponseHandler responseHandler = new ResponseHandler<>();
+    	try {
+    		String downloadLink = proposerService.generateSampleExcelMandatory();
+    		responseHandler.setStatus("downloaded");
+            responseHandler.setData(downloadLink);
+            responseHandler.setMessage("download successfully");
+		} catch (IOException e) {
+			// TODO: handle exception
+			 e.printStackTrace();
+		        responseHandler.setStatus("error");
+		        responseHandler.setData(new ArrayList<>());
+		        responseHandler.setMessage("An error occurred while downloading");
+		}
+       
+		return responseHandler;
+    }
 	 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler<String> uploadExcel(@RequestPart("file") MultipartFile file) {
         ResponseHandler<String> responseHandler = new ResponseHandler<>();
         try {
         	List<Proposer> savedProposers =  proposerService.saveProposersFromExcel(file);
+            responseHandler.setStatus("success");
+            responseHandler.setData(savedProposers);
+            responseHandler.setMessage("Upload completed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+        return responseHandler;
+    }
+    
+    @PostMapping(value = "/upload_mandatory", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler<String> uploadExcelMandatory(@RequestPart("file") MultipartFile file) {
+        ResponseHandler<String> responseHandler = new ResponseHandler<>();
+        try {
+        	List<Proposer> savedProposers =  proposerService.saveProposersFromExcelMandatory(file);
             responseHandler.setStatus("success");
             responseHandler.setData(savedProposers);
             responseHandler.setMessage("Upload completed.");
