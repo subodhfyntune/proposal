@@ -502,9 +502,14 @@ public class ProposerController {
         ResponseHandler<String> responseHandler = new ResponseHandler<>();
         try {
         	List<Proposer> savedProposers =  proposerService.saveProposersFromExcelMandatory(file);
+        	
+        	Integer total = proposerService.totalEntry();
+        	Integer sucess = proposerService.getTotalCountSucess();
             responseHandler.setStatus("success");
             responseHandler.setData(savedProposers);
-            responseHandler.setMessage("Upload completed.");
+            responseHandler.setMessage("Upload completed."+"total"+total+" "+"sucess"+sucess);
+            
+            responseHandler.setTotalRecord(total);
         } catch (Exception e) {
             e.printStackTrace();
             responseHandler.setStatus("error");
@@ -526,6 +531,7 @@ public class ProposerController {
             responseHandler.setStatus("error");
             responseHandler.setData(new ArrayList<>());
             responseHandler.setMessage("Failed to process Excel file.");
+           
         }
         return responseHandler;
     }

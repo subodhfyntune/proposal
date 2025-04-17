@@ -67,6 +67,8 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ResponceExcelRepository responceExcelRepository;
 	Integer totalRecord = 0;
+	Integer count = 0;
+	Integer totalEntry = 0;
 
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
@@ -1095,7 +1097,7 @@ public class ProposerServiceImpl implements ProposerService {
 		List<Proposer> excelList = new ArrayList<>();
 		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			XSSFSheet sheet = workbook.getSheetAt(0);
-
+			totalEntry = sheet.getLastRowNum();
 			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
 
@@ -1133,13 +1135,29 @@ public class ProposerServiceImpl implements ProposerService {
 //					continue;
 //				}
 				Proposer proposer = new Proposer();
-				if(title != Title.MRS.toString() || title != Title.MR.toString()) {
-					proposer.setTitle(null);
-				}else {
-					proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
-				}
+				System.err.println(title);
+//				 Title parsedTitle = Title.valueOf(title);
+//				    
+//				    if (parsedTitle == Title.MR || parsedTitle == Title.MRS) {
+//				        System.err.println("Valid title: " + parsedTitle);
+//				        proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+//				    } else {
+//				        System.err.println("Unsupported title: " + parsedTitle);
+//				    }
 				
-				if (fullName == null || fullName.isEmpty()) {
+				boolean isValidTitle = false;
+				for (Title titleEnum : Title.values()) {
+					
+				    if (titleEnum.name().equalsIgnoreCase(title.trim())) {
+				        isValidTitle = true;
+				        break;
+				    }
+				}
+				if (isValidTitle == true  ) {
+					proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+				
+				} 
+				if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
 //					System.out.println(fullName + "error");
 //					System.err.println("errror ocured");
 					responceExcel.setStatus("failed");
@@ -1148,12 +1166,11 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcelRepository.save(responceExcel);
 					continue;
 					
-
 				} else {
 					proposer.setFullName(getCellValueAsString(row.getCell(1)));
 
 				}
-				;
+				
 				if (genderString.isEmpty() || genderString == null) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("gender");
@@ -1342,6 +1359,7 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					throw new IllegalArgumentException("enter can not be null");
 				}
+				
 				Proposer savedProposer = proposerRepository.save(proposer);
 				excelList.add(savedProposer);
 				Long id = savedProposer.getId();
@@ -1350,10 +1368,24 @@ public class ProposerServiceImpl implements ProposerService {
 				responceExcel.setErrorField(String.valueOf(id));
 				responceExcel.setReason("sucessfully added");
 				responceExcelRepository.save(responceExcel);
+				count++;
+				
 
 			}
 		}
 		return excelList;
+	}
+
+	@Override
+	public Integer getTotalCountSucess() {
+		// TODO Auto-generated method stub
+		return count;
+	}
+
+	@Override
+	public Integer totalEntry() {
+		// TODO Auto-generated method stub
+		return totalEntry;
 	}
 
     
