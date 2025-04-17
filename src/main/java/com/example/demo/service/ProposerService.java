@@ -42,4 +42,5 @@ public interface ProposerService {
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
 	public Integer getTotalCountSucess();
 	public Integer totalEntry();
+	public Integer totalFalseEntry();
 }

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.ObjectInputFilter.Status;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.PrivateKey;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,8 +68,9 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ResponceExcelRepository responceExcelRepository;
 	Integer totalRecord = 0;
-	Integer count = 0;
-	Integer totalEntry = 0;
+	Integer count ;
+	Integer totalEntry = 0 ;
+	Integer falseCount ;
 
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
@@ -639,7 +641,8 @@ public class ProposerServiceImpl implements ProposerService {
 			return cell.getStringCellValue().trim();
 		case NUMERIC:
 			if (DateUtil.isCellDateFormatted(cell)) {
-				return cell.getDateCellValue().toString();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				return simpleDateFormat.format(cell.getDateCellValue());
 			} else {
 				return String.valueOf((long) cell.getNumericCellValue());
 			}
@@ -1097,10 +1100,12 @@ public class ProposerServiceImpl implements ProposerService {
 		List<Proposer> excelList = new ArrayList<>();
 		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			XSSFSheet sheet = workbook.getSheetAt(0);
+			count = 0;
+			falseCount = 0;
 			totalEntry = sheet.getLastRowNum();
 			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
-
+				
 				Row row = sheet.getRow(i);
 				if (row == null)
 					continue;
@@ -1164,6 +1169,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("full Name");
 					responceExcel.setReason("error in full Name");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 					
 				} else {
@@ -1176,6 +1182,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("gender");
 					responceExcel.setReason("error in gender");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1187,6 +1194,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("dob");
 					responceExcel.setReason("error in dob");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1198,6 +1206,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("pancard");
 					responceExcel.setReason("error in pancard");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1214,6 +1223,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("aadhar card");
 					responceExcel.setReason("error in aadhar card");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1226,6 +1236,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("email");
 					responceExcel.setReason("error in email");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1237,6 +1248,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("mobile number");
 					responceExcel.setReason("error in mobile number");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1256,6 +1268,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("area");
 					responceExcel.setReason("error in area");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 					
 
@@ -1268,6 +1281,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("pin code");
 					responceExcel.setReason("error in pin code");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1298,6 +1312,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("city");
 					responceExcel.setReason("error in city");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1309,6 +1324,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("state");
 					responceExcel.setReason("error in state");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 
 				} else {
@@ -1335,6 +1351,7 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("address1");
 					responceExcel.setReason("error in address1");
 					responceExcelRepository.save(responceExcel);
+					falseCount++;
 					continue;
 				}else {
 					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
@@ -1386,6 +1403,12 @@ public class ProposerServiceImpl implements ProposerService {
 	public Integer totalEntry() {
 		// TODO Auto-generated method stub
 		return totalEntry;
+	}
+
+	@Override
+	public Integer totalFalseEntry() {
+		// TODO Auto-generated method stub
+		return falseCount;
 	}
 
     

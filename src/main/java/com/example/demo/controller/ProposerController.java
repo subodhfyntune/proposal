@@ -505,9 +505,10 @@ public class ProposerController {
         	
         	Integer total = proposerService.totalEntry();
         	Integer sucess = proposerService.getTotalCountSucess();
+        	Integer falseEntry =  proposerService.totalFalseEntry();
             responseHandler.setStatus("success");
             responseHandler.setData(savedProposers);
-            responseHandler.setMessage("Upload completed."+"total"+total+" "+"sucess"+sucess);
+            responseHandler.setMessage("Upload completed "+"total "+total+" "+"sucess  "+sucess +" failed "+falseEntry);
             
             responseHandler.setTotalRecord(total);
         } catch (Exception e) {
