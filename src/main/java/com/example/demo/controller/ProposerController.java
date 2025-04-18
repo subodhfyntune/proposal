@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -508,7 +509,7 @@ public class ProposerController {
         	Integer falseEntry =  proposerService.totalFalseEntry();
             responseHandler.setStatus("success");
             responseHandler.setData(savedProposers);
-            responseHandler.setMessage("Upload completed "+"total "+total+" "+"sucess  "+sucess +" failed "+falseEntry);
+            responseHandler.setMessage("Upload completed "+"total-> "+total+" "+"sucess->  "+sucess +" failed-> "+falseEntry);
             
             responseHandler.setTotalRecord(total);
         } catch (Exception e) {
@@ -538,6 +539,33 @@ public class ProposerController {
     }
 
     
+    @PostMapping(value = "/upload_mandatory_using_map", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler<List<Proposer>> uploadExcelMandatory2(@RequestPart("file") MultipartFile file) {
+        ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
+
+        try {
+            Map<String, Object> resultMap = proposerService.saveProposersFromExcelMandatory2(file);
+
+            Integer total = (Integer) resultMap.get("totalCount");
+            Integer success = (Integer) resultMap.get("successCount");
+            Integer failed = (Integer) resultMap.get("failedCount");
+            
+            List<Proposer> savedProposers = (List<Proposer>) resultMap.get("addedProposers");
+
+            responseHandler.setStatus("success");
+            responseHandler.setData(savedProposers);
+            responseHandler.setMessage("Upload completed | total: " + total + " | success: " + success + " | failed: " + failed);
+            responseHandler.setTotalRecord(total);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+
+        return responseHandler;
+    }
 
 		
 

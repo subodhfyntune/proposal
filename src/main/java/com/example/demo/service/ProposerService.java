@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -43,4 +44,7 @@ public interface ProposerService {
 	public Integer getTotalCountSucess();
 	public Integer totalEntry();
 	public Integer totalFalseEntry();
+	
+	public Map<String, Object> saveProposersFromExcelMandatory2(MultipartFile file) throws IOException;
+
 }
