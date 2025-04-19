@@ -30,6 +30,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -567,6 +568,7 @@ public class ProposerServiceImpl implements ProposerService {
 	}
 
 	@Override
+	
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception {
 		// TODO Auto-generated method stub
 		List<Proposer> praposers = proposerRepository.findAll();
@@ -597,6 +599,49 @@ public class ProposerServiceImpl implements ProposerService {
 		outputStream.close();
 	}
 
+	@Scheduled(fixedRate = 5000)
+	public void generateExcel2() throws Exception {
+		// TODO Auto-generated method stub
+		List<Proposer> praposers = proposerRepository.findAll();
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet("Proposer");
+		Row row = sheet.createRow(0);
+
+		row.createCell(0).setCellValue("ID");
+		row.createCell(1).setCellValue("Name");
+		row.createCell(2).setCellValue("Email");
+		row.createCell(3).setCellValue("City");
+
+		
+		int rowCount = 1;
+
+		for (Proposer p : praposers) {
+			Row rowNew = sheet.createRow(rowCount++);
+			
+			rowNew.createCell(0).setCellValue(p.getId());
+			rowNew.createCell(1).setCellValue(p.getFullName());
+			rowNew.createCell(2).setCellValue(p.getEmail());
+			rowNew.createCell(3).setCellValue(p.getCity());
+			
+		}
+		String filePathString = "C:\\subodh\\";
+		String uuid = UUID.randomUUID().toString();
+		String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+		String fileName = "sample_" + uuid + "_" + currentDateTime + ".xlsx";
+
+        String fullFilePath = filePathString + fileName;
+        try {
+			FileOutputStream fileOutputStream= new FileOutputStream(fullFilePath);
+			workbook.write(fileOutputStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        System.out.println("generated");
+       
+		workbook.close();
+
+		
+	}
 	public String generateSampleExcel() throws IOException {
 //		String filePathString = "C:/subodh/";
 		String filePathString = "C:\\subodh\\";

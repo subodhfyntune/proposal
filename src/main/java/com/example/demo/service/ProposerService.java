@@ -34,6 +34,7 @@ public interface ProposerService {
 	public Integer getTotalRecord();
 	
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
+	public void generateExcel2() throws Exception;
 	public String generateSampleExcel() throws IOException;
 	public String generateSampleExcelMandatory() throws IOException;
 	

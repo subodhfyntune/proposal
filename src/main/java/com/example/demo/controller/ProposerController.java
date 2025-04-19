@@ -439,6 +439,15 @@ public class ProposerController {
 	        
 
 	}
+	@GetMapping("export_excel_file_using_scheduler")
+	public void exportToExcel2() throws Exception {
+		 
+	      
+	        proposerService.generateExcel2();
+	      
+	        
+
+	}
 	
 	
    
@@ -532,13 +541,12 @@ public class ProposerController {
             e.printStackTrace();
             responseHandler.setStatus("error");
             responseHandler.setData(new ArrayList<>());
-            responseHandler.setMessage("Failed to process Excel file.");
-           
+            responseHandler.setMessage("Failed to process Excel file.");           
         }
         return responseHandler;
     }
 
-    
+       
     @PostMapping(value = "/upload_mandatory_using_map", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler<List<Proposer>> uploadExcelMandatory2(@RequestPart("file") MultipartFile file) {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
