@@ -1782,14 +1782,26 @@ public class ProposerServiceImpl implements ProposerService {
 		        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
 		    }
 
-		    String sortBy = proposerPage.getSortBy() != null ? proposerPage.getSortBy() : "id";
-		    String sortOrder = proposerPage.getSortOrder();
+//		    String sortBy = proposerPage.getSortBy() != null ? proposerPage.getSortBy() : "id";
+//		    String sortOrder = proposerPage.getSortOrder();
+//
+//		    if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+//		        criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+//		    } else {
+//		        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+//		    }
+		    
+		    String sortBy = proposerPage.getSortBy();
+			if (sortBy == null || sortBy.trim().isEmpty()) {
+				sortBy = "id";
+			}
 
-		    if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
-		        criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
-		    } else {
-		        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
-		    }
+			String sortOrder = proposerPage.getSortOrder();
+			if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+			} else {
+				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+			}
 
 		    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
@@ -1801,6 +1813,7 @@ public class ProposerServiceImpl implements ProposerService {
 		        typedQuery.setFirstResult(firstResult);
 		        typedQuery.setMaxResults(proposerPage.getPageSize());
 		    }
+		    
 
 		    List<Proposer> pagedList = typedQuery.getResultList();
 
@@ -1812,7 +1825,6 @@ public class ProposerServiceImpl implements ProposerService {
 		        map.put("fullName", proposer.getFullName());
 		        map.put("email", proposer.getEmail());
 		        map.put("city", proposer.getCity());
-		        map.put("status", proposer.getStatus());
 		        
 		        resultList.add(map);
 		    }
