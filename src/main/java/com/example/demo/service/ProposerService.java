@@ -47,5 +47,8 @@ public interface ProposerService {
 	public Integer totalFalseEntry();
 	
 	public Map<String, Object> saveProposersFromExcelMandatory2(MultipartFile file) throws IOException;
+	
+	public List<Map<String, Object>> getAllProposersByPagingAndSortingAndfilteringUsingMap(ProposerPage proposerPage,
+	        ResponseHandler<List<Map<String, Object>>> responseHandler);
 
 }

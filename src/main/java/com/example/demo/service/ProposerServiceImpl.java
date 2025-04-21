@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.boot.model.internal.Nullability;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -599,18 +600,21 @@ public class ProposerServiceImpl implements ProposerService {
 		outputStream.close();
 	}
 
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 5000)  
 	public void generateExcel2() throws Exception {
 		// TODO Auto-generated method stub
 		List<Proposer> praposers = proposerRepository.findAll();
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Proposer");
-		Row row = sheet.createRow(0);
+		List<String> headers = Arrays.asList("ID", "Title", "Full Name", "Gender", "Date of Birth", "Annual Income",
+				"PAN Number", "Aadhar Number", "Marital Status", "Email", "Mobile Number",
+				 "Address Line 1" , "Area",
+				"Town", "City", "State");
 
-		row.createCell(0).setCellValue("ID");
-		row.createCell(1).setCellValue("Name");
-		row.createCell(2).setCellValue("Email");
-		row.createCell(3).setCellValue("City");
+		Row headerRow = sheet.createRow(0);
+		for (int i = 0; i < headers.size(); i++) {
+			headerRow.createCell(i).setCellValue(headers.get(i));
+		}
 
 		
 		int rowCount = 1;
@@ -619,9 +623,26 @@ public class ProposerServiceImpl implements ProposerService {
 			Row rowNew = sheet.createRow(rowCount++);
 			
 			rowNew.createCell(0).setCellValue(p.getId());
-			rowNew.createCell(1).setCellValue(p.getFullName());
-			rowNew.createCell(2).setCellValue(p.getEmail());
-			rowNew.createCell(3).setCellValue(p.getCity());
+			rowNew.createCell(1).setCellValue(p.getTitle() != null ? p.getTitle().toString() : "");
+			rowNew.createCell(2).setCellValue(p.getFullName());
+			rowNew.createCell(3).setCellValue(p.getGenderId()!= null ? p.getGender().toString() : "");
+
+			rowNew.createCell(4).setCellValue(p.getDateOfBirth());
+			rowNew.createCell(5).setCellValue(p.getAnnualIncome());
+			rowNew.createCell(6).setCellValue(p.getPanNumber());
+
+			rowNew.createCell(7).setCellValue(p.getAadharNumber());
+			rowNew.createCell(8).setCellValue(p.getMaritalStatus());
+		
+
+			rowNew.createCell(9).setCellValue(p.getEmail());
+			rowNew.createCell(10).setCellValue(p.getMobileNumber());
+			rowNew.createCell(11).setCellValue(p.getAddressLine1());
+
+			rowNew.createCell(12).setCellValue(p.getArea()!= null ? p.getArea().toString() : "");
+			rowNew.createCell(13).setCellValue(p.getTown()!= null ? p.getTown().toString() : "");
+			rowNew.createCell(14).setCellValue(p.getCity());
+			rowNew.createCell(15).setCellValue(p.getState());
 			
 		}
 		String filePathString = "C:\\subodh\\";
@@ -1725,6 +1746,78 @@ public class ProposerServiceImpl implements ProposerService {
 
 	    return resultMap;
 		
+	}
+
+	@Override
+	public List<Map<String, Object>> getAllProposersByPagingAndSortingAndfilteringUsingMap(ProposerPage proposerPage,
+			ResponseHandler<List<Map<String, Object>>> responseHandler) {
+		 CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		    CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+		    Root<Proposer> root = criteriaQuery.from(Proposer.class);
+
+		    List<Predicate> predicates = new ArrayList<>();
+		    List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+
+		    if (searchFilters != null) {
+		        for (SearchFilter filter : searchFilters) {
+		            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
+		                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
+		            }
+		            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
+		                predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
+		            }
+		            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+		                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
+		            }
+		            if (filter.getStatus() != null && filter.getStatus() == 'Y') {
+		                predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+		            }
+		            if (filter.getStatus() != null && filter.getStatus() == 'N') {
+		                predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
+		            }
+		        }
+		    }
+
+		    if (!predicates.isEmpty()) {
+		        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+		    }
+
+		    String sortBy = proposerPage.getSortBy() != null ? proposerPage.getSortBy() : "id";
+		    String sortOrder = proposerPage.getSortOrder();
+
+		    if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+		        criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+		    } else {
+		        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+		    }
+
+		    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+
+		    List<Proposer> fullList = typedQuery.getResultList(); 
+		    totalRecord = fullList.size();
+
+		    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
+		        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
+		        typedQuery.setFirstResult(firstResult);
+		        typedQuery.setMaxResults(proposerPage.getPageSize());
+		    }
+
+		    List<Proposer> pagedList = typedQuery.getResultList();
+
+		    
+		    List<Map<String, Object>> resultList = new ArrayList<>();
+		    for (Proposer proposer : pagedList) {
+		        Map<String, Object> map = new HashMap<>();
+		        map.put("id", proposer.getId());
+		        map.put("fullName", proposer.getFullName());
+		        map.put("email", proposer.getEmail());
+		        map.put("city", proposer.getCity());
+		        map.put("status", proposer.getStatus());
+		        
+		        resultList.add(map);
+		    }
+
+		    return resultList;
 	}
 
     

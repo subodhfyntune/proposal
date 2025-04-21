@@ -575,6 +575,36 @@ public class ProposerController {
         return responseHandler;
     }
 
+    @PostMapping("/get_By_Page_And_Size_And_Filter_Using_Map")
+    public ResponseHandler<List<Map<String, Object>>> getAllBysortingAndPaginationAndFilteringUsingMap(@RequestBody ProposerPage proposerPage) {
+        ResponseHandler<List<Map<String, Object>>> responseHandler = new ResponseHandler<>();
+        try {
+            List<Map<String, Object>> proposers = proposerService.getAllProposersByPagingAndSortingAndfilteringUsingMap(proposerPage, responseHandler);
+
+            if (proposers.isEmpty()) {
+                responseHandler.setStatus("no records found");
+                responseHandler.setData(new ArrayList<>());
+                responseHandler.setMessage("No proposers found matching the criteria");
+            } else {
+                responseHandler.setStatus("success");
+                responseHandler.setData(proposers);
+                responseHandler.setMessage("Proposers fetched successfully");
+                responseHandler.setTotalRecord(proposerService.getTotalRecord());
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            responseHandler.setStatus("failed");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("An error occurred while fetching details");
+        }
+        return responseHandler;
+    }
+
 		
 
 	
