@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import com.example.demo.dto.ProposerDto;
 
@@ -620,10 +622,37 @@ public class ProposerController {
         @RequestParam(required = false) Double minPrice,
         @RequestParam(required = false) Double maxPrice,
         @RequestParam(required = false) String sortBy,
-        @RequestParam(required = false) Boolean groupByCategory
+        @RequestParam(required = false) Boolean groupByCategory,
+        @RequestParam(required = false) Integer topN
     ) {
-        return proposerService.getFilteredProducts(category, minPrice, maxPrice, sortBy, groupByCategory);
+        return proposerService.getFilteredProducts(category, minPrice, maxPrice, sortBy, groupByCategory,topN);
     }
+    
+//    @GetMapping("/filtered-users")
+//    public ResponseEntity<List<Map<String, Object>>> getFilteredUsers() {
+//        return ResponseEntity.ok(userService.getSelectedUserInfo());
+//    }
+    @GetMapping("/filtered-users")
+    public ResponseEntity<ResponseHandler<List<Map<String, Object>>>> getFilteredUsers() {
+        ResponseHandler<List<Map<String, Object>>> response = new ResponseHandler<>();
+
+        try {
+            List<Map<String, Object>> data = proposerService.getSelectedUserInfo();
+            response.setStatus("success");
+            response.setMessage("User data fetched successfully");
+            response.setData(data);
+            response.setTotalRecord(data.size());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setStatus("error");
+            response.setMessage("Failed to fetch data");
+            response.setData(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+
 
 
 		

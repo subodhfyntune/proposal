@@ -1846,28 +1846,28 @@ public class ProposerServiceImpl implements ProposerService {
 	
 	@Override
 	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice,
-			String sortBy, Boolean groupByCategory) {
+			String sortBy, Boolean groupByCategory, Integer topN) {
 		List<Map<String, Object>> products = restTemplate.getForObject(PRODUCT_API_URL, List.class);
 
-		// Filter by category
+		
 		if (category != null) {
 			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
 					.collect(Collectors.toList());
 		}
 
-		// Filter by min price
+		
 		if (minPrice != null) {
 			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
 					.collect(Collectors.toList());
 		}
 
-		// Filter by max price
+		
 		if (maxPrice != null) {
 			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
 					.collect(Collectors.toList());
 		}
 
-		// Sorting
+		
 		if ("price".equalsIgnoreCase(sortBy)) {
 			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
 		} else if ("rating".equalsIgnoreCase(sortBy)) {
@@ -1890,11 +1890,13 @@ public class ProposerServiceImpl implements ProposerService {
 					}
 				}
 
-				return Double.compare(r2, r1); // descending order
+				return Double.compare(r2, r1); 
 			});
 		}
-
-		// Grouping by category
+		 if (topN != null && topN > 0) {
+	            products = products.stream().limit(topN).collect(Collectors.toList());
+	        }
+		
 		if (groupByCategory != null && groupByCategory) {
 			Map<String, List<Map<String, Object>>> grouped = products.stream()
 					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
@@ -1911,5 +1913,33 @@ public class ProposerServiceImpl implements ProposerService {
 
 		return products;
 	}
+	
+	public List<Map<String, Object>> getSelectedUserInfo() {
+	    String url = "https://jsonplaceholder.typicode.com/users";
+	    List<Map<String, Object>> users = restTemplate.getForObject(url, List.class);
+
+	    return users.stream().map(user -> {
+			Map<String, Object> simplifiedUser = new HashMap<>();
+
+			simplifiedUser.put("name", user.get("name"));
+
+			Map<String, Object> address = (Map<String, Object>) user.get("address");
+			Map<String, Object> simplifiedAddress = new HashMap<>();
+			simplifiedAddress.put("street", address.get("street"));
+			simplifiedAddress.put("suite", address.get("suite"));
+			simplifiedAddress.put("city", address.get("city"));
+			simplifiedAddress.put("zipcode", address.get("zipcode"));
+			simplifiedUser.put("address", simplifiedAddress);
+			Map<String, Object> geo = (Map<String, Object>) address.get("geo");
+			Map<String, Object> simplifiedGeo= new HashMap<>(); 
+			simplifiedGeo.put("latitude", geo.get("lat"));
+			simplifiedUser.put("geo", simplifiedGeo);
+			Map<String, Object> company = (Map<String, Object>) user.get("company");
+			simplifiedUser.put("companyName", company.get("name"));
+
+	        return simplifiedUser;
+	    }).collect(Collectors.toList());
+	}
+
 }
 

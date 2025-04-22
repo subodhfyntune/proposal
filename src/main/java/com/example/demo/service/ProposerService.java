@@ -64,6 +64,6 @@ public interface ProposerService {
 	
 	public List<Map<String,Object>> getAllProducts();
 	
-	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory);
-
+	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN);
+	public List<Map<String, Object>> getSelectedUserInfo();
 }
