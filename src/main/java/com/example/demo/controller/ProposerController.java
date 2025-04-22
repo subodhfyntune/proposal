@@ -39,20 +39,25 @@ import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
-
-
+import com.example.demo.service.ProposerServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
-
 
 
 @RestController
 @RequestMapping("/api")
 public class ProposerController {
+
+    private final ProposerServiceImpl proposerServiceImpl;
 	@Autowired
     private  ProposerRepository proposerRepository;
 
 	@Autowired
 	private ProposerService proposerService;
+
+
+    ProposerController(ProposerServiceImpl proposerServiceImpl) {
+        this.proposerServiceImpl = proposerServiceImpl;
+    }
 	
 	
 //	@PostMapping("/registerProposer")
@@ -604,6 +609,22 @@ public class ProposerController {
         }
         return responseHandler;
     }
+    @GetMapping("/products")
+    public List<Map<String, Object>> getProducts(){
+    	return proposerService.getAllProducts();
+    }
+    
+    @GetMapping("/product")
+    public List<Map<String, Object>> getFilteredProducts(
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) Double minPrice,
+        @RequestParam(required = false) Double maxPrice,
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(required = false) Boolean groupByCategory
+    ) {
+        return proposerService.getFilteredProducts(category, minPrice, maxPrice, sortBy, groupByCategory);
+    }
+
 
 		
 

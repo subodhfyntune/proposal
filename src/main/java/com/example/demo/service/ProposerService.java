@@ -20,35 +20,50 @@ public interface ProposerService {
 
 //	public Proposer registerProposer(Proposer proposer);
 	public List<Proposer> getAllProposer();
+
 //	public Proposer updateProposer(Long id,Proposer proposer);
 	public Proposer deleteProposer(Long id);
-	
+
 	public Proposer registerProposer(ProposerDto proposerDto);
-	
+
 	public Proposer registerProposerExcel(Proposer proposer);
-	public Proposer updateProposerUsingDto(Long id  ,ProposerDto proposerDto);
-	
+
+	public Proposer updateProposerUsingDto(Long id, ProposerDto proposerDto);
+
 	public List<Proposer> getAllProposersByPagingAndSorting(ProposerPage proposerPage);
-	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage, ResponseHandler<List<Proposer>> responseHandler);
+
+	public List<Proposer> getAllProposersByPagingAndSortingAndfiltering(ProposerPage proposerPage,
+			ResponseHandler<List<Proposer>> responseHandler);
 
 	public Integer getTotalRecord();
-	
+
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
+
 	public void generateExcel2() throws Exception;
+
 	public String generateSampleExcel() throws IOException;
+
 	public String generateSampleExcelMandatory() throws IOException;
-	
+
 	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException;
+
 	public List<Proposer> saveProposersFromExcelMandatory(MultipartFile file) throws IOException;
-	  
+
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException;
+
 	public Integer getTotalCountSucess();
+
 	public Integer totalEntry();
+
 	public Integer totalFalseEntry();
-	
+
 	public Map<String, Object> saveProposersFromExcelMandatory2(MultipartFile file) throws IOException;
-	
+
 	public List<Map<String, Object>> getAllProposersByPagingAndSortingAndfilteringUsingMap(ProposerPage proposerPage,
-	        ResponseHandler<List<Map<String, Object>>> responseHandler);
+			ResponseHandler<List<Map<String, Object>>> responseHandler);
+	
+	public List<Map<String,Object>> getAllProducts();
+	
+	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory);
 
 }

@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.criteria.*;
 
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.HealthApplication;
@@ -1813,8 +1816,7 @@ public class ProposerServiceImpl implements ProposerService {
 		        typedQuery.setFirstResult(firstResult);
 		        typedQuery.setMaxResults(proposerPage.getPageSize());
 		    }
-		    
-
+		  
 		    List<Proposer> pagedList = typedQuery.getResultList();
 
 		    
@@ -1832,6 +1834,82 @@ public class ProposerServiceImpl implements ProposerService {
 		    return resultList;
 	}
 
-    
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	private static final String PRODUCT_API_URL = "https://fakestoreapi.com/products";
+	@Override
+	public List<Map<String, Object>> getAllProducts() {
+		// TODO Auto-generated method stub
+		return restTemplate.getForObject(PRODUCT_API_URL, List.class);
+	}
+	
+	@Override
+	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice,
+			String sortBy, Boolean groupByCategory) {
+		List<Map<String, Object>> products = restTemplate.getForObject(PRODUCT_API_URL, List.class);
 
+		// Filter by category
+		if (category != null) {
+			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
+					.collect(Collectors.toList());
+		}
+
+		// Filter by min price
+		if (minPrice != null) {
+			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
+					.collect(Collectors.toList());
+		}
+
+		// Filter by max price
+		if (maxPrice != null) {
+			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
+					.collect(Collectors.toList());
+		}
+
+		// Sorting
+		if ("price".equalsIgnoreCase(sortBy)) {
+			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
+		} else if ("rating".equalsIgnoreCase(sortBy)) {
+			products.sort((p1, p2) -> {
+				double r1 = 0.0, r2 = 0.0;
+
+				Object rating1 = p1.get("rating");
+				if (rating1 instanceof Map<?, ?> ratingMap1) {
+					Object rate1 = ratingMap1.get("rate");
+					if (rate1 instanceof Number num1) {
+						r1 = num1.doubleValue();
+					}
+				}
+
+				Object rating2 = p2.get("rating");
+				if (rating2 instanceof Map<?, ?> ratingMap2) {
+					Object rate2 = ratingMap2.get("rate");
+					if (rate2 instanceof Number num2) {
+						r2 = num2.doubleValue();
+					}
+				}
+
+				return Double.compare(r2, r1); // descending order
+			});
+		}
+
+		// Grouping by category
+		if (groupByCategory != null && groupByCategory) {
+			Map<String, List<Map<String, Object>>> grouped = products.stream()
+					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
+
+			List<Map<String, Object>> groupedList = new ArrayList<>();
+			for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+				Map<String, Object> group = new HashMap<>();
+				group.put("category", entry.getKey());
+				group.put("products", entry.getValue());
+				groupedList.add(group);
+			}
+			return groupedList;
+		}
+
+		return products;
+	}
 }
+
