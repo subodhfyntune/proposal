@@ -2,10 +2,8 @@ package com.example.demo.service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputFilter.Status;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.security.PrivateKey;
+import org.springframework.http.HttpHeaders;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
+import org.springframework.http.MediaType;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,30 +21,31 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.criteria.*;
 
-import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.boot.model.internal.Nullability;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.demo.HealthApplication;
 import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.exception.ProposerDeletedAlready;
 import com.example.demo.model.Area;
 import com.example.demo.model.Gender;
 import com.example.demo.model.GenderType;
-import com.example.demo.model.MaritalStatus;
+import com.example.demo.model.Product;
 import com.example.demo.model.Proposer;
 import com.example.demo.model.ResponceExcel;
 import com.example.demo.model.Title;
@@ -63,6 +63,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ProposerServiceImpl implements ProposerService {
@@ -71,13 +72,16 @@ public class ProposerServiceImpl implements ProposerService {
 
 	@Autowired
 	private GenderRepository genderRepository;
-	
+
 	@Autowired
 	private ResponceExcelRepository responceExcelRepository;
 	Integer totalRecord = 0;
-	Integer count ;
-	Integer totalEntry = 0 ;
-	Integer falseCount ;
+	Integer count;
+	Integer totalEntry = 0;
+	Integer falseCount;
+
+//	    private final String PRODUCT_API_URL_ = "https://fakestoreapi.com/products";
+//
 
 //	@Override
 //	public Proposer registerProposer(Proposer proposer) {
@@ -572,7 +576,7 @@ public class ProposerServiceImpl implements ProposerService {
 	}
 
 	@Override
-	
+
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception {
 		// TODO Auto-generated method stub
 		List<Proposer> praposers = proposerRepository.findAll();
@@ -603,15 +607,14 @@ public class ProposerServiceImpl implements ProposerService {
 		outputStream.close();
 	}
 
-	@Scheduled(fixedRate = 5000)  
+	@Scheduled(fixedRate = 5000)
 	public void generateExcel2() throws Exception {
 		// TODO Auto-generated method stub
 		List<Proposer> praposers = proposerRepository.findAll();
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Proposer");
 		List<String> headers = Arrays.asList("ID", "Title", "Full Name", "Gender", "Date of Birth", "Annual Income",
-				"PAN Number", "Aadhar Number", "Marital Status", "Email", "Mobile Number",
-				 "Address Line 1" , "Area",
+				"PAN Number", "Aadhar Number", "Marital Status", "Email", "Mobile Number", "Address Line 1", "Area",
 				"Town", "City", "State");
 
 		Row headerRow = sheet.createRow(0);
@@ -619,16 +622,15 @@ public class ProposerServiceImpl implements ProposerService {
 			headerRow.createCell(i).setCellValue(headers.get(i));
 		}
 
-		
 		int rowCount = 1;
 
 		for (Proposer p : praposers) {
 			Row rowNew = sheet.createRow(rowCount++);
-			
+
 			rowNew.createCell(0).setCellValue(p.getId());
 			rowNew.createCell(1).setCellValue(p.getTitle() != null ? p.getTitle().toString() : "");
 			rowNew.createCell(2).setCellValue(p.getFullName());
-			rowNew.createCell(3).setCellValue(p.getGenderId()!= null ? p.getGender().toString() : "");
+			rowNew.createCell(3).setCellValue(p.getGenderId() != null ? p.getGender().toString() : "");
 
 			rowNew.createCell(4).setCellValue(p.getDateOfBirth());
 			rowNew.createCell(5).setCellValue(p.getAnnualIncome());
@@ -636,36 +638,35 @@ public class ProposerServiceImpl implements ProposerService {
 
 			rowNew.createCell(7).setCellValue(p.getAadharNumber());
 			rowNew.createCell(8).setCellValue(p.getMaritalStatus());
-		
 
 			rowNew.createCell(9).setCellValue(p.getEmail());
 			rowNew.createCell(10).setCellValue(p.getMobileNumber());
 			rowNew.createCell(11).setCellValue(p.getAddressLine1());
 
-			rowNew.createCell(12).setCellValue(p.getArea()!= null ? p.getArea().toString() : "");
-			rowNew.createCell(13).setCellValue(p.getTown()!= null ? p.getTown().toString() : "");
+			rowNew.createCell(12).setCellValue(p.getArea() != null ? p.getArea().toString() : "");
+			rowNew.createCell(13).setCellValue(p.getTown() != null ? p.getTown().toString() : "");
 			rowNew.createCell(14).setCellValue(p.getCity());
 			rowNew.createCell(15).setCellValue(p.getState());
-			
+
 		}
 		String filePathString = "C:\\subodh\\";
 		String uuid = UUID.randomUUID().toString();
 		String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 		String fileName = "sample_" + uuid + "_" + currentDateTime + ".xlsx";
 
-        String fullFilePath = filePathString + fileName;
-        try {
-			FileOutputStream fileOutputStream= new FileOutputStream(fullFilePath);
+		String fullFilePath = filePathString + fileName;
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(fullFilePath);
 			workbook.write(fileOutputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        System.out.println("generated");
-       
+		System.out.println("generated");
+
 		workbook.close();
 
-		
 	}
+
 	public String generateSampleExcel() throws IOException {
 //		String filePathString = "C:/subodh/";
 		String filePathString = "C:\\subodh\\";
@@ -686,15 +687,15 @@ public class ProposerServiceImpl implements ProposerService {
 		String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 		String fileName = "sample_" + uuid + "_" + currentDateTime + ".xlsx";
 
-        String fullFilePath = filePathString + fileName;
+		String fullFilePath = filePathString + fileName;
 
 		try {
-			FileOutputStream fileOutputStream= new FileOutputStream(fullFilePath);
+			FileOutputStream fileOutputStream = new FileOutputStream(fullFilePath);
 			workbook.write(fileOutputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 //		httpServletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 //		httpServletResponse.setHeader("Content-Disposition", "attachment; filename=" + fileName);
 
@@ -727,10 +728,12 @@ public class ProposerServiceImpl implements ProposerService {
 			return "";
 		}
 	}
+
 	private String check(Row row, int index) {
-	    Cell cell = row.getCell(index);
-	    if (cell == null) return "";
-	    return getCellValueAsString(cell).trim();
+		Cell cell = row.getCell(index);
+		if (cell == null)
+			return "";
+		return getCellValueAsString(cell).trim();
 	}
 
 	public List<Proposer> saveProposersFromExcel(MultipartFile file) throws IOException {
@@ -860,11 +863,11 @@ public class ProposerServiceImpl implements ProposerService {
 
 				boolean isValidArea = false;
 				for (Area areaEnum : Area.values()) {
-					
-				    if (areaEnum.name().equalsIgnoreCase(area.trim())) {
-				        isValidArea = true;
-				        break;
-				    }
+
+					if (areaEnum.name().equalsIgnoreCase(area.trim())) {
+						isValidArea = true;
+						break;
+					}
 				}
 				if (area.isEmpty() || area == null || isValidArea == false) {
 					responceExcel.setStatus("failed");
@@ -888,14 +891,14 @@ public class ProposerServiceImpl implements ProposerService {
 					proposer.setPincode(getCellValueAsString(row.getCell(14)));
 				}
 				boolean isValidTown = false;
-				for (Town townEnum :  Town.values()) {
-					
-				    if (townEnum.name().equalsIgnoreCase(town.trim())) {
-				    	isValidTown = true;
-				        break;
-				    }
+				for (Town townEnum : Town.values()) {
+
+					if (townEnum.name().equalsIgnoreCase(town.trim())) {
+						isValidTown = true;
+						break;
+					}
 				}
-				if (isValidTown == false || town.isEmpty() || town == null  ) {
+				if (isValidTown == false || town.isEmpty() || town == null) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("town");
 					responceExcel.setReason("error in town");
@@ -968,12 +971,10 @@ public class ProposerServiceImpl implements ProposerService {
 		return excelList;
 	}
 
-	
-
-	//do not use
+	// do not use
 	@Override
 	public List<Proposer> saveProposersFromExcelUsingDto(MultipartFile file) throws IOException {
-	    List<Proposer> excelList = new ArrayList<>();
+		List<Proposer> excelList = new ArrayList<>();
 
 		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			XSSFSheet sheet = workbook.getSheetAt(0);
@@ -983,47 +984,45 @@ public class ProposerServiceImpl implements ProposerService {
 				if (row == null)
 					continue;
 
-	            ProposerDto proposerdto = new ProposerDto();
-	            proposerdto.setTitle(safeEnumValueOf(Title.class, getCellValueAsString(row.getCell(0))));
-	            proposerdto.setFullName(getCellValueAsString(row.getCell(1)));
-	            proposerdto.setGender(getCellValueAsString(row.getCell(2)));
-	            proposerdto.setDateOfBirth(getCellValueAsString(row.getCell(3)));
-	            proposerdto.setAnnualIncome(getCellValueAsString(row.getCell(4)));
-	            proposerdto.setPanNumber(getCellValueAsString(row.getCell(5)));
-	            proposerdto.setAadharNumber(getCellValueAsString(row.getCell(6)));
-	            proposerdto.setMaritalStatus(getCellValueAsString(row.getCell(7)));
-	            proposerdto.setEmail(getCellValueAsString(row.getCell(8)));
-	            proposerdto.setMobileNumber(getCellValueAsString(row.getCell(9)));
-	            proposerdto.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
-	            proposerdto.setAddressLine1(getCellValueAsString(row.getCell(11)));
-	            proposerdto.setAddressLine2(getCellValueAsString(row.getCell(12)));
-	            proposerdto.setAddressLine3(getCellValueAsString(row.getCell(13)));
-	            proposerdto.setPincode(getCellValueAsString(row.getCell(14)));
-	            proposerdto.setState(getCellValueAsString(row.getCell(15)));
-	            proposerdto.setArea(safeEnumValueOf(Area.class, getCellValueAsString(row.getCell(16))));
-	            proposerdto.setTown(safeEnumValueOf(Town.class, getCellValueAsString(row.getCell(17))));
-	            proposerdto.setCity(getCellValueAsString(row.getCell(18)));
+				ProposerDto proposerdto = new ProposerDto();
+				proposerdto.setTitle(safeEnumValueOf(Title.class, getCellValueAsString(row.getCell(0))));
+				proposerdto.setFullName(getCellValueAsString(row.getCell(1)));
+				proposerdto.setGender(getCellValueAsString(row.getCell(2)));
+				proposerdto.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+				proposerdto.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+				proposerdto.setPanNumber(getCellValueAsString(row.getCell(5)));
+				proposerdto.setAadharNumber(getCellValueAsString(row.getCell(6)));
+				proposerdto.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+				proposerdto.setEmail(getCellValueAsString(row.getCell(8)));
+				proposerdto.setMobileNumber(getCellValueAsString(row.getCell(9)));
+				proposerdto.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+				proposerdto.setAddressLine1(getCellValueAsString(row.getCell(11)));
+				proposerdto.setAddressLine2(getCellValueAsString(row.getCell(12)));
+				proposerdto.setAddressLine3(getCellValueAsString(row.getCell(13)));
+				proposerdto.setPincode(getCellValueAsString(row.getCell(14)));
+				proposerdto.setState(getCellValueAsString(row.getCell(15)));
+				proposerdto.setArea(safeEnumValueOf(Area.class, getCellValueAsString(row.getCell(16))));
+				proposerdto.setTown(safeEnumValueOf(Town.class, getCellValueAsString(row.getCell(17))));
+				proposerdto.setCity(getCellValueAsString(row.getCell(18)));
 
-	            Proposer savedProposer = registerProposer(proposerdto);
-	            excelList.add(savedProposer);
-	        }
-	    }
+				Proposer savedProposer = registerProposer(proposerdto);
+				excelList.add(savedProposer);
+			}
+		}
 
-	    return excelList;
+		return excelList;
 	}
 
-
-
-
 	public static <T extends Enum<T>> T safeEnumValueOf(Class<T> enumClass, String value) {
-	    if (value == null || value.trim().isEmpty()) {
-	        return null;
-	    }
-	    try {
-	        return Enum.valueOf(enumClass, value.trim().toUpperCase());
-	    } catch (IllegalArgumentException e) {
-	        System.err.println("Invalid enum value '" + value + "' for enum " + enumClass.getSimpleName());
-	        return null; }
+		if (value == null || value.trim().isEmpty()) {
+			return null;
+		}
+		try {
+			return Enum.valueOf(enumClass, value.trim().toUpperCase());
+		} catch (IllegalArgumentException e) {
+			System.err.println("Invalid enum value '" + value + "' for enum " + enumClass.getSimpleName());
+			return null;
+		}
 	}
 
 	@Override
@@ -1152,15 +1151,14 @@ public class ProposerServiceImpl implements ProposerService {
 		String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 		String fileName = "sample_" + uuid + "_" + currentDateTime + ".xlsx";
 
-        String fullFilePath = filePathString + fileName;
+		String fullFilePath = filePathString + fileName;
 
 		try {
-			FileOutputStream fileOutputStream= new FileOutputStream(fullFilePath);
+			FileOutputStream fileOutputStream = new FileOutputStream(fullFilePath);
 			workbook.write(fileOutputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 
 		workbook.close();
 		return fullFilePath;
@@ -1176,7 +1174,7 @@ public class ProposerServiceImpl implements ProposerService {
 			totalEntry = sheet.getLastRowNum();
 			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
-				
+
 				Row row = sheet.getRow(i);
 				if (row == null)
 					continue;
@@ -1220,19 +1218,19 @@ public class ProposerServiceImpl implements ProposerService {
 //				    } else {
 //				        System.err.println("Unsupported title: " + parsedTitle);
 //				    }
-				
+
 				boolean isValidTitle = false;
 				for (Title titleEnum : Title.values()) {
-					
-				    if (titleEnum.name().equalsIgnoreCase(title.trim())) {
-				        isValidTitle = true;
-				        break;
-				    }
+
+					if (titleEnum.name().equalsIgnoreCase(title.trim())) {
+						isValidTitle = true;
+						break;
+					}
 				}
-				if (isValidTitle == true  ) {
+				if (isValidTitle == true) {
 					proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
-				
-				} 
+
+				}
 				if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
 //					System.out.println(fullName + "error");
 //					System.err.println("errror ocured");
@@ -1242,12 +1240,12 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcelRepository.save(responceExcel);
 					falseCount++;
 					continue;
-					
+
 				} else {
 					proposer.setFullName(getCellValueAsString(row.getCell(1)));
 
 				}
-				
+
 				if (genderString.isEmpty() || genderString == null) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("gender");
@@ -1283,12 +1281,12 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 				}
-				if(!income.matches("\\d+")) {
+				if (!income.matches("\\d+")) {
 					proposer.setAnnualIncome(null);
-				}else {
+				} else {
 					proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
 				}
-				
+
 				if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("aadhar card");
@@ -1314,7 +1312,8 @@ public class ProposerServiceImpl implements ProposerService {
 					proposer.setEmail(getCellValueAsString(row.getCell(8)));
 				}
 
-				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null || !mobile.matches("^[6-9]\\d{9}$") ) {
+				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null
+						|| !mobile.matches("^[6-9]\\d{9}$")) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("mobile number");
 					responceExcel.setReason("error in mobile number");
@@ -1328,11 +1327,11 @@ public class ProposerServiceImpl implements ProposerService {
 
 				boolean isValidArea = false;
 				for (Area areaEnum : Area.values()) {
-					
-				    if (areaEnum.name().equalsIgnoreCase(area.trim())) {
-				        isValidArea = true;
-				        break;
-				    }
+
+					if (areaEnum.name().equalsIgnoreCase(area.trim())) {
+						isValidArea = true;
+						break;
+					}
 				}
 				if (area.isEmpty() || area == null || isValidArea == false) {
 					responceExcel.setStatus("failed");
@@ -1341,7 +1340,6 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcelRepository.save(responceExcel);
 					falseCount++;
 					continue;
-					
 
 				} else {
 					proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
@@ -1401,40 +1399,40 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setState(getCellValueAsString(row.getCell(18)));
 				}
-				if(maritalStatus.isEmpty() || maritalStatus == null ) {
+				if (maritalStatus.isEmpty() || maritalStatus == null) {
 					proposer.setMaritalStatus("SINGLE");
-				}else {
-				proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+				} else {
+					proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
 				}
-				if(town.isEmpty() || town == null) {
+				if (town.isEmpty() || town == null) {
 					proposer.setTown(Town.PANVEL);
-					
-				}else {
+
+				} else {
 					proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
 				}
-				
+
 //				
-				if( altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$") ) {
+				if (altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$")) {
 					proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 				}
-				if(!address1.matches("^[A-Za-z0-9\s,/-]+$") ) {
+				if (!address1.matches("^[A-Za-z0-9\s,/-]+$")) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("address1");
 					responceExcel.setReason("error in address1");
 					responceExcelRepository.save(responceExcel);
 					falseCount++;
 					continue;
-				}else {
+				} else {
 					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 				}
-				if(address2.matches("^[A-Za-z0-9\s,/-]+$") ) {
+				if (address2.matches("^[A-Za-z0-9\s,/-]+$")) {
 					proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
 				}
-				
-				if(address3.matches("^[A-Za-z0-9\s,/-]+$")) {
+
+				if (address3.matches("^[A-Za-z0-9\s,/-]+$")) {
 					proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
-				}  
-				
+				}
+
 				proposer.setStatus('Y');
 				String gender = proposer.getGender().toString();
 				if (gender != null && !gender.isEmpty()) {
@@ -1447,7 +1445,7 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					throw new IllegalArgumentException("enter can not be null");
 				}
-				
+
 				Proposer savedProposer = proposerRepository.save(proposer);
 				excelList.add(savedProposer);
 				Long id = savedProposer.getId();
@@ -1457,7 +1455,6 @@ public class ProposerServiceImpl implements ProposerService {
 				responceExcel.setReason("sucessfully added");
 				responceExcelRepository.save(responceExcel);
 				count++;
-				
 
 			}
 		}
@@ -1484,19 +1481,19 @@ public class ProposerServiceImpl implements ProposerService {
 
 	@Override
 	public Map<String, Object> saveProposersFromExcelMandatory2(MultipartFile file) throws IOException {
-		
-		List<Proposer> excelList = new ArrayList<>();
-	    Map<String, Object> resultMap = new HashMap<>();
-	    int successCount = 0;
-	    int failedCount = 0;
-	    int totalCount = 0;
 
-	    try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
-	        XSSFSheet sheet = workbook.getSheetAt(0);
-	        totalCount = sheet.getLastRowNum();
-	        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+		List<Proposer> excelList = new ArrayList<>();
+		Map<String, Object> resultMap = new HashMap<>();
+		int successCount = 0;
+		int failedCount = 0;
+		int totalCount = 0;
+
+		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			totalCount = sheet.getLastRowNum();
+			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
-				
+
 				Row row = sheet.getRow(i);
 				if (row == null)
 					continue;
@@ -1520,37 +1517,34 @@ public class ProposerServiceImpl implements ProposerService {
 				String city = check(row, 17);
 				String state = check(row, 18);
 
-			
 				Proposer proposer = new Proposer();
-				
-			
-				
+
 				boolean isValidTitle = false;
 				for (Title titleEnum : Title.values()) {
-					
-				    if (titleEnum.name().equalsIgnoreCase(title.trim())) {
-				        isValidTitle = true;
-				        break;
-				    }
+
+					if (titleEnum.name().equalsIgnoreCase(title.trim())) {
+						isValidTitle = true;
+						break;
+					}
 				}
-				if (isValidTitle == true  ) {
+				if (isValidTitle == true) {
 					proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
-				
-				} 
+
+				}
 				if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
-			
+
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("full Name");
 					responceExcel.setReason("error in full Name");
 					responceExcelRepository.save(responceExcel);
 					failedCount++;
 					continue;
-					
+
 				} else {
 					proposer.setFullName(getCellValueAsString(row.getCell(1)));
 
 				}
-				
+
 				if (genderString.isEmpty() || genderString == null) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("gender");
@@ -1586,12 +1580,12 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 				}
-				if(!income.matches("\\d+")) {
+				if (!income.matches("\\d+")) {
 					proposer.setAnnualIncome(null);
-				}else {
+				} else {
 					proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
 				}
-				
+
 				if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("aadhar card");
@@ -1617,7 +1611,8 @@ public class ProposerServiceImpl implements ProposerService {
 					proposer.setEmail(getCellValueAsString(row.getCell(8)));
 				}
 
-				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null || !mobile.matches("^[6-9]\\d{9}$") ) {
+				if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null
+						|| !mobile.matches("^[6-9]\\d{9}$")) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("mobile number");
 					responceExcel.setReason("error in mobile number");
@@ -1631,11 +1626,11 @@ public class ProposerServiceImpl implements ProposerService {
 
 				boolean isValidArea = false;
 				for (Area areaEnum : Area.values()) {
-					
-				    if (areaEnum.name().equalsIgnoreCase(area.trim())) {
-				        isValidArea = true;
-				        break;
-				    }
+
+					if (areaEnum.name().equalsIgnoreCase(area.trim())) {
+						isValidArea = true;
+						break;
+					}
 				}
 				if (area.isEmpty() || area == null || isValidArea == false) {
 					responceExcel.setStatus("failed");
@@ -1644,7 +1639,6 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcelRepository.save(responceExcel);
 					failedCount++;
 					continue;
-					
 
 				} else {
 					proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
@@ -1661,7 +1655,6 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setPincode(getCellValueAsString(row.getCell(14)));
 				}
-			
 
 				if (city.isEmpty() || city == null) {
 					responceExcel.setStatus("failed");
@@ -1686,40 +1679,39 @@ public class ProposerServiceImpl implements ProposerService {
 				} else {
 					proposer.setState(getCellValueAsString(row.getCell(18)));
 				}
-				if(maritalStatus.isEmpty() || maritalStatus == null ) {
+				if (maritalStatus.isEmpty() || maritalStatus == null) {
 					proposer.setMaritalStatus("SINGLE");
-				}else {
-				proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+				} else {
+					proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
 				}
-				if(town.isEmpty() || town == null) {
+				if (town.isEmpty() || town == null) {
 					proposer.setTown(Town.PANVEL);
-					
-				}else {
+
+				} else {
 					proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
 				}
-				
-				
-				if( altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$") ) {
+
+				if (altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$")) {
 					proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 				}
-				if(!address1.matches("^[A-Za-z0-9\s,/-]+$") ) {
+				if (!address1.matches("^[A-Za-z0-9\s,/-]+$")) {
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField("address1");
 					responceExcel.setReason("error in address1");
 					responceExcelRepository.save(responceExcel);
 					failedCount++;
 					continue;
-				}else {
+				} else {
 					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 				}
-				if(address2.matches("^[A-Za-z0-9\s,/-]+$") ) {
+				if (address2.matches("^[A-Za-z0-9\s,/-]+$")) {
 					proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
 				}
-				
-				if(address3.matches("^[A-Za-z0-9\s,/-]+$")) {
+
+				if (address3.matches("^[A-Za-z0-9\s,/-]+$")) {
 					proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
-				}  
-				
+				}
+
 				proposer.setStatus('Y');
 				String gender = proposer.getGender().toString();
 				if (gender != null && !gender.isEmpty()) {
@@ -1733,57 +1725,57 @@ public class ProposerServiceImpl implements ProposerService {
 					throw new IllegalArgumentException("enter can not be null");
 				}
 				Proposer savedProposer = proposerRepository.save(proposer);
-	            excelList.add(savedProposer);
-	            responceExcel.setStatus("success");
-	            responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
-	            responceExcel.setReason("successfully added");
-	            responceExcelRepository.save(responceExcel);
-	            successCount++;
-	        }
-	    }
+				excelList.add(savedProposer);
+				responceExcel.setStatus("success");
+				responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
+				responceExcel.setReason("successfully added");
+				responceExcelRepository.save(responceExcel);
+				successCount++;
+			}
+		}
 
-	    resultMap.put("totalCount", totalCount);
-	    resultMap.put("failedCount", failedCount);
-	    resultMap.put("successCount", successCount);
-	    resultMap.put("addedProposers", excelList);
+		resultMap.put("totalCount", totalCount);
+		resultMap.put("failedCount", failedCount);
+		resultMap.put("successCount", successCount);
+		resultMap.put("addedProposers", excelList);
 
-	    return resultMap;
-		
+		return resultMap;
+
 	}
 
 	@Override
 	public List<Map<String, Object>> getAllProposersByPagingAndSortingAndfilteringUsingMap(ProposerPage proposerPage,
 			ResponseHandler<List<Map<String, Object>>> responseHandler) {
-		 CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-		    CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
-		    Root<Proposer> root = criteriaQuery.from(Proposer.class);
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+		Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
-		    List<Predicate> predicates = new ArrayList<>();
-		    List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+		List<Predicate> predicates = new ArrayList<>();
+		List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
 
-		    if (searchFilters != null) {
-		        for (SearchFilter filter : searchFilters) {
-		            if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
-		                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
-		            }
-		            if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
-		                predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
-		            }
-		            if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
-		                predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
-		            }
-		            if (filter.getStatus() != null && filter.getStatus() == 'Y') {
-		                predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
-		            }
-		            if (filter.getStatus() != null && filter.getStatus() == 'N') {
-		                predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
-		            }
-		        }
-		    }
+		if (searchFilters != null) {
+			for (SearchFilter filter : searchFilters) {
+				if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + filter.getFullName().trim() + "%"));
+				}
+				if (filter.getEmail() != null && !filter.getEmail().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail().trim() + "%"));
+				}
+				if (filter.getCity() != null && !filter.getCity().trim().isEmpty()) {
+					predicates.add(criteriaBuilder.like(root.get("city"), "%" + filter.getCity().trim() + "%"));
+				}
+				if (filter.getStatus() != null && filter.getStatus() == 'Y') {
+					predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+				}
+				if (filter.getStatus() != null && filter.getStatus() == 'N') {
+					predicates.add(criteriaBuilder.equal(root.get("status"), 'N'));
+				}
+			}
+		}
 
-		    if (!predicates.isEmpty()) {
-		        criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-		    }
+		if (!predicates.isEmpty()) {
+			criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+		}
 
 //		    String sortBy = proposerPage.getSortBy() != null ? proposerPage.getSortBy() : "id";
 //		    String sortOrder = proposerPage.getSortOrder();
@@ -1793,81 +1785,77 @@ public class ProposerServiceImpl implements ProposerService {
 //		    } else {
 //		        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
 //		    }
-		    
-		    String sortBy = proposerPage.getSortBy();
-			if (sortBy == null || sortBy.trim().isEmpty()) {
-				sortBy = "id";
-			}
 
-			String sortOrder = proposerPage.getSortOrder();
-			if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
-			} else {
-				criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
-			}
+		String sortBy = proposerPage.getSortBy();
+		if (sortBy == null || sortBy.trim().isEmpty()) {
+			sortBy = "id";
+		}
 
-		    TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+		String sortOrder = proposerPage.getSortOrder();
+		if (sortOrder == null || sortOrder.trim().isEmpty() || sortOrder.equalsIgnoreCase("desc")) {
+			criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+		} else {
+			criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+		}
 
-		    List<Proposer> fullList = typedQuery.getResultList(); 
-		    totalRecord = fullList.size();
+		TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
-		    if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
-		        int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
-		        typedQuery.setFirstResult(firstResult);
-		        typedQuery.setMaxResults(proposerPage.getPageSize());
-		    }
-		  
-		    List<Proposer> pagedList = typedQuery.getResultList();
+		List<Proposer> fullList = typedQuery.getResultList();
+		totalRecord = fullList.size();
 
-		    
-		    List<Map<String, Object>> resultList = new ArrayList<>();
-		    for (Proposer proposer : pagedList) {
-		        Map<String, Object> map = new HashMap<>();
-		        map.put("id", proposer.getId());
-		        map.put("fullName", proposer.getFullName());
-		        map.put("email", proposer.getEmail());
-		        map.put("city", proposer.getCity());
-		        
-		        resultList.add(map);
-		    }
+		if (proposerPage.getPageNumber() > 0 && proposerPage.getPageSize() > 0) {
+			int firstResult = (proposerPage.getPageNumber() - 1) * proposerPage.getPageSize();
+			typedQuery.setFirstResult(firstResult);
+			typedQuery.setMaxResults(proposerPage.getPageSize());
+		}
 
-		    return resultList;
+		List<Proposer> pagedList = typedQuery.getResultList();
+
+		List<Map<String, Object>> resultList = new ArrayList<>();
+		for (Proposer proposer : pagedList) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id", proposer.getId());
+			map.put("fullName", proposer.getFullName());
+			map.put("email", proposer.getEmail());
+			map.put("city", proposer.getCity());
+
+			resultList.add(map);
+		}
+
+		return resultList;
 	}
 
 	@Autowired
 	private RestTemplate restTemplate;
-	
+
 	private static final String PRODUCT_API_URL = "https://fakestoreapi.com/products";
+
 	@Override
 	public List<Map<String, Object>> getAllProducts() {
 		// TODO Auto-generated method stub
 		return restTemplate.getForObject(PRODUCT_API_URL, List.class);
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice,
 			String sortBy, Boolean groupByCategory, Integer topN) {
 		List<Map<String, Object>> products = restTemplate.getForObject(PRODUCT_API_URL, List.class);
 
-		
 		if (category != null) {
 			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
 					.collect(Collectors.toList());
 		}
 
-		
 		if (minPrice != null) {
 			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
 					.collect(Collectors.toList());
 		}
 
-		
 		if (maxPrice != null) {
 			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
 					.collect(Collectors.toList());
 		}
 
-		
 		if ("price".equalsIgnoreCase(sortBy)) {
 			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
 		} else if ("rating".equalsIgnoreCase(sortBy)) {
@@ -1890,13 +1878,13 @@ public class ProposerServiceImpl implements ProposerService {
 					}
 				}
 
-				return Double.compare(r2, r1); 
+				return Double.compare(r2, r1);
 			});
 		}
-		 if (topN != null && topN > 0) {
-	            products = products.stream().limit(topN).collect(Collectors.toList());
-	        }
-		
+		if (topN != null && topN > 0) {
+			products = products.stream().limit(topN).collect(Collectors.toList());
+		}
+
 		if (groupByCategory != null && groupByCategory) {
 			Map<String, List<Map<String, Object>>> grouped = products.stream()
 					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
@@ -1913,12 +1901,12 @@ public class ProposerServiceImpl implements ProposerService {
 
 		return products;
 	}
-	
-	public List<Map<String, Object>> getSelectedUserInfo() {
-	    String url = "https://jsonplaceholder.typicode.com/users";
-	    List<Map<String, Object>> users = restTemplate.getForObject(url, List.class);
 
-	    return users.stream().map(user -> {
+	public List<Map<String, Object>> getSelectedUserInfo() {
+		String url = "https://jsonplaceholder.typicode.com/users";
+		List<Map<String, Object>> users = restTemplate.getForObject(url, List.class);
+
+		return users.stream().map(user -> {
 			Map<String, Object> simplifiedUser = new HashMap<>();
 
 			simplifiedUser.put("name", user.get("name"));
@@ -1931,15 +1919,121 @@ public class ProposerServiceImpl implements ProposerService {
 			simplifiedAddress.put("zipcode", address.get("zipcode"));
 			simplifiedUser.put("address", simplifiedAddress);
 			Map<String, Object> geo = (Map<String, Object>) address.get("geo");
-			Map<String, Object> simplifiedGeo= new HashMap<>(); 
+			Map<String, Object> simplifiedGeo = new HashMap<>();
 			simplifiedGeo.put("latitude", geo.get("lat"));
 			simplifiedUser.put("geo", simplifiedGeo);
 			Map<String, Object> company = (Map<String, Object>) user.get("company");
 			simplifiedUser.put("companyName", company.get("name"));
 
-	        return simplifiedUser;
-	    }).collect(Collectors.toList());
+			return simplifiedUser;
+		}).collect(Collectors.toList());
 	}
 
-}
+	@Override
+	public List<Map<String, Object>> getFilteredProductsUsingWebClient(String category, Double minPrice,
+			Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN) {
 
+		WebClient webClient = WebClient.builder().baseUrl("https://fakestoreapi.com").build();
+		Mono<List<Map<String, Object>>> responseMono = webClient.get().uri("/products").retrieve()
+				.bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {
+				});
+
+		List<Map<String, Object>> products = responseMono.block(); // Blocking for now
+
+		if (products == null)
+			return List.of();
+
+		// Filter by category
+		if (category != null) {
+			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
+					.collect(Collectors.toList());
+		}
+
+		// Filter by min price
+		if (minPrice != null) {
+			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
+					.collect(Collectors.toList());
+		}
+
+		// Filter by max price
+		if (maxPrice != null) {
+			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
+					.collect(Collectors.toList());
+		}
+
+		// Sorting
+		if ("price".equalsIgnoreCase(sortBy)) {
+			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
+		} else if ("rating".equalsIgnoreCase(sortBy)) {
+			products.sort((p1, p2) -> {
+				double r1 = 0.0, r2 = 0.0;
+
+				Object rating1 = p1.get("rating");
+				if (rating1 instanceof Map<?, ?> map1) {
+					Object rate1 = map1.get("rate");
+					if (rate1 instanceof Number num1) {
+						r1 = num1.doubleValue();
+					}
+				}
+
+				Object rating2 = p2.get("rating");
+				if (rating2 instanceof Map<?, ?> map2) {
+					Object rate2 = map2.get("rate");
+					if (rate2 instanceof Number num2) {
+						r2 = num2.doubleValue();
+					}
+				}
+
+				return Double.compare(r2, r1); // Descending
+			});
+		}
+
+		// Top N
+		if (topN != null && topN > 0) {
+			products = products.stream().limit(topN).collect(Collectors.toList());
+		}
+
+		// Group by category
+		if (Boolean.TRUE.equals(groupByCategory)) {
+			Map<String, List<Map<String, Object>>> grouped = products.stream()
+					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
+
+			List<Map<String, Object>> groupedList = new ArrayList<>();
+			for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+				Map<String, Object> group = new HashMap<>();
+				group.put("category", entry.getKey());
+				group.put("products", entry.getValue());
+				groupedList.add(group);
+			}
+			return groupedList;
+		}
+
+		return products; 
+	}
+	public List<Product> getAllProduct() {
+        RestTemplate restTemplate = new RestTemplate();
+        String BASE_URL = "https://fakestoreapi.com/products";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Product[]> response = restTemplate.exchange(
+                BASE_URL,
+                HttpMethod.GET,
+                entity,
+                Product[].class
+        );
+
+        return Arrays.asList(response.getBody());
+    }
+
+    public Product getProductById(int id) {
+    	String BASE_URL = "https://fakestoreapi.com/products";
+        String url = BASE_URL + "/" + id;
+
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(url, Product.class);
+    }
+}

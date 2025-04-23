@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
+import com.example.demo.model.Product;
 import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
 
@@ -66,4 +67,8 @@ public interface ProposerService {
 	
 	public List<Map<String, Object>> getFilteredProducts(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN);
 	public List<Map<String, Object>> getSelectedUserInfo();
+	
+	public List<Map<String, Object>> getFilteredProductsUsingWebClient(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN);
+	public List<Product> getAllProduct();
+	public Product getProductById(int id);
 }

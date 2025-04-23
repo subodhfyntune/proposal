@@ -35,6 +35,7 @@ import com.example.demo.model.Gender;
 import com.example.demo.model.MaritalStatus;
 import com.example.demo.model.Nationality;
 import com.example.demo.model.Occupation;
+import com.example.demo.model.Product;
 import com.example.demo.model.Proposer;
 import com.example.demo.model.Title;
 import com.example.demo.model.Town;
@@ -651,9 +652,59 @@ public class ProposerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    
+    @GetMapping("/filter_using_web_client")
+    public List<Map<String, Object>> filterProductsUsingWebClient(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) Boolean groupByCategory,
+            @RequestParam(required = false) Integer topN
+    ) {
+        return proposerService.getFilteredProductsUsingWebClient(category, minPrice, maxPrice, sortBy, groupByCategory, topN);
+    }
 
 
+    @GetMapping("/product_web_client")
+    public ResponseHandler<List<Product>>  getAllProducts() {
+    	ResponseHandler<List<Product>> response = new ResponseHandler<>();
+        try {
+            List<Product> data = proposerService.getAllProduct();
+            response.setStatus("success");
+            response.setMessage("User data fetched successfully");
+            response.setData(data);
+            response.setTotalRecord(data.size());
 
+            return response;
+        } catch (Exception e) {
+            response.setStatus("error");
+            response.setMessage("Failed to fetch data");
+            response.setData(new ArrayList<>());
+            return response;
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseHandler<Product> getProduct(@PathVariable int id) {
+        ResponseHandler<Product> response = new ResponseHandler<>();
+        try {
+            Product data =         proposerService.getProductById(id);
+
+            response.setStatus("success");
+            response.setMessage("User data fetched successfully");
+            response.setData(data);
+            response.setTotalRecord(1);
+           
+
+            return response;
+        } catch (Exception e) {
+            response.setStatus("error");
+            response.setMessage("Failed to fetch data");
+            response.setData(new ArrayList<>());
+            return response;
+        }
+    }
 
 		
 
