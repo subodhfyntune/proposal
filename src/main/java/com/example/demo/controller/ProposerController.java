@@ -706,7 +706,33 @@ public class ProposerController {
         }
     }
 
-		
+    @PostMapping(value = "/upload_mandatory_using_scheduler", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler<String> uploadExcelMandatoryUsingScheduler(@RequestPart("file") MultipartFile file) {
+        ResponseHandler<String> responseHandler = new ResponseHandler<>();
+        try {
+            Map<String, Object> resultMap = proposerService.saveProposersFromExcelMandatoryUsingScheduler(file);
+         
+            Integer total = (Integer) resultMap.get("totalCount");
+            Integer success = (Integer) resultMap.get("successCount");
+            Integer failed = (Integer) resultMap.get("failedCount");
+            
+            
+            List<Proposer> savedProposers = (List<Proposer>) resultMap.get("addedProposers");
+
+            responseHandler.setStatus("success");
+            responseHandler.setData(savedProposers);
+            responseHandler.setMessage("Upload completed | total: " + total + " | success: " + success + " | failed: " + failed);
+            responseHandler.setTotalRecord(total);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus("error");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+
+        return responseHandler;
+    }
 
 	
 }

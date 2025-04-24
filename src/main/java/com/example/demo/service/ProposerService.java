@@ -71,4 +71,6 @@ public interface ProposerService {
 	public List<Map<String, Object>> getFilteredProductsUsingWebClient(String category, Double minPrice, Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN);
 	public List<Product> getAllProduct();
 	public Product getProductById(int id);
+	public Map<String, Object> saveProposersFromExcelMandatoryUsingScheduler(MultipartFile file) throws IOException;
+
 }
