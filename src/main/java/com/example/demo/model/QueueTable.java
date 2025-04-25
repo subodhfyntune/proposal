@@ -24,6 +24,7 @@ public class QueueTable {
 	private String filePath;
 	@Column(name = "last_processed_row")
 	private Integer lastProcessedRow = 0;
+	
 	public QueueTable() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -73,7 +74,12 @@ public class QueueTable {
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
-
+	public Integer getLastProcessedRow() {
+		return lastProcessedRow;
+	}
+	public void setLastProcessedRow(Integer lastProcessedRow) {
+		this.lastProcessedRow = lastProcessedRow;
+	}
 	
 
 }

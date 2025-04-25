@@ -2355,7 +2355,7 @@ public class ProposerServiceImpl implements ProposerService {
 		int totalCount = 0;
 		if (queueTable.isPresent()) {
 			QueueTable queue = queueTable.get();
-
+			int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
 			String filePath = queue.getFilePath();
 
 			File file = new File(filePath);
@@ -2365,8 +2365,18 @@ public class ProposerServiceImpl implements ProposerService {
 					FileInputStream fileInputStream = new FileInputStream(file);
 					XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
 					XSSFSheet sheet = workbook.getSheetAt(0);
+					int totalRows = sheet.getLastRowNum();
+					int rowsToProcess = 5;
+					int startRow = lastProcessedRow + 1;
+					int endRow = Math.min(startRow + rowsToProcess - 1, totalRows);
+					int batchSize = 10;
+					int processedCount = 0;
+					int batchNumber = (startRow - 1) / batchSize + 1;
 
-					for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+					System.out.println(" Starting Batch " + batchNumber);
+					System.out.println(" Processing rows from " + startRow + " to " + endRow);
+
+					for (int i = startRow; i <= endRow; i++) {
 						ResponceExcel responceExcel = new ResponceExcel();
 
 						Row row = sheet.getRow(i);
@@ -2600,9 +2610,19 @@ public class ProposerServiceImpl implements ProposerService {
 							throw new IllegalArgumentException("enter can not be null");
 						}
 						Proposer savedProposer = proposerRepository.save(proposer);
-						queue.setIsProcessed('Y');
+						responceExcel.setStatus("success");
+						responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
+						responceExcel.setReason("successfully added");
+						responceExcelRepository.save(responceExcel);
+						
+//						queue.setIsProcessed('Y');
+					
+						processedCount++;
+						queue.setLastProcessedRow(i);
+						if (queue.getLastProcessedRow() >= totalRows) {
+							queue.setIsProcessed('Y');
+						}
 						queueRepository.save(queue);
-						successCount++;
 					}
 
 					System.out.println("scheduled");
