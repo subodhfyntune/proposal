@@ -2382,6 +2382,9 @@ public class ProposerServiceImpl implements ProposerService {
 						Row row = sheet.getRow(i);
 						if (row == null)
 							continue;
+						boolean hasError = false;
+					    StringBuilder errorMessages = new StringBuilder();
+					    
 						String title = check(row, 0);
 						String fullName = check(row, 1);
 						String genderString = check(row, 2);
@@ -2417,12 +2420,14 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 						if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
 
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("full Name");
-							responceExcel.setReason("error in full Name");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("full Name");
+//							responceExcel.setReason("error in full Name");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+						    errorMessages.append("fullName ");
 
 						} else {
 							proposer.setFullName(getCellValueAsString(row.getCell(1)));
@@ -2430,24 +2435,28 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						if (genderString.isEmpty() || genderString == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("gender");
-							responceExcel.setReason("error in gender");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("gender");
+//							responceExcel.setReason("error in gender");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Gender ");
 
 						} else {
 							proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
 						}
 
 						if (dob.isEmpty() || dob == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("dob");
-							responceExcel.setReason("error in dob");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("dob");
+//							responceExcel.setReason("error in dob");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Date of Birth ");
 
 						} else {
 							proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
@@ -2455,12 +2464,14 @@ public class ProposerServiceImpl implements ProposerService {
 
 						if (pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan == null
 								|| pan.isEmpty()) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("pancard");
-							responceExcel.setReason("error in pancard");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("pancard");
+//							responceExcel.setReason("error in pancard");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Pancard ");
 
 						} else {
 							proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
@@ -2472,12 +2483,14 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("aadhar card");
-							responceExcel.setReason("error in aadhar card");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("aadhar card");
+//							responceExcel.setReason("error in aadhar card");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("AadharCard ");
 
 						} else {
 							proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
@@ -2485,12 +2498,14 @@ public class ProposerServiceImpl implements ProposerService {
 
 						if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") || email.isEmpty()
 								|| email == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("email");
-							responceExcel.setReason("error in email");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("email");
+//							responceExcel.setReason("error in email");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Email ");
 
 						} else {
 							proposer.setEmail(getCellValueAsString(row.getCell(8)));
@@ -2498,13 +2513,14 @@ public class ProposerServiceImpl implements ProposerService {
 
 						if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null
 								|| !mobile.matches("^[6-9]\\d{9}$")) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("mobile number");
-							responceExcel.setReason("error in mobile number");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
-
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("mobile number");
+//							responceExcel.setReason("error in mobile number");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Mobile ");
 						} else {
 							proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
 						}
@@ -2518,48 +2534,55 @@ public class ProposerServiceImpl implements ProposerService {
 							}
 						}
 						if (area.isEmpty() || area == null || isValidArea == false) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("area");
-							responceExcel.setReason("error in area");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("area");
+//							responceExcel.setReason("error in area");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Area ");
 
 						} else {
 							proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
 						}
 
 						if (pincode.length() != 6 || pincode == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("pin code");
-							responceExcel.setReason("error in pin code");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
-
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("pin code");
+//							responceExcel.setReason("error in pin code");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Pincode ");
 						} else {
 							proposer.setPincode(getCellValueAsString(row.getCell(14)));
 						}
 
 						if (city.isEmpty() || city == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("city");
-							responceExcel.setReason("error in city");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("city");
+//							responceExcel.setReason("error in city");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("City ");
 
 						} else {
 							proposer.setCity(getCellValueAsString(row.getCell(17)));
 						}
 
 						if (state.isEmpty() || state == null) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("state");
-							responceExcel.setReason("error in state");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("state");
+//							responceExcel.setReason("error in state");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("State ");
 
 						} else {
 							proposer.setState(getCellValueAsString(row.getCell(18)));
@@ -2580,12 +2603,14 @@ public class ProposerServiceImpl implements ProposerService {
 							proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 						}
 						if (!address1.matches("^[A-Za-z0-9\s,/-]+$")) {
-							responceExcel.setStatus("failed");
-							responceExcel.setErrorField("address1");
-							responceExcel.setReason("error in address1");
-							responceExcelRepository.save(responceExcel);
-							failedCount++;
-							continue;
+//							responceExcel.setStatus("failed");
+//							responceExcel.setErrorField("address1");
+//							responceExcel.setReason("error in address1");
+//							responceExcelRepository.save(responceExcel);
+//							failedCount++;
+//							continue;
+							 hasError = true;
+							    errorMessages.append("Address1 ");
 						} else {
 							proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 						}
@@ -2609,12 +2634,18 @@ public class ProposerServiceImpl implements ProposerService {
 						} else {
 							throw new IllegalArgumentException("enter can not be null");
 						}
+						if(hasError) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField(errorMessages.toString().replaceAll(",\\s*$", ""));
+							responceExcel.setReason("error in field");
+							responceExcelRepository.save(responceExcel);
+						}else {
 						Proposer savedProposer = proposerRepository.save(proposer);
 						responceExcel.setStatus("success");
 						responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
 						responceExcel.setReason("successfully added");
 						responceExcelRepository.save(responceExcel);
-						
+						}
 //						queue.setIsProcessed('Y');
 					
 						processedCount++;
