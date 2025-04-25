@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootApplication
-//@EnableScheduling
+@EnableScheduling
 public class HealthApplication {
 
 	public static void main(String[] args) {

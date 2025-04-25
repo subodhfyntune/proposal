@@ -72,5 +72,6 @@ public interface ProposerService {
 	public List<Product> getAllProduct();
 	public Product getProductById(int id);
 	public Map<String, Object> saveProposersFromExcelMandatoryUsingScheduler(MultipartFile file) throws IOException;
-
+	public void scheduleQueueProcessing();
+//	public Map<String, Object>  processExcelAndSaveData(MultipartFile file);
 }

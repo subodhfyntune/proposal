@@ -22,6 +22,8 @@ public class QueueTable {
 	private Character status;
 	@Column(name = "file_path")
 	private String filePath;
+	@Column(name = "last_processed_row")
+	private Integer lastProcessedRow = 0;
 	public QueueTable() {
 		super();
 		// TODO Auto-generated constructor stub

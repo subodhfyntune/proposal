@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import org.springframework.http.HttpHeaders;
@@ -70,9 +71,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class ProposerServiceImpl implements ProposerService {
-	
 
-    private final WebClient.Builder webClientBuilder;
+	private final WebClient.Builder webClientBuilder;
 	@Autowired
 	private ProposerRepository proposerRepository;
 
@@ -82,16 +82,16 @@ public class ProposerServiceImpl implements ProposerService {
 	@Autowired
 	private ResponceExcelRepository responceExcelRepository;
 	@Autowired
-    private QueueRepository queueRepository;
+	private QueueRepository queueRepository;
 	Integer totalRecord = 0;
 	Integer count;
 	Integer totalEntry = 0;
 	Integer falseCount;
 
-    ProposerServiceImpl(WebClient.Builder webClientBuilder, QueueRepository queueRepository) {
-        this.webClientBuilder = webClientBuilder;
-        this.queueRepository = queueRepository;
-    }
+	ProposerServiceImpl(WebClient.Builder webClientBuilder, QueueRepository queueRepository) {
+		this.webClientBuilder = webClientBuilder;
+		this.queueRepository = queueRepository;
+	}
 
 //	    private final String PRODUCT_API_URL_ = "https://fakestoreapi.com/products";
 //
@@ -620,7 +620,7 @@ public class ProposerServiceImpl implements ProposerService {
 		outputStream.close();
 	}
 
-	@Scheduled(fixedRate = 5000)
+//	@Scheduled(fixedRate = 5000)
 	public void generateExcel2() throws Exception {
 		// TODO Auto-generated method stub
 		List<Proposer> praposers = proposerRepository.findAll();
@@ -2021,7 +2021,7 @@ public class ProposerServiceImpl implements ProposerService {
 			return groupedList;
 		}
 
-		return products; 
+		return products;
 	}
 
 	public List<Product> getAllProduct() {
@@ -2035,20 +2035,20 @@ public class ProposerServiceImpl implements ProposerService {
 
 		ResponseEntity<Product[]> response = restTemplate.exchange(BASE_URL, HttpMethod.GET, entity, Product[].class);
 
-        return Arrays.asList(response.getBody());
-    }
+		return Arrays.asList(response.getBody());
+	}
 
-    public Product getProductById(int id) {
-    	String BASE_URL = "https://fakestoreapi.com/products";
-        String url = BASE_URL + "/" + id;
+	public Product getProductById(int id) {
+		String BASE_URL = "https://fakestoreapi.com/products";
+		String url = BASE_URL + "/" + id;
 
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(url, Product.class);
-    }
+		RestTemplate restTemplate = new RestTemplate();
+		return restTemplate.getForObject(url, Product.class);
+	}
 
 	@Override
 	public Map<String, Object> saveProposersFromExcelMandatoryUsingScheduler(MultipartFile file) throws IOException {
-	
+
 		String uploadDir = "C:\\subodh\\";
 
 		File dir = new File(uploadDir);
@@ -2056,16 +2056,9 @@ public class ProposerServiceImpl implements ProposerService {
 			dir.mkdirs();
 		}
 
-		String fileName = System.currentTimeMillis() + "_" 
-				+ file.getOriginalFilename();
+		String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 		String filePath = uploadDir + fileName;
 
-
-		
-	    
-	    
-
-	  
 		XSSFWorkbook newworkbook = new XSSFWorkbook(file.getInputStream());
 		XSSFSheet newsheet = newworkbook.getSheetAt(0);
 		QueueTable queue = new QueueTable();
@@ -2073,13 +2066,20 @@ public class ProposerServiceImpl implements ProposerService {
 		queue.setStatus('Y');
 		queue.setRowCount(newsheet.getLastRowNum());
 		queue.setRowRead(0);
-		
+
 		queue.setFilePath(filePath);
 		file.transferTo(new File(filePath));
-		if(newsheet.getLastRowNum() > 10) {
+		if (newsheet.getLastRowNum() > 10) {
 			queueRepository.save(queue);
-		
-			return null;
+
+			Map<String, Object> scheduledResponse = new HashMap<>();
+			scheduledResponse.put("message", "File has been queued for processing in batches.");
+			scheduledResponse.put("rowCount", newsheet.getLastRowNum());
+			scheduledResponse.put("filePath", filePath);
+			scheduledResponse.put("queueId", queue.getId());
+
+			newworkbook.close();
+			return scheduledResponse;
 		}
 		List<Proposer> excelList = new ArrayList<>();
 		Map<String, Object> resultMap = new HashMap<>();
@@ -2087,13 +2087,13 @@ public class ProposerServiceImpl implements ProposerService {
 		int failedCount = 0;
 		int totalCount = 0;
 
-		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
-			XSSFSheet sheet = workbook.getSheetAt(0);
-			totalCount = sheet.getLastRowNum();
-			for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+		try  {
+			
+			totalCount = newsheet.getLastRowNum();
+			for (int i = 1; i <= newsheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
 
-				Row row = sheet.getRow(i);
+				Row row = newsheet.getRow(i);
 				if (row == null)
 					continue;
 				String title = check(row, 0);
@@ -2331,6 +2331,9 @@ public class ProposerServiceImpl implements ProposerService {
 				responceExcelRepository.save(responceExcel);
 				successCount++;
 			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
 
 		resultMap.put("totalCount", totalCount);
@@ -2339,6 +2342,277 @@ public class ProposerServiceImpl implements ProposerService {
 		resultMap.put("addedProposers", excelList);
 
 		return resultMap;
+
+	}
+
+	@Override
+	@Scheduled(fixedDelay = 60000)
+	public void scheduleQueueProcessing() {
+
+		Optional<QueueTable> queueTable = queueRepository.findFirstByIsProcessed('N');
+		int successCount = 0;
+		int failedCount = 0;
+		int totalCount = 0;
+		if (queueTable.isPresent()) {
+			QueueTable queue = queueTable.get();
+
+			String filePath = queue.getFilePath();
+
+			File file = new File(filePath);
+			if (file.exists()) {
+
+				try {
+					FileInputStream fileInputStream = new FileInputStream(file);
+					XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
+					XSSFSheet sheet = workbook.getSheetAt(0);
+
+					for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+						ResponceExcel responceExcel = new ResponceExcel();
+
+						Row row = sheet.getRow(i);
+						if (row == null)
+							continue;
+						String title = check(row, 0);
+						String fullName = check(row, 1);
+						String genderString = check(row, 2);
+						String dob = check(row, 3);
+						String income = check(row, 4);
+						String pan = check(row, 5);
+						String aadhar = check(row, 6);
+						String maritalStatus = check(row, 7);
+						String email = check(row, 8);
+						String mobile = check(row, 9);
+						String altMobile = check(row, 10);
+						String address1 = check(row, 11);
+						String address2 = check(row, 12);
+						String address3 = check(row, 13);
+						String pincode = check(row, 14);
+						String area = check(row, 15);
+						String town = check(row, 16);
+						String city = check(row, 17);
+						String state = check(row, 18);
+						Proposer proposer = new Proposer();
+
+						boolean isValidTitle = false;
+						for (Title titleEnum : Title.values()) {
+
+							if (titleEnum.name().equalsIgnoreCase(title.trim())) {
+								isValidTitle = true;
+								break;
+							}
+						}
+						if (isValidTitle == true) {
+							proposer.setTitle(Title.valueOf(getCellValueAsString(row.getCell(0)).toUpperCase()));
+
+						}
+						if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
+
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("full Name");
+							responceExcel.setReason("error in full Name");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setFullName(getCellValueAsString(row.getCell(1)));
+
+						}
+
+						if (genderString.isEmpty() || genderString == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("gender");
+							responceExcel.setReason("error in gender");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
+						}
+
+						if (dob.isEmpty() || dob == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("dob");
+							responceExcel.setReason("error in dob");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
+						}
+
+						if (pan.length() != 10 || !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$") || pan == null
+								|| pan.isEmpty()) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("pancard");
+							responceExcel.setReason("error in pancard");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
+						}
+						if (!income.matches("\\d+")) {
+							proposer.setAnnualIncome(null);
+						} else {
+							proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
+						}
+
+						if (aadhar.length() != 12 || !aadhar.matches("\\d{12}") || aadhar == null || aadhar.isEmpty()) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("aadhar card");
+							responceExcel.setReason("error in aadhar card");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
+						}
+
+						if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") || email.isEmpty()
+								|| email == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("email");
+							responceExcel.setReason("error in email");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setEmail(getCellValueAsString(row.getCell(8)));
+						}
+
+						if (!mobile.matches("\\d{10}") || mobile.isEmpty() || mobile == null
+								|| !mobile.matches("^[6-9]\\d{9}$")) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("mobile number");
+							responceExcel.setReason("error in mobile number");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
+						}
+
+						boolean isValidArea = false;
+						for (Area areaEnum : Area.values()) {
+
+							if (areaEnum.name().equalsIgnoreCase(area.trim())) {
+								isValidArea = true;
+								break;
+							}
+						}
+						if (area.isEmpty() || area == null || isValidArea == false) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("area");
+							responceExcel.setReason("error in area");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
+						}
+
+						if (pincode.length() != 6 || pincode == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("pin code");
+							responceExcel.setReason("error in pin code");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setPincode(getCellValueAsString(row.getCell(14)));
+						}
+
+						if (city.isEmpty() || city == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("city");
+							responceExcel.setReason("error in city");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setCity(getCellValueAsString(row.getCell(17)));
+						}
+
+						if (state.isEmpty() || state == null) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("state");
+							responceExcel.setReason("error in state");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+
+						} else {
+							proposer.setState(getCellValueAsString(row.getCell(18)));
+						}
+						if (maritalStatus.isEmpty() || maritalStatus == null) {
+							proposer.setMaritalStatus("SINGLE");
+						} else {
+							proposer.setMaritalStatus(getCellValueAsString(row.getCell(7)));
+						}
+						if (town.isEmpty() || town == null) {
+							proposer.setTown(Town.PANVEL);
+
+						} else {
+							proposer.setTown(Town.valueOf(getCellValueAsString(row.getCell(16)).toUpperCase()));
+						}
+
+						if (altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$")) {
+							proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
+						}
+						if (!address1.matches("^[A-Za-z0-9\s,/-]+$")) {
+							responceExcel.setStatus("failed");
+							responceExcel.setErrorField("address1");
+							responceExcel.setReason("error in address1");
+							responceExcelRepository.save(responceExcel);
+							failedCount++;
+							continue;
+						} else {
+							proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
+						}
+						if (address2.matches("^[A-Za-z0-9\s,/-]+$")) {
+							proposer.setAddressLine2(getCellValueAsString(row.getCell(12)));
+						}
+
+						if (address3.matches("^[A-Za-z0-9\s,/-]+$")) {
+							proposer.setAddressLine3(getCellValueAsString(row.getCell(13)));
+						}
+
+						proposer.setStatus('Y');
+						String gender = proposer.getGender().toString();
+						if (gender != null && !gender.isEmpty()) {
+							Optional<GenderType> genderType = genderRepository.findByType(gender);
+							if (genderType.isPresent()) {
+								proposer.setGenderId(genderType.get().getGenderId());
+							} else {
+								throw new IllegalArgumentException("enter corrrect gender");
+							}
+						} else {
+							throw new IllegalArgumentException("enter can not be null");
+						}
+						Proposer savedProposer = proposerRepository.save(proposer);
+						queue.setIsProcessed('Y');
+						queueRepository.save(queue);
+						successCount++;
+					}
+
+					System.out.println("scheduled");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
 
 	}
 }
