@@ -2353,6 +2353,7 @@ public class ProposerServiceImpl implements ProposerService {
 		int successCount = 0;
 		int failedCount = 0;
 		int totalCount = 0;
+//		List<String> errors = new ArrayList<>();
 		if (queueTable.isPresent()) {
 			QueueTable queue = queueTable.get();
 			int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
@@ -2383,7 +2384,8 @@ public class ProposerServiceImpl implements ProposerService {
 						if (row == null)
 							continue;
 						boolean hasError = false;
-					    StringBuilder errorMessages = new StringBuilder();
+						List<String> errors = new ArrayList<>();
+//					    StringBuilder errorMessages = new StringBuilder();
 					    
 						String title = check(row, 0);
 						String fullName = check(row, 1);
@@ -2427,7 +2429,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-						    errorMessages.append("fullName ");
+//						    errorMessages.append("fullName");
+						    errors.add("fullName");
 
 						} else {
 							proposer.setFullName(getCellValueAsString(row.getCell(1)));
@@ -2442,7 +2445,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Gender ");
+//							    errorMessages.append("Gender");
+							    errors.add("Gender");
 
 						} else {
 							proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
@@ -2456,7 +2460,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Date of Birth ");
+//							    errorMessages.append("Date of Birth");
+							    errors.add("Date of Birth");
 
 						} else {
 							proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
@@ -2471,7 +2476,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Pancard ");
+//							    errorMessages.append("Pancard");
+							    errors.add("Pancard");
 
 						} else {
 							proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
@@ -2490,7 +2496,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("AadharCard ");
+//							    errorMessages.append("AadharCard");
+							    errors.add("AadharCard");
 
 						} else {
 							proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
@@ -2505,7 +2512,8 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Email ");
+//							    errorMessages.append("Email");
+							    errors.add("Email");
 
 						} else {
 							proposer.setEmail(getCellValueAsString(row.getCell(8)));
@@ -2520,7 +2528,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Mobile ");
+//							    errorMessages.append("Mobile");
+							    errors.add("Mobile");
+
 						} else {
 							proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
 						}
@@ -2541,7 +2551,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Area ");
+//							    errorMessages.append("Area");
+							    errors.add("Area");
+
 
 						} else {
 							proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
@@ -2555,7 +2567,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Pincode ");
+//							    errorMessages.append("Pincode");
+							    errors.add("Pincode");
+
 						} else {
 							proposer.setPincode(getCellValueAsString(row.getCell(14)));
 						}
@@ -2568,7 +2582,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("City ");
+//							    errorMessages.append("City");
+							    errors.add("City");
+
 
 						} else {
 							proposer.setCity(getCellValueAsString(row.getCell(17)));
@@ -2582,7 +2598,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("State ");
+//							    errorMessages.append("State");
+							    errors.add("State");
+
 
 						} else {
 							proposer.setState(getCellValueAsString(row.getCell(18)));
@@ -2610,7 +2628,9 @@ public class ProposerServiceImpl implements ProposerService {
 //							failedCount++;
 //							continue;
 							 hasError = true;
-							    errorMessages.append("Address1 ");
+//							    errorMessages.append("Address1");
+							    errors.add("Address1");
+
 						} else {
 							proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 						}
@@ -2635,8 +2655,10 @@ public class ProposerServiceImpl implements ProposerService {
 							throw new IllegalArgumentException("enter can not be null");
 						}
 						if(hasError) {
+							String errorMessage = String.join(", ", errors);
 							responceExcel.setStatus("failed");
-							responceExcel.setErrorField(errorMessages.toString().replaceAll(",\\s*$", ""));
+//							responceExcel.setErrorField(errorMessages.toString().replaceAll(",\\s*$", ""));
+							responceExcel.setErrorField(errorMessage);
 							responceExcel.setReason("error in field");
 							responceExcelRepository.save(responceExcel);
 						}else {
@@ -2649,6 +2671,7 @@ public class ProposerServiceImpl implements ProposerService {
 //						queue.setIsProcessed('Y');
 					
 						processedCount++;
+						queue.setRowCount(i);
 						queue.setLastProcessedRow(i);
 						if (queue.getLastProcessedRow() >= totalRows) {
 							queue.setIsProcessed('Y');
