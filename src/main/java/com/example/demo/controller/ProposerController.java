@@ -690,7 +690,7 @@ public class ProposerController {
 	}
 
 	@PostMapping(value = "/upload_mandatory_using_scheduler", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseHandler<String> uploadExcelMandatoryUsingScheduler(@RequestPart("file") MultipartFile file) {
+	public ResponseHandler<String> uploadExcelMandatoryUsingScheduler(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<String> responseHandler = new ResponseHandler<>();
 		try {
 			Map<String, Object> resultMap = proposerService.saveProposersFromExcelMandatoryUsingScheduler(file);

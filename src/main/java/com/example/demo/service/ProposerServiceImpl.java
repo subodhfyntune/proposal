@@ -2087,8 +2087,8 @@ public class ProposerServiceImpl implements ProposerService {
 		int failedCount = 0;
 		int totalCount = 0;
 
-		try  {
-			
+		try {
+
 			totalCount = newsheet.getLastRowNum();
 			for (int i = 1; i <= newsheet.getLastRowNum(); i++) {
 				ResponceExcel responceExcel = new ResponceExcel();
@@ -2096,6 +2096,7 @@ public class ProposerServiceImpl implements ProposerService {
 				Row row = newsheet.getRow(i);
 				if (row == null)
 					continue;
+				List<String> errors= new ArrayList<>();
 				String title = check(row, 0);
 				String fullName = check(row, 1);
 				String genderString = check(row, 2);
@@ -2136,8 +2137,9 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("full Name");
 					responceExcel.setReason("error in full Name");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("FullName");
 
 				} else {
 					proposer.setFullName(getCellValueAsString(row.getCell(1)));
@@ -2149,8 +2151,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("gender");
 					responceExcel.setReason("error in gender");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("gender");
+
 
 				} else {
 					proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
@@ -2161,8 +2165,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("dob");
 					responceExcel.setReason("error in dob");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("Date of Birth");
+
 
 				} else {
 					proposer.setDateOfBirth(getCellValueAsString(row.getCell(3)));
@@ -2173,13 +2179,15 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("pancard");
 					responceExcel.setReason("error in pancard");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("PanCard");
+
 
 				} else {
 					proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
 				}
-				if (!income.matches("\\d+")) {
+				if (!income.matches("\\d+") ) {
 					proposer.setAnnualIncome(null);
 				} else {
 					proposer.setAnnualIncome(getCellValueAsString(row.getCell(4)));
@@ -2190,8 +2198,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("aadhar card");
 					responceExcel.setReason("error in aadhar card");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("AadharCard");
+
 
 				} else {
 					proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
@@ -2203,8 +2213,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("email");
 					responceExcel.setReason("error in email");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("Email");
+
 
 				} else {
 					proposer.setEmail(getCellValueAsString(row.getCell(8)));
@@ -2216,8 +2228,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("mobile number");
 					responceExcel.setReason("error in mobile number");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("MobileNumber");
+
 
 				} else {
 					proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
@@ -2236,8 +2250,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("area");
 					responceExcel.setReason("error in area");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("Area");
+
 
 				} else {
 					proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
@@ -2248,8 +2264,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("pin code");
 					responceExcel.setReason("error in pin code");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("Pincode");
+
 
 				} else {
 					proposer.setPincode(getCellValueAsString(row.getCell(14)));
@@ -2260,8 +2278,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("city");
 					responceExcel.setReason("error in city");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("City");
+
 
 				} else {
 					proposer.setCity(getCellValueAsString(row.getCell(17)));
@@ -2272,8 +2292,10 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("state");
 					responceExcel.setReason("error in state");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("State");
+
 
 				} else {
 					proposer.setState(getCellValueAsString(row.getCell(18)));
@@ -2298,8 +2320,11 @@ public class ProposerServiceImpl implements ProposerService {
 					responceExcel.setErrorField("address1");
 					responceExcel.setReason("error in address1");
 					responceExcelRepository.save(responceExcel);
-					failedCount++;
-					continue;
+//					failedCount++;
+//					continue;
+					errors.add("Address1");
+
+					
 				} else {
 					proposer.setAddressLine1(getCellValueAsString(row.getCell(11)));
 				}
@@ -2312,17 +2337,27 @@ public class ProposerServiceImpl implements ProposerService {
 				}
 
 				proposer.setStatus('Y');
-				String gender = proposer.getGender().toString();
-				if (gender != null && !gender.isEmpty()) {
-					Optional<GenderType> genderType = genderRepository.findByType(gender);
-					if (genderType.isPresent()) {
-						proposer.setGenderId(genderType.get().getGenderId());
+				if (proposer.getGender() != null) {
+					String gender = proposer.getGender().toString();
+
+					if (gender != null && !gender.isEmpty()) {
+						Optional<GenderType> genderType = genderRepository.findByType(gender);
+						if (genderType.isPresent()) {
+							proposer.setGenderId(genderType.get().getGenderId());
+						} else {
+							throw new IllegalArgumentException("enter corrrect gender");
+						}
 					} else {
-						throw new IllegalArgumentException("enter corrrect gender");
+						throw new IllegalArgumentException("enter can not be null");
 					}
-				} else {
-					throw new IllegalArgumentException("enter can not be null");
 				}
+				if(!errors.isEmpty()) {
+					failedCount++;
+					responceExcel.setStatus("failed");
+					responceExcel.setErrorField(String.join(", ", errors));
+					responceExcel.setReason("error in field");
+					responceExcelRepository.save(responceExcel);
+				}else {
 				Proposer savedProposer = proposerRepository.save(proposer);
 				excelList.add(savedProposer);
 				responceExcel.setStatus("success");
@@ -2330,8 +2365,9 @@ public class ProposerServiceImpl implements ProposerService {
 				responceExcel.setReason("successfully added");
 				responceExcelRepository.save(responceExcel);
 				successCount++;
+				}
 			}
-		}catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
@@ -2379,7 +2415,7 @@ public class ProposerServiceImpl implements ProposerService {
 						Row row = sheet.getRow(i);
 						if (row == null)
 							continue;
-						boolean hasError = false;
+						Boolean hasError = false;
 						List<String> errors = new ArrayList<>();
 
 						String title = check(row, 0);
@@ -2417,11 +2453,10 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 						if (fullName == null || fullName.isEmpty() || !fullName.matches("[A-Za-z\\s]+")) {
 
-						
 							hasError = true;
-					  
+
 							errors.add("fullName");
-							System.err.println(errors+ proposer.getFullName());
+							System.err.println(errors + proposer.getFullName());
 
 						} else {
 							proposer.setFullName(getCellValueAsString(row.getCell(1)));
@@ -2429,22 +2464,21 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						if (genderString == null || genderString.isEmpty()) {
-							
+
 							hasError = true;
-							 
+
 							errors.add("Gender");
 							System.err.println(errors);
 
-
 						} else {
 							proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
-							
+
 						}
 
 						if (dob == null || dob.isEmpty()) {
-							
+
 							hasError = true;
-							   
+
 							errors.add("Date of Birth");
 
 						} else {
@@ -2453,12 +2487,11 @@ public class ProposerServiceImpl implements ProposerService {
 
 						if (pan == null || pan.isEmpty() || pan.length() != 10
 								|| !pan.matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$")) {
-							
+
 							hasError = true;
-						   
+
 							errors.add("Pancard");
 							System.err.println(errors);
-
 
 						} else {
 							proposer.setPanNumber(getCellValueAsString(row.getCell(5)));
@@ -2476,7 +2509,6 @@ public class ProposerServiceImpl implements ProposerService {
 							errors.add("AadharCard");
 							System.err.println(errors);
 
-
 						} else {
 							proposer.setAadharNumber(getCellValueAsString(row.getCell(6)));
 						}
@@ -2489,7 +2521,6 @@ public class ProposerServiceImpl implements ProposerService {
 							errors.add("Email");
 							System.err.println(errors);
 
-
 						} else {
 							proposer.setEmail(getCellValueAsString(row.getCell(8)));
 						}
@@ -2501,7 +2532,6 @@ public class ProposerServiceImpl implements ProposerService {
 //							    
 							errors.add("Mobile");
 							System.err.println(errors);
-
 
 						} else {
 							proposer.setMobileNumber(getCellValueAsString(row.getCell(9)));
@@ -2516,17 +2546,17 @@ public class ProposerServiceImpl implements ProposerService {
 							}
 						}
 						if (area == null || area.isEmpty() || isValidArea == false) {
-						
+
 							hasError = true;
-							    
+
 							errors.add("Area");
 
 						} else {
 							proposer.setArea(Area.valueOf(getCellValueAsString(row.getCell(15)).toUpperCase()));
 						}
 
-						if (pincode == null || pincode.length() != 6) {							
-							    
+						if (pincode == null || pincode.length() != 6) {
+
 							errors.add("Pincode");
 
 						} else {
@@ -2534,9 +2564,9 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						if (city == null || city.isEmpty()) {
-						
+
 							hasError = true;
-							   
+
 							errors.add("City");
 
 						} else {
@@ -2544,9 +2574,9 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						if (state == null || state.isEmpty()) {
-							
+
 							hasError = true;
-						    
+
 							errors.add("State");
 
 						} else {
@@ -2586,18 +2616,18 @@ public class ProposerServiceImpl implements ProposerService {
 
 						proposer.setStatus('Y');
 						if (proposer.getGender() != null) {
-						    String gender = proposer.getGender().toString(); 
-						
-						if (gender != null && !gender.isEmpty()) {
-							Optional<GenderType> genderType = genderRepository.findByType(gender);
-							if (genderType.isPresent()) {
-								proposer.setGenderId(genderType.get().getGenderId());
+							String gender = proposer.getGender().toString();
+
+							if (gender != null && !gender.isEmpty()) {
+								Optional<GenderType> genderType = genderRepository.findByType(gender);
+								if (genderType.isPresent()) {
+									proposer.setGenderId(genderType.get().getGenderId());
+								} else {
+									throw new IllegalArgumentException("enter corrrect gender");
+								}
 							} else {
-								throw new IllegalArgumentException("enter corrrect gender");
+								throw new IllegalArgumentException("enter can not be null");
 							}
-						} else {
-							throw new IllegalArgumentException("enter can not be null");
-						}
 						}
 						if (!errors.isEmpty()) {
 //							String errorMessage = String.join(", ", errors);
@@ -2606,8 +2636,8 @@ public class ProposerServiceImpl implements ProposerService {
 							responceExcel.setErrorField(String.join(", ", errors));
 							responceExcel.setReason("error in field");
 							responceExcelRepository.save(responceExcel);
-							
-						}else { 
+
+						} else {
 							Proposer savedProposer = proposerRepository.save(proposer);
 							responceExcel.setStatus("success");
 							responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
@@ -2631,7 +2661,6 @@ public class ProposerServiceImpl implements ProposerService {
 				}
 			}
 		}
-
 
 	}
 }
