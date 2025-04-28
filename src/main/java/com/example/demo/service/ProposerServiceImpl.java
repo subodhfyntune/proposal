@@ -2438,6 +2438,7 @@ public class ProposerServiceImpl implements ProposerService {
 
 						} else {
 							proposer.setGender(Gender.valueOf(getCellValueAsString(row.getCell(2)).toUpperCase()));
+							
 						}
 
 						if (dob == null || dob.isEmpty()) {
@@ -2566,7 +2567,7 @@ public class ProposerServiceImpl implements ProposerService {
 						if (altMobile.matches("\\d{10}") && altMobile.matches("^[6-9]\\d{9}$")) {
 							proposer.setAlternateMobileNumber(getCellValueAsString(row.getCell(10)));
 						}
-						if (!address1.matches("^[A-Za-z0-9\s,/-]+$")) {
+						if (address1 == null || !address1.matches("^[A-Za-z0-9\s,/-]+$")) {
 
 							hasError = true;
 
@@ -2584,7 +2585,9 @@ public class ProposerServiceImpl implements ProposerService {
 						}
 
 						proposer.setStatus('Y');
-						String gender = proposer.getGender().toString();
+						if (proposer.getGender() != null) {
+						    String gender = proposer.getGender().toString(); 
+						
 						if (gender != null && !gender.isEmpty()) {
 							Optional<GenderType> genderType = genderRepository.findByType(gender);
 							if (genderType.isPresent()) {
@@ -2595,20 +2598,22 @@ public class ProposerServiceImpl implements ProposerService {
 						} else {
 							throw new IllegalArgumentException("enter can not be null");
 						}
+						}
 						if (!errors.isEmpty()) {
-							String errorMessage = String.join(", ", errors);
+//							String errorMessage = String.join(", ", errors);
+//							System.err.println(errorMessage);
 							responceExcel.setStatus("failed");
-							responceExcel.setErrorField(errorMessage);
+							responceExcel.setErrorField(String.join(", ", errors));
 							responceExcel.setReason("error in field");
 							responceExcelRepository.save(responceExcel);
-							continue;
-						} 
+							
+						}else { 
 							Proposer savedProposer = proposerRepository.save(proposer);
 							responceExcel.setStatus("success");
 							responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
 							responceExcel.setReason("successfully added");
 							responceExcelRepository.save(responceExcel);
-						
+						}
 
 						processedCount++;
 						queue.setRowRead(i);
