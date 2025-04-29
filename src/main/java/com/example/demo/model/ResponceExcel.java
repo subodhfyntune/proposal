@@ -20,15 +20,24 @@ public class ResponceExcel {
 	private String errorField;
 	@Column(name = "reason")
 	private String reason;
+	@Column(name = "queue_id")
+	private Long queueId;
 	public ResponceExcel() {
 		super();
 	}
-	public ResponceExcel(Integer id, String status, String errorField, String reason) {
+	public ResponceExcel(Integer id, String status, String errorField, String reason ,Long queueId) {
 		super();
 		this.id = id;
 		this.status = status;
 		this.errorField = errorField;
 		this.reason = reason;
+		this.queueId = queueId;
+	}
+	public Long getQueueId() {
+		return queueId;
+	}
+	public void setQueueId(Long queueId) {
+		this.queueId = queueId;
 	}
 	public Integer getId() {
 		return id;

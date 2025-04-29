@@ -486,7 +486,7 @@ public class ProposerController {
 	}
 
 	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseHandler<String> uploadExcel(@RequestPart("file") MultipartFile file) {
+	public ResponseHandler<String> uploadExcel(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<String> responseHandler = new ResponseHandler<>();
 		try {
 			List<Proposer> savedProposers = proposerService.saveProposersFromExcel(file);
@@ -503,7 +503,7 @@ public class ProposerController {
 	}
 
 	@PostMapping(value = "/upload_mandatory", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseHandler<String> uploadExcelMandatory(@RequestPart("file") MultipartFile file) {
+	public ResponseHandler<String> uploadExcelMandatory(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<String> responseHandler = new ResponseHandler<>();
 		try {
 			List<Proposer> savedProposers = proposerService.saveProposersFromExcelMandatory(file);
@@ -527,7 +527,7 @@ public class ProposerController {
 	}
 
 	@PostMapping(value = "/upload_using_dto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseHandler uploadExcelUsingDto(@RequestPart("file") MultipartFile file) {
+	public ResponseHandler uploadExcelUsingDto(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<String> responseHandler = new ResponseHandler<>();
 		try {
 			List<Proposer> savedProposers = proposerService.saveProposersFromExcelUsingDto(file);
@@ -544,7 +544,7 @@ public class ProposerController {
 	}
 
 	@PostMapping(value = "/upload_mandatory_using_map", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseHandler<List<Proposer>> uploadExcelMandatory2(@RequestPart("file") MultipartFile file) {
+	public ResponseHandler<List<Proposer>> uploadExcelMandatory2(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 
 		try {

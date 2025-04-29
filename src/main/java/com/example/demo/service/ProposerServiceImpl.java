@@ -2058,20 +2058,18 @@ public class ProposerServiceImpl implements ProposerService {
 
 		String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 		String filePath = uploadDir + fileName;
-
 		XSSFWorkbook newworkbook = new XSSFWorkbook(file.getInputStream());
 		XSSFSheet newsheet = newworkbook.getSheetAt(0);
-		QueueTable queue = new QueueTable();
-		queue.setIsProcessed('N');
-		queue.setStatus('Y');
-		queue.setRowCount(newsheet.getLastRowNum());
-		queue.setRowRead(0);
-
-		queue.setFilePath(filePath);
-		file.transferTo(new File(filePath));
+		
 		if (newsheet.getLastRowNum() > 10) {
+			QueueTable queue = new QueueTable();
+			queue.setIsProcessed('N');
+			queue.setStatus('Y');
+			queue.setRowCount(newsheet.getLastRowNum());
+			queue.setRowRead(0);
+			queue.setFilePath(filePath);
+			file.transferTo(new File(filePath));
 			queueRepository.save(queue);
-
 			Map<String, Object> scheduledResponse = new HashMap<>();
 			scheduledResponse.put("message", "File has been queued for processing in batches.");
 			scheduledResponse.put("rowCount", newsheet.getLastRowNum());
@@ -2353,6 +2351,7 @@ public class ProposerServiceImpl implements ProposerService {
 				}
 				if(!errors.isEmpty()) {
 					failedCount++;
+					
 					responceExcel.setStatus("failed");
 					responceExcel.setErrorField(String.join(", ", errors));
 					responceExcel.setReason("error in field");
@@ -2385,11 +2384,16 @@ public class ProposerServiceImpl implements ProposerService {
 	@Scheduled(fixedDelay = 60000)
 	public void scheduleQueueProcessing() {
 
-		Optional<QueueTable> queueTable = queueRepository.findFirstByIsProcessed('N');
-		if (queueTable.isPresent()) {
-			QueueTable queue = queueTable.get();
-			int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
-			String filePath = queue.getFilePath();
+//		Optional<QueueTable> queueTable = queueRepository.findFirstByIsProcessed('N');
+//		if (queueTable.isPresent()) {
+//			QueueTable queue = queueTable.get();
+//			int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
+//			String filePath = queue.getFilePath();
+		List<QueueTable> queueTables = queueRepository.findByIsProcessed('N');
+		for (QueueTable queue : queueTables) {
+		    int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
+		    String filePath = queue.getFilePath();
+
 
 			File file = new File(filePath);
 			if (file.exists()) {
@@ -2410,7 +2414,7 @@ public class ProposerServiceImpl implements ProposerService {
 					System.out.println(" Processing rows from " + startRow + " to " + endRow);
 
 					for (int i = startRow; i <= endRow; i++) {
-						ResponceExcel responceExcel = new ResponceExcel();
+						
 
 						Row row = sheet.getRow(i);
 						if (row == null)
@@ -2629,20 +2633,29 @@ public class ProposerServiceImpl implements ProposerService {
 								throw new IllegalArgumentException("enter can not be null");
 							}
 						}
+//						ResponceExcel responceExcel = new ResponceExcel();
+
 						if (!errors.isEmpty()) {
 //							String errorMessage = String.join(", ", errors);
 //							System.err.println(errorMessage);
+							Long queueId  =  queue.getId();
+							for( String error :errors) {
+								ResponceExcel responceExcel = new ResponceExcel();
 							responceExcel.setStatus("failed");
-							responceExcel.setErrorField(String.join(", ", errors));
-							responceExcel.setReason("error in field");
+							responceExcel.setErrorField(error);
+							responceExcel.setReason( error + " error in field"  );
+							responceExcel.setQueueId(queueId);
 							responceExcelRepository.save(responceExcel);
+							}
 
 						} else {
+							ResponceExcel responceExcel2 = new ResponceExcel();
 							Proposer savedProposer = proposerRepository.save(proposer);
-							responceExcel.setStatus("success");
-							responceExcel.setErrorField(String.valueOf(savedProposer.getId()));
-							responceExcel.setReason("successfully added");
-							responceExcelRepository.save(responceExcel);
+							responceExcel2.setStatus("success");
+							responceExcel2.setErrorField(String.valueOf(savedProposer.getId()));
+							responceExcel2.setReason("successfully added");
+							
+							responceExcelRepository.save(responceExcel2);
 						}
 
 						processedCount++;
