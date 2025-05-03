@@ -135,7 +135,7 @@ public class ProposerController {
 //	    
 //	}
 
-	@PostMapping("/register_With_Dto")
+	@PostMapping("/register_with_dto")
 	public ResponseHandler<Proposer> registerUsingDTO(@RequestBody ProposerDto proposerDto) {
 		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
 
@@ -170,7 +170,7 @@ public class ProposerController {
 //		return new ResponseEntity<Proposer>(updatedProposer,HttpStatus.OK);
 //	}
 
-	@PutMapping("/update_With_Dto/{id}")
+	@PutMapping("/update_with_dto/{id}")
 	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id, @RequestBody ProposerDto updateProposer) {
 		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
 
@@ -198,7 +198,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 
-	@GetMapping("/get_Occupation")
+	@GetMapping("/get_occupation")
 	public ResponseHandler<List<Occupation>> getAllOccupations() {
 		ResponseHandler<List<Occupation>> responseHandler = new ResponseHandler<>();
 		try {
@@ -222,7 +222,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 
-	@GetMapping("/get_Gender")
+	@GetMapping("/get_gender")
 	public ResponseHandler<List<Gender>> getAllGender() {
 		ResponseHandler<List<Gender>> responseHandler = new ResponseHandler<>();
 		try {
@@ -246,7 +246,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 
-	@GetMapping("/get_Marital_Status")
+	@GetMapping("/get_marital_status")
 	public ResponseHandler<List<MaritalStatus>> getAllMaritalStatus() {
 		ResponseHandler<List<MaritalStatus>> responseHandler = new ResponseHandler<>();
 		try {
@@ -263,7 +263,7 @@ public class ProposerController {
 		}
 	}
 
-	@GetMapping("/get_Nationality")
+	@GetMapping("/get_nationality")
 	public ResponseHandler<List<Nationality>> getAllNationality() {
 		ResponseHandler<List<Nationality>> responseHandler = new ResponseHandler<>();
 
@@ -281,7 +281,7 @@ public class ProposerController {
 
 	}
 
-	@GetMapping("/get_Title")
+	@GetMapping("/get_title")
 	public ResponseHandler<List<Title>> getAllTitle() {
 		ResponseHandler<List<Title>> responseHandler = new ResponseHandler<>();
 
@@ -298,7 +298,7 @@ public class ProposerController {
 		}
 	}
 
-	@GetMapping("/get_Town")
+	@GetMapping("/get_town")
 	public ResponseHandler<List<Town>> getAllTown() {
 		ResponseHandler<List<Town>> responseHandler = new ResponseHandler<>();
 		try {
@@ -322,7 +322,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 
-	@GetMapping("/get_Area")
+	@GetMapping("/get_area")
 	public ResponseHandler<List<Area>> getAllArea() {
 		ResponseHandler<List<Area>> responseHandler = new ResponseHandler<>();
 		try {
@@ -345,7 +345,7 @@ public class ProposerController {
 		return proposerRepository.findByFullName(name, PageRequest.of(page, size));
 	}
 
-	@PostMapping("/getby_Page_And_Size")
+	@PostMapping("/getby_page_and_size")
 	public ResponseHandler<List<Proposer>> getAllBysortingAndPagination(@RequestBody ProposerPage proposerPage) {
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 		try {
@@ -376,7 +376,7 @@ public class ProposerController {
 		return responseHandler;
 	}
 
-	@PostMapping("/get_By_Page_And_Size_And_Filter")
+	@PostMapping("/get_by_page_and_size_and_filter")
 	public ResponseHandler<List<Proposer>> getAllBysortingAndPaginationAndFiltering(
 			@RequestBody ProposerPage proposerPage) {
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
@@ -427,7 +427,7 @@ public class ProposerController {
 //	        exporter.export(response);
 //	}
 
-	@GetMapping("export_excel_file")
+	@GetMapping("/export_excel_file")
 	public void exportToExcel(HttpServletResponse response) throws Exception {
 		response.setContentType("application/octet-stream");
 		String headerKey = "Content-Disposition";
@@ -438,7 +438,7 @@ public class ProposerController {
 
 	}
 
-	@GetMapping("export_excel_file_using_scheduler")
+	@GetMapping("/export_excel_file_using_scheduler")
 	public void exportToExcel2() throws Exception {
 
 		proposerService.generateExcel2();
@@ -542,8 +542,8 @@ public class ProposerController {
 		}
 		return responseHandler;
 	}
-
-	@PostMapping(value = "/upload_mandatory_using_map", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//	"/upload_mandatory_using_map"
+	@PostMapping(value = "/upload_excel_map", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseHandler<List<Proposer>> uploadExcelMandatory2(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 
@@ -571,8 +571,8 @@ public class ProposerController {
 
 		return responseHandler;
 	}
-
-	@PostMapping("/get_By_Page_And_Size_And_Filter_Using_Map")
+//	"/get_by_page_and_size_and_filter_using_map"
+	@PostMapping("/listing")
 	public ResponseHandler<List<Map<String, Object>>> getAllBysortingAndPaginationAndFilteringUsingMap(
 			@RequestBody ProposerPage proposerPage) {
 		ResponseHandler<List<Map<String, Object>>> responseHandler = new ResponseHandler<>();
@@ -621,7 +621,7 @@ public class ProposerController {
 //    public ResponseEntity<List<Map<String, Object>>> getFilteredUsers() {
 //        return ResponseEntity.ok(userService.getSelectedUserInfo());
 //    }
-	@GetMapping("/filtered-users")
+	@GetMapping("/filtered_users")
 	public ResponseEntity<ResponseHandler<List<Map<String, Object>>>> getFilteredUsers() {
 		ResponseHandler<List<Map<String, Object>>> response = new ResponseHandler<>();
 
@@ -688,8 +688,8 @@ public class ProposerController {
 			return response;
 		}
 	}
-
-	@PostMapping(value = "/upload_mandatory_using_scheduler", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//	upload_mandatory_using_scheduler
+	@PostMapping(value = "/upload_excel_scheduler", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseHandler<String> uploadExcelMandatoryUsingScheduler(@RequestParam("file") MultipartFile file) {
 		ResponseHandler<String> responseHandler = new ResponseHandler<>();
 		try {
