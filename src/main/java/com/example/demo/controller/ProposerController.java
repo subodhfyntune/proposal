@@ -641,14 +641,14 @@ public class ProposerController {
 		}
 	}
 
-	@GetMapping("/filter_using_web_client")
-	public List<Map<String, Object>> filterProductsUsingWebClient(@RequestParam(required = false) String category,
-			@RequestParam(required = false) Double minPrice, @RequestParam(required = false) Double maxPrice,
-			@RequestParam(required = false) String sortBy, @RequestParam(required = false) Boolean groupByCategory,
-			@RequestParam(required = false) Integer topN) {
-		return proposerService.getFilteredProductsUsingWebClient(category, minPrice, maxPrice, sortBy, groupByCategory,
-				topN);
-	}
+//	@GetMapping("/filter_using_web_client")
+//	public List<Map<String, Object>> filterProductsUsingWebClient(@RequestParam(required = false) String category,
+//			@RequestParam(required = false) Double minPrice, @RequestParam(required = false) Double maxPrice,
+//			@RequestParam(required = false) String sortBy, @RequestParam(required = false) Boolean groupByCategory,
+//			@RequestParam(required = false) Integer topN) {
+//		return proposerService.getFilteredProductsUsingWebClient(category, minPrice, maxPrice, sortBy, groupByCategory,
+//				topN);
+//	}
 
 	@GetMapping("/product_web_client")
 	public ResponseHandler<List<Product>> getAllProducts() {

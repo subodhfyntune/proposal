@@ -39,8 +39,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.Builder;
+
 import com.example.demo.dto.ProposerDto;
 import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.exception.ProposerDeletedAlready;
@@ -67,12 +66,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import reactor.core.publisher.Mono;
+
 
 @Service
 public class ProposerServiceImpl implements ProposerService {
 
-	private final WebClient.Builder webClientBuilder;
+//	private final WebClient.Builder webClientBuilder;
 	@Autowired
 	private ProposerRepository proposerRepository;
 
@@ -88,10 +87,7 @@ public class ProposerServiceImpl implements ProposerService {
 	Integer totalEntry = 0;
 	Integer falseCount;
 
-	ProposerServiceImpl(WebClient.Builder webClientBuilder, QueueRepository queueRepository) {
-		this.webClientBuilder = webClientBuilder;
-		this.queueRepository = queueRepository;
-	}
+	
 
 //	    private final String PRODUCT_API_URL_ = "https://fakestoreapi.com/products";
 //
@@ -1942,87 +1938,87 @@ public class ProposerServiceImpl implements ProposerService {
 		}).collect(Collectors.toList());
 	}
 
-	@Override
-	public List<Map<String, Object>> getFilteredProductsUsingWebClient(String category, Double minPrice,
-			Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN) {
-
-		WebClient webClient = WebClient.builder().baseUrl("https://fakestoreapi.com").build();
-		Mono<List<Map<String, Object>>> responseMono = webClient.get().uri("/products").retrieve()
-				.bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {
-				});
-
-		List<Map<String, Object>> products = responseMono.block(); // Blocking for now
-
-		if (products == null)
-			return List.of();
-
-		// Filter by category
-		if (category != null) {
-			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
-					.collect(Collectors.toList());
-		}
-
-		// Filter by min price
-		if (minPrice != null) {
-			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
-					.collect(Collectors.toList());
-		}
-
-		// Filter by max price
-		if (maxPrice != null) {
-			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
-					.collect(Collectors.toList());
-		}
-
-		// Sorting
-		if ("price".equalsIgnoreCase(sortBy)) {
-			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
-		} else if ("rating".equalsIgnoreCase(sortBy)) {
-			products.sort((p1, p2) -> {
-				double r1 = 0.0, r2 = 0.0;
-
-				Object rating1 = p1.get("rating");
-				if (rating1 instanceof Map<?, ?> map1) {
-					Object rate1 = map1.get("rate");
-					if (rate1 instanceof Number num1) {
-						r1 = num1.doubleValue();
-					}
-				}
-
-				Object rating2 = p2.get("rating");
-				if (rating2 instanceof Map<?, ?> map2) {
-					Object rate2 = map2.get("rate");
-					if (rate2 instanceof Number num2) {
-						r2 = num2.doubleValue();
-					}
-				}
-
-				return Double.compare(r2, r1); // Descending
-			});
-		}
-
-		// Top N
-		if (topN != null && topN > 0) {
-			products = products.stream().limit(topN).collect(Collectors.toList());
-		}
-
-		// Group by category
-		if (Boolean.TRUE.equals(groupByCategory)) {
-			Map<String, List<Map<String, Object>>> grouped = products.stream()
-					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
-
-			List<Map<String, Object>> groupedList = new ArrayList<>();
-			for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
-				Map<String, Object> group = new HashMap<>();
-				group.put("category", entry.getKey());
-				group.put("products", entry.getValue());
-				groupedList.add(group);
-			}
-			return groupedList;
-		}
-
-		return products;
-	}
+//	@Override
+//	public List<Map<String, Object>> getFilteredProductsUsingWebClient(String category, Double minPrice,
+//			Double maxPrice, String sortBy, Boolean groupByCategory, Integer topN) {
+//
+//		WebClient webClient = WebClient.builder().baseUrl("https://fakestoreapi.com").build();
+//		Mono<List<Map<String, Object>>> responseMono = webClient.get().uri("/products").retrieve()
+//				.bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {
+//				});
+//
+//		List<Map<String, Object>> products = responseMono.block(); // Blocking for now
+//
+//		if (products == null)
+//			return List.of();
+//
+//		// Filter by category
+//		if (category != null) {
+//			products = products.stream().filter(p -> category.equalsIgnoreCase((String) p.get("category")))
+//					.collect(Collectors.toList());
+//		}
+//
+//		// Filter by min price
+//		if (minPrice != null) {
+//			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() >= minPrice)
+//					.collect(Collectors.toList());
+//		}
+//
+//		// Filter by max price
+//		if (maxPrice != null) {
+//			products = products.stream().filter(p -> ((Number) p.get("price")).doubleValue() <= maxPrice)
+//					.collect(Collectors.toList());
+//		}
+//
+//		// Sorting
+//		if ("price".equalsIgnoreCase(sortBy)) {
+//			products.sort(Comparator.comparing(p -> ((Number) p.get("price")).doubleValue()));
+//		} else if ("rating".equalsIgnoreCase(sortBy)) {
+//			products.sort((p1, p2) -> {
+//				double r1 = 0.0, r2 = 0.0;
+//
+//				Object rating1 = p1.get("rating");
+//				if (rating1 instanceof Map<?, ?> map1) {
+//					Object rate1 = map1.get("rate");
+//					if (rate1 instanceof Number num1) {
+//						r1 = num1.doubleValue();
+//					}
+//				}
+//
+//				Object rating2 = p2.get("rating");
+//				if (rating2 instanceof Map<?, ?> map2) {
+//					Object rate2 = map2.get("rate");
+//					if (rate2 instanceof Number num2) {
+//						r2 = num2.doubleValue();
+//					}
+//				}
+//
+//				return Double.compare(r2, r1); // Descending
+//			});
+//		}
+//
+//		// Top N
+//		if (topN != null && topN > 0) {
+//			products = products.stream().limit(topN).collect(Collectors.toList());
+//		}
+//
+//		// Group by category
+//		if (Boolean.TRUE.equals(groupByCategory)) {
+//			Map<String, List<Map<String, Object>>> grouped = products.stream()
+//					.collect(Collectors.groupingBy(p -> (String) p.get("category")));
+//
+//			List<Map<String, Object>> groupedList = new ArrayList<>();
+//			for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+//				Map<String, Object> group = new HashMap<>();
+//				group.put("category", entry.getKey());
+//				group.put("products", entry.getValue());
+//				groupedList.add(group);
+//			}
+//			return groupedList;
+//		}
+//
+//		return products;
+//	}
 
 	public List<Product> getAllProduct() {
 		RestTemplate restTemplate = new RestTemplate();
@@ -2606,4 +2602,6 @@ public class ProposerServiceImpl implements ProposerService {
 		}
 
 	}
+
+
 }
