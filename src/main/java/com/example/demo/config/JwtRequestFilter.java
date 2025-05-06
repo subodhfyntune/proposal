@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -60,12 +61,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 jwt = authorizationHeader.substring(7);
-                username = jwtUtil.extractUsername(jwt);
-                Integer userId = jwtUtil.extractUserId(jwt);
+//                username = jwtUtil.extractUsername(jwt);
+//                Integer userId = jwtUtil.extractUserId(jwt);
+                Map<String, Object> claims = jwtUtil.extractAllClaims(jwt);
+                username = (String) claims.get("sub");
+                Integer userId = (Integer) claims.get("userId");
+                String email = (String) claims.get("email");
+                String role = (String) claims.get("role");
+                
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    if (jwtUtil.validateToken(jwt, username, userId)) {
+                    if (jwtUtil.validateToken(jwt, username, userId,email,role)) {
                         UsernamePasswordAuthenticationToken authToken =
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authToken);
