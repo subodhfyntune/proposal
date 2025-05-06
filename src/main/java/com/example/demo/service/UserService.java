@@ -29,8 +29,9 @@ public class UserService {
     public String loginUser(Users user) {
         Optional<Users> existingUser = userRepository.findByUsername(user.getUsername());
         if (existingUser.isPresent() && existingUser.get().getPassword().equals(user.getPassword())) {
-            return jwtUtil.generateToken(user.getUsername());
+            return jwtUtil.generateToken(user.getUsername(), existingUser.get().getUserId());
         }
         return "Invalid username or password";
     }
+
 }
