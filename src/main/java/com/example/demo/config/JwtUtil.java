@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.example.demo.model.Users;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -18,15 +20,19 @@ public class JwtUtil {
 
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(String username, Integer userId ,String email ,String role) {
+    public String generateToken(String username,Users userlogin, Map<String, Object> customClaims) {
         long expirationTimeMs = 1000 * 60 * 15; 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTimeMs);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("email", email);
-        claims.put("role", role);
+        claims.put("userId", userlogin.getUserId());
+        claims.put("email", userlogin.getEmail());
+        claims.put("role", userlogin.getRole());
+        
+        if (customClaims != null) {
+            claims.putAll(customClaims); // Merge the custom claims
+        }
        
         return Jwts.builder()
         		.setClaims(claims)

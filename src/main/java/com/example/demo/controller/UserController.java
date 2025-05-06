@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.model.Users;
 import com.example.demo.service.UserService;
 
@@ -23,12 +24,46 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Users user) {
-        return ResponseEntity.ok(userService.registerUser(user));
+    public ResponseHandler<String> register(@RequestBody Users user) {
+        ResponseHandler<String> response = new ResponseHandler<>();
+        try {
+            String result = userService.registerUser(user);
+            if ("Username already exists".equals(result)) {
+                response.setStatus("fail");
+                response.setMessage(result);
+                response.setData(null);
+            } else {
+                response.setStatus("success");
+                response.setMessage("User registered successfully");
+                response.setData(result);
+            }
+        } catch (Exception e) {
+            response.setStatus("error");
+            response.setMessage("Something went wrong during registration");
+            response.setData(null);
+        }
+        return response;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Users user) {
-        return ResponseEntity.ok(userService.loginUser(user));
+    public ResponseHandler<String> login(@RequestBody Users user) {
+        ResponseHandler<String> response = new ResponseHandler<>();
+        try {
+            String token = userService.loginUser(user);
+            if ("Invalid username or password".equals(token)) {
+                response.setStatus("fail");
+                response.setMessage(token);
+                response.setData(null);
+            } else {
+                response.setStatus("success");
+                response.setMessage("Login successful");
+                response.setData(token);
+            }
+        } catch (Exception e) {
+            response.setStatus("error");
+            response.setMessage("Something went wrong during login");
+            response.setData(null);
+        }
+        return response;
     }
 }
