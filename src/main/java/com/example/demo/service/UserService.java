@@ -23,6 +23,15 @@ public class UserService {
     }
 
     public String registerUser(Users user) {
+    	
+    	if(user.getUsername() == null || user.getUsername().isEmpty() ||
+    			user.getPassword() == null || user.getPassword().isEmpty() ||
+    			user.getEmail() == null || user.getEmail().isEmpty() ||
+    			user.getRole() == null || user.getRole().isEmpty() ) {
+    		return "All fieids are manadatory";
+    	}
+    			
+    	
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return "Username already exists";
         }

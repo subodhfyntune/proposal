@@ -28,10 +28,10 @@ public class UserController {
         ResponseHandler<String> response = new ResponseHandler<>();
         try {
             String result = userService.registerUser(user);
-            if ("Username already exists".equals(result)) {
+            if ("Username already exists".equals(result) || "All fieids are manadatory".equals(result)) {
                 response.setStatus("fail");
                 response.setMessage(result);
-                response.setData(null);
+                
             } else {
                 response.setStatus("success");
                 response.setMessage("User registered successfully");
@@ -40,7 +40,7 @@ public class UserController {
         } catch (Exception e) {
             response.setStatus("error");
             response.setMessage("Something went wrong during registration");
-            response.setData(null);
+           
         }
         return response;
     }
@@ -53,7 +53,7 @@ public class UserController {
             if ("Invalid username or password".equals(token)) {
                 response.setStatus("fail");
                 response.setMessage(token);
-                response.setData(null);
+
             } else {
                 response.setStatus("success");
                 response.setMessage("Login successful");
