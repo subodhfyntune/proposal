@@ -24,42 +24,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-//    private static final List<String> EXCLUDE_URLS = List.of(
-//            "/swagger-ui/**", "/swagger-ui.html", 
-//            "/v3/api-docs/**", "/swagger-resources/**", 
-//            "/webjars/**", "/users/register", "/users/login"
-//    );
+    
 
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public JwtRequestFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
 
-//    private boolean isExcluded(String path) {
-//        return EXCLUDE_URLS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
-//    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
 
-        if (path.startsWith("/users/register") ||
-        	    path.startsWith("/users/login") ||
-        	    path.startsWith("/swagger") ||
-        	    path.startsWith("/v3/api-docs") ||
-        	    path.startsWith("/webjars") ||
-        	    path.startsWith("/configuration")) {
-        	    chain.doFilter(request, response);
-        	    return;
-        	}
-//        if (isExcluded(path)) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
 
         final String authorizationHeader = request.getHeader("Authorization");
 
@@ -69,13 +48,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 jwt = authorizationHeader.substring(7);
-//                username = jwtUtil.extractUsername(jwt);
-//                Integer userId = jwtUtil.extractUserId(jwt);
-                Map<String, Object> claims = jwtUtil.extractAllClaims(jwt);
-                username = (String) claims.get("sub");
-                Integer userId = (Integer) claims.get("userId");
-                String email = (String) claims.get("email");
-                String role = (String) claims.get("role");
+
+                username = jwtUtil.extractUsername(jwt);
+                String email = jwtUtil.extractEmail(jwt);
+                Long userId = jwtUtil.extractUserId(jwt);
+                String role = jwtUtil.extractRole(jwt);
+                
+                System.err.println(username);
+                System.err.println(email);
+
+                System.err.println(userId);
+
+                System.err.println("aaaa" +jwtUtil.validateToken(jwt, username, userId,email,role));
+
+                
                 
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

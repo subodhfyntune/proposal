@@ -50,9 +50,7 @@ public class UserService {
             if (passwordEncoder.matches(user.getPassword(), userlogin.getPassword())) {
                 return jwtUtil.generateToken(
                     userlogin.getUsername(), userlogin
-//                    userlogin.getUserId(),
-//                    userlogin.getEmail(),
-//                    userlogin.getRole()
+
 , null
                 );
             }

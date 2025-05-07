@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import com.example.demo.config.JwtUtil;
 import com.example.demo.dto.ProposerDto;
 
 import com.example.demo.dto.handler.ResponseHandler;
@@ -42,6 +43,8 @@ import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
 import com.example.demo.service.ProposerService;
 import com.example.demo.service.ProposerServiceImpl;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
@@ -52,6 +55,10 @@ public class ProposerController {
 	@Autowired
 	private ProposerRepository proposerRepository;
 
+	
+	@Autowired
+	private JwtUtil jwtUtil;
+	
 	@Autowired
 	private ProposerService proposerService;
 
@@ -66,15 +73,29 @@ public class ProposerController {
 //	}
 
 	@GetMapping("/get")
-	public ResponseHandler<List<Proposer>> getProposer() {
+	public ResponseHandler<List<Proposer>> getProposer( HttpServletRequest request) {
+		
+		String header = request.getHeader("Authorization");
+		System.err.println("header >>>>>"+header);
+		String token = null;
+		if(header!=null && header.startsWith("Bearer ")) {
+			token = header.substring(7);
+		}
+		String username = jwtUtil.extractUsername(token);
+		Long UserId = jwtUtil.extractUserId(token);
+
+		System.err.println(username);
+		System.err.println(UserId);
+
+		
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 		try {
 			List<Proposer> allProposers = proposerService.getAllProposer();
 			responseHandler.setStatus("success");
 			responseHandler.setData(allProposers);
-			responseHandler.setMessage("get all Proposer data");
+			responseHandler.setMessage("get all Proposer data "+UserId);
 
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			e.printStackTrace();
 			responseHandler.setStatus("Registration Failed");
 			responseHandler.setData(new ArrayList<>());
