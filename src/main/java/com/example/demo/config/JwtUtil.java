@@ -21,7 +21,7 @@ public class JwtUtil {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(String username,Users userlogin, Map<String, Object> customClaims) {
-        long expirationTimeMs = 1000 * 60 * 15; 
+        long expirationTimeMs = 1000 * 60 * 1; 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTimeMs);
 

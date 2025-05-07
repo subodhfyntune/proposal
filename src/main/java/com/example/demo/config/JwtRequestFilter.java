@@ -24,11 +24,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    private static final List<String> EXCLUDE_URLS = List.of(
-            "/swagger-ui/**", "/swagger-ui.html", 
-            "/v3/api-docs/**", "/swagger-resources/**", 
-            "/webjars/**", "/users/register", "/users/login"
-    );
+//    private static final List<String> EXCLUDE_URLS = List.of(
+//            "/swagger-ui/**", "/swagger-ui.html", 
+//            "/v3/api-docs/**", "/swagger-resources/**", 
+//            "/webjars/**", "/users/register", "/users/login"
+//    );
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -37,9 +37,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
-    private boolean isExcluded(String path) {
-        return EXCLUDE_URLS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
-    }
+//    private boolean isExcluded(String path) {
+//        return EXCLUDE_URLS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
+//    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -47,11 +47,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        
-        if (isExcluded(path)) {
-            chain.doFilter(request, response);
-            return;
-        }
+        if (path.startsWith("/users/register") ||
+        	    path.startsWith("/users/login") ||
+        	    path.startsWith("/swagger") ||
+        	    path.startsWith("/v3/api-docs") ||
+        	    path.startsWith("/webjars") ||
+        	    path.startsWith("/configuration")) {
+        	    chain.doFilter(request, response);
+        	    return;
+        	}
+//        if (isExcluded(path)) {
+//            chain.doFilter(request, response);
+//            return;
+//        }
 
         final String authorizationHeader = request.getHeader("Authorization");
 
@@ -81,6 +89,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
             response.getWriter().write("Invalid or expired JWT token");
             return;
         }                                    
