@@ -84,8 +84,7 @@ public class JwtUtil {
 	public boolean validateToken(String token, String expectedUsername, Long expectedUserId, String expectedEmail,
 			String expectedRole) {
 		try {
-			Map<String, Object> claims = extractAllClaims(token);
-
+			
 			String username =extractUsername(token);
 			Long userId =extractUserId(token);
 			String email =extractEmail(token);
