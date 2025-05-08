@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
@@ -27,22 +26,20 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.demo.config.JwtUtil;
 import com.example.demo.dto.ProposerDto;
-
-import com.example.demo.dto.handler.ResponseHandler;
-import com.example.demo.export.ExcelExport;
-import com.example.demo.model.Area;
-import com.example.demo.model.Gender;
-import com.example.demo.model.MaritalStatus;
-import com.example.demo.model.Nationality;
-import com.example.demo.model.Occupation;
+import com.example.demo.enums.Area;
+import com.example.demo.enums.Gender;
+import com.example.demo.enums.MaritalStatus;
+import com.example.demo.enums.Nationality;
+import com.example.demo.enums.Occupation;
+import com.example.demo.enums.Title;
+import com.example.demo.enums.Town;
 import com.example.demo.model.Product;
 import com.example.demo.model.Proposer;
-import com.example.demo.model.Title;
-import com.example.demo.model.Town;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
+import com.example.demo.response.ResponseHandler;
 import com.example.demo.service.ProposerService;
-import com.example.demo.service.ProposerServiceImpl;
+import com.example.demo.serviceimpl.ProposerServiceImpl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,7 +48,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/api")
 public class ProposerController {
 
-	private final ProposerServiceImpl proposerServiceImpl;
+	
 	@Autowired
 	private ProposerRepository proposerRepository;
 
@@ -62,9 +59,7 @@ public class ProposerController {
 	@Autowired
 	private ProposerService proposerService;
 
-	ProposerController(ProposerServiceImpl proposerServiceImpl) {
-		this.proposerServiceImpl = proposerServiceImpl;
-	}
+	
 
 //	@PostMapping("/registerProposer")
 //	public ResponseEntity<Proposer>  registerProposer(@RequestBody Proposer proposer){

@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.enums;
 
 public enum Town {
 	PANVEL, VASHI, BELAPUR, KALYAN, ULHASNAGAR, DOMBIVLI, VIRAR, MIRA_BHAYANDAR, NALASOPARA,

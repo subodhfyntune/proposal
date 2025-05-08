@@ -10,19 +10,19 @@ import org.apache.poi.ss.usermodel.Row;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
-import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.model.Product;
 import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
+import com.example.demo.response.ResponseHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface ProposerService {
 
-//	public Proposer registerProposer(Proposer proposer);
+
 	public List<Proposer> getAllProposer();
 
-//	public Proposer updateProposer(Long id,Proposer proposer);
+
 	public Proposer deleteProposer(Long id);
 
 	public Proposer registerProposer(ProposerDto proposerDto);

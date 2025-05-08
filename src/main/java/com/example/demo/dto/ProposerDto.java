@@ -1,9 +1,9 @@
 package com.example.demo.dto;
 
-import com.example.demo.model.Area;
-import com.example.demo.model.Gender;
-import com.example.demo.model.Title;
-import com.example.demo.model.Town;
+import com.example.demo.enums.Area;
+import com.example.demo.enums.Gender;
+import com.example.demo.enums.Title;
+import com.example.demo.enums.Town;
 
 public class ProposerDto {
 	

@@ -1,62 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.config.JwtUtil;
 import com.example.demo.model.Users;
-import com.example.demo.repository.UserRepository;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
+public interface UserService {
 
-import java.util.Optional;
-
-@Service
-public class UserService {
-
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository, JwtUtil jwtUtil ) {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    public String registerUser(Users user) {
-    	
-    	if(user.getUsername() == null || user.getUsername().isEmpty() ||
-    			user.getPassword() == null || user.getPassword().isEmpty() ||
-    			user.getEmail() == null || user.getEmail().isEmpty() ||
-    			user.getRole() == null || user.getRole().isEmpty() ) {
-    		return "All fieids are manadatory";
-    	}
-    			
-    	
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "Username already exists";
-        }
-        String hashedPassword =  passwordEncoder.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-        userRepository.save(user);
-        return "User registered successfully";
-    }
-
-    public String loginUser(Users user) {
-        Optional<Users> existingUser = userRepository.findByUsername(user.getUsername());
-
-        if (existingUser.isPresent()) {
-            Users userlogin = existingUser.get();
-         
-            if (passwordEncoder.matches(user.getPassword(), userlogin.getPassword())) {
-                return jwtUtil.generateToken(
-                    userlogin.getUsername(), userlogin
-
-, null
-                );
-            }
-        }
-        return "Invalid username or password";
-    }
-
-
+	public String registerUser(Users user);
+	
+	public String loginUser(String username, String password);
 }

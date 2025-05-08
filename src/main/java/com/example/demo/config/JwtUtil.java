@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.model.Users;
@@ -15,16 +16,24 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 
 
 @Component
 public class JwtUtil {
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
+    private final static String SECRET = "asdfghjklpoiuytrewqzxcvbnmkljhgfdasqwertyuiy";
+	
+	private Key SECRET_KEY;
+	private final long expirationTimeMs = 1000 * 60 * 60 * 24; 
+	@PostConstruct
+	public void init() {
+		this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+	}
+	
     public String generateToken(String username,Users userlogin, Map<String, Object> customClaims) {
-        long expirationTimeMs = 1000 * 60 * 60; 
+        
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTimeMs);
 
@@ -46,8 +55,6 @@ public class JwtUtil {
                 .compact();
     }
     
-    
-
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)

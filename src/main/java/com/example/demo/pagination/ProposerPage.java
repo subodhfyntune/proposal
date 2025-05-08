@@ -37,8 +37,6 @@ public class ProposerPage {
 		this.pageSize = pageSize;
 	}
 
-	
-
 	public String getSortOrder() {
 		return sortOrder;
 	}

@@ -1,28 +1,28 @@
 package com.example.demo.controller;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.handler.ResponseHandler;
 import com.example.demo.model.Users;
+import com.example.demo.response.ResponseHandler;
 import com.example.demo.service.UserService;
+import com.example.demo.serviceimpl.UserServiceImpl;
 
 
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+	@Autowired
+     private UserService userService;
 
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
+   
     @PostMapping("/register")
     public ResponseHandler<String> register(@RequestBody Users user) {
         ResponseHandler<String> response = new ResponseHandler<>();
@@ -46,14 +46,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseHandler<String> login(@RequestBody Users user) {
+    public ResponseHandler<String> login(@RequestParam String username, @RequestParam String password) {
         ResponseHandler<String> response = new ResponseHandler<>();
         try {
-            String token = userService.loginUser(user);
+            String token = userService.loginUser(username, password);
             if ("Invalid username or password".equals(token)) {
                 response.setStatus("fail");
                 response.setMessage(token);
-
             } else {
                 response.setStatus("success");
                 response.setMessage("Login successful");
@@ -66,4 +65,5 @@ public class UserController {
         }
         return response;
     }
+
 }

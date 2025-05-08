@@ -1,4 +1,4 @@
-package com.example.demo.dto.handler;
+package com.example.demo.response;
 
 public class ResponseHandler<T> {
 

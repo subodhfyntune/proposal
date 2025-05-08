@@ -6,6 +6,11 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.example.demo.enums.Area;
+import com.example.demo.enums.Gender;
+import com.example.demo.enums.Title;
+import com.example.demo.enums.Town;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -24,7 +24,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 
                 .requestMatchers(
-                		"/v3/api-docs/**",         // Springdoc default
+                		"/v3/api-docs/**",        
                 	    "/api-docs/**",
                 		"swagger-ui/index.html",
                     "/v3/api-docs/**",      

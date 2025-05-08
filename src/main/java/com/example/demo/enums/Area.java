@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.enums;
 
 public enum Area {
 	ANDHERI_WEST, ANDHERI_EAST, BANDRA_WEST, BANDRA_EAST, BORIVALI_WEST, BORIVALI_EAST, CHEMBUR, DAHISAR, DADAR_WEST,
