@@ -9,7 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.model.Users;
+import com.example.demo.entity.Users;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -96,7 +96,6 @@ public class JwtUtil {
 			Long userId =extractUserId(token);
 			String email =extractEmail(token);
 			String role = extractRole(token);
-			
 			
 			System.out.println("Username: expected=" + expectedUsername + ", actual=" + username);
 			System.out.println("UserId: expected=" + expectedUserId + ", actual=" + userId);

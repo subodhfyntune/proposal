@@ -11,12 +11,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -34,10 +31,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+    	String path = request.getRequestURI();
+        String method = request.getMethod();
 
-
+       
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            chain.doFilter(request, response);
+            return;
+        }
+       
+        if (path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars") ||
+                path.contains("favicon.ico")) {
+                chain.doFilter(request, response);
+                return;
+            }
         final String authorizationHeader = request.getHeader("Authorization");
-
 
         String username = null;
         String jwt = null;
@@ -51,7 +62,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 Long userId = jwtUtil.extractUserId(jwt);
                 String role = jwtUtil.extractRole(jwt);
                 
-             
+                System.err.println("username ####>> "+username);
+                
+                System.err.println("userId ####>> "+userId);
+                System.err.println("email $$$$ >> "+email);
+                System.err.println("role ####>> "+role);
                 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);

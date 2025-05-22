@@ -26,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 
 import com.example.demo.config.JwtUtil;
 import com.example.demo.dto.ProposerDto;
+import com.example.demo.entity.Product;
+import com.example.demo.entity.Proposer;
 import com.example.demo.enums.Area;
 import com.example.demo.enums.Gender;
 import com.example.demo.enums.MaritalStatus;
@@ -33,14 +35,11 @@ import com.example.demo.enums.Nationality;
 import com.example.demo.enums.Occupation;
 import com.example.demo.enums.Title;
 import com.example.demo.enums.Town;
-import com.example.demo.model.Product;
-import com.example.demo.model.Proposer;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.repository.ProposerRepository;
+import com.example.demo.response.ProposerResponse;
 import com.example.demo.response.ResponseHandler;
 import com.example.demo.service.ProposerService;
-import com.example.demo.serviceimpl.ProposerServiceImpl;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -68,27 +67,15 @@ public class ProposerController {
 //	}
 
 	@GetMapping("/get")
-	public ResponseHandler<List<Proposer>> getProposer( HttpServletRequest request) {
-		
-		String header = request.getHeader("Authorization");
-		System.err.println("header >>>>>"+header);
-		String token = null;
-		if(header!=null && header.startsWith("Bearer ")) {
-			token = header.substring(7);
-		}
-		String username = jwtUtil.extractUsername(token);
-		Long UserId = jwtUtil.extractUserId(token);
-
-		System.err.println(username);
-		System.err.println(UserId);
-
+	public ResponseHandler<List<Proposer>> getProposer( ) {
+	
 		
 		ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
 		try {
 			List<Proposer> allProposers = proposerService.getAllProposer();
 			responseHandler.setStatus("success");
 			responseHandler.setData(allProposers);
-			responseHandler.setMessage("get all Proposer data "+UserId);
+			responseHandler.setMessage("get all Proposer data ");
 
 		} catch (Exception e) { 
 			e.printStackTrace();
@@ -99,7 +86,35 @@ public class ProposerController {
 		return responseHandler;
 
 	}
+	
+	@GetMapping("list/{id}")
+	public ResponseHandler getProposerById(@PathVariable Long id) {
+		
+		 ResponseHandler response = new ResponseHandler();
+	        try {
+	            ProposerResponse userById = proposerService.getProposerById(id);
+	            response.setMessage("Proposer Record Fetched Successfully");
+	            response.setStatus("sucess");	        
+	            response.setData(userById);
+	        }catch (IllegalArgumentException e){
+	            e.printStackTrace();
+	            response.setData(new ArrayList<>());
+	            response.setMessage(e.getMessage());
+	            response.setStatus("failed");
+	           
+	        } catch (Exception e){
+	            e.printStackTrace();
+	            response.setData(new ArrayList<>());
+	            response.setMessage("Failed to fetch user record");
+	            response.setStatus("failed");
+	        }
+	        return response;
+		
+		
+	}
+	
 
+	
 //	@PutMapping("/update/{id}")
 //	public ResponseHandler<Proposer> updateProposer(@PathVariable Long id,@RequestBody Proposer updateProposer){
 //		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
@@ -399,21 +414,12 @@ public class ProposerController {
 		try {
 			List<Proposer> proposers = proposerService.getAllProposersByPagingAndSortingAndfiltering(proposerPage,
 					responseHandler);
-//	        Integer totalRecord  =  proposerService.getTotalRecord();
-			Integer total = (int) proposerRepository.count();
-			List<Proposer> getProposers = proposerRepository.findByStatus('Y');
-			if (proposers.isEmpty()) {
-				responseHandler.setStatus("no records found");
-				responseHandler.setData(new ArrayList<>());
-				responseHandler.setMessage("No proposers found matching the criteria");
-			} else {
+	     
 				responseHandler.setStatus("success");
 				responseHandler.setData(proposers);
 				responseHandler.setMessage("Proposers fetched successfully");
-//	            responseHandler.setTotalRecord(proposerService.getTotalRecord());
-//	            responseHandler.setTotalRecord(total);
 				responseHandler.setTotalRecord(proposerService.getTotalRecord());
-			}
+			
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			responseHandler.setStatus("failed");
@@ -596,16 +602,12 @@ public class ProposerController {
 			List<Map<String, Object>> proposers = proposerService
 					.getAllProposersByPagingAndSortingAndfilteringUsingMap(proposerPage, responseHandler);
 
-			if (proposers.isEmpty()) {
-				responseHandler.setStatus("no records found");
-				responseHandler.setData(new ArrayList<>());
-				responseHandler.setMessage("No proposers found matching the criteria");
-			} else {
+			
 				responseHandler.setStatus("success");
 				responseHandler.setData(proposers);
 				responseHandler.setMessage("Proposers fetched successfully");
 				responseHandler.setTotalRecord(proposerService.getTotalRecord());
-			}
+			
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			responseHandler.setStatus("failed");

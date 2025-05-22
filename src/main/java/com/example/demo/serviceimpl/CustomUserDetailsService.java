@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.model.Users;
+import com.example.demo.entity.Users;
 import com.example.demo.repository.UserRepository;
 
 @Service

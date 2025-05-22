@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.model.QueueTable;
+import com.example.demo.entity.QueueTable;
+
 import java.util.List;
 
 

@@ -1,7 +1,7 @@
 package com.example.demo.serviceimpl;
 
 import com.example.demo.config.JwtUtil;
-import com.example.demo.model.Users;
+import com.example.demo.entity.Users;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
 

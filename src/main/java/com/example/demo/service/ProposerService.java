@@ -10,9 +10,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
-import com.example.demo.model.Product;
-import com.example.demo.model.Proposer;
+import com.example.demo.entity.Product;
+import com.example.demo.entity.Proposer;
 import com.example.demo.pagination.ProposerPage;
+import com.example.demo.response.ProposerResponse;
 import com.example.demo.response.ResponseHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ public interface ProposerService {
 
 	public List<Proposer> getAllProposer();
 
+	public ProposerResponse getProposerById(Long id);
 
 	public Proposer deleteProposer(Long id);
 

@@ -41,22 +41,20 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.ProposerDto;
+import com.example.demo.entity.GenderType;
+import com.example.demo.entity.Product;
+import com.example.demo.entity.Proposer;
+import com.example.demo.entity.QueueTable;
+import com.example.demo.entity.ResponceExcel;
 import com.example.demo.enums.Area;
 import com.example.demo.enums.Gender;
 import com.example.demo.enums.Title;
 import com.example.demo.enums.Town;
 import com.example.demo.exception.ProposerDeletedAlready;
-import com.example.demo.model.GenderType;
-import com.example.demo.model.Product;
-import com.example.demo.model.Proposer;
-import com.example.demo.model.QueueTable;
-import com.example.demo.model.ResponceExcel;
 import com.example.demo.pagination.ProposerPage;
 import com.example.demo.pagination.SearchFilter;
-import com.example.demo.repository.GenderRepository;
-import com.example.demo.repository.ProposerRepository;
-import com.example.demo.repository.QueueRepository;
-import com.example.demo.repository.ResponceExcelRepository;
+import com.example.demo.repository.*;
+import com.example.demo.response.ProposerResponse;
 import com.example.demo.response.ResponseHandler;
 import com.example.demo.service.ProposerService;
 
@@ -71,6 +69,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class ProposerServiceImpl implements ProposerService {
+	@Autowired
+    private  UserRepository userRepository;
 
 //	private final WebClient.Builder webClientBuilder;
 	@Autowired
@@ -87,6 +87,9 @@ public class ProposerServiceImpl implements ProposerService {
 	Integer count;
 	Integer totalEntry = 0;
 	Integer falseCount;
+
+
+   
 
 	
 
@@ -116,6 +119,49 @@ public class ProposerServiceImpl implements ProposerService {
 		Proposer changeProposer = proposerRepository.save(updatedeletedStatus);
 		return changeProposer;
 	}
+	@Override
+	public ProposerResponse getProposerById(Long id) {
+		
+		Optional<Proposer> getProposer = proposerRepository.findByIdAndStatus(id, 'Y');
+
+		if (!getProposer.isPresent()) {
+			throw new IllegalArgumentException("Proposer not found with id " + id);
+		}
+
+		Proposer proposer = getProposer.get();
+		
+		ProposerResponse response = new ProposerResponse();
+		response.setId(proposer.getId());
+		response.setTitle(proposer.getTitle());
+		response.setFullName(proposer.getFullName());
+		response.setGender(proposer.getGender());
+		response.setDateOfBirth(proposer.getDateOfBirth());
+		response.setAnnualIncome(proposer.getAnnualIncome());
+		response.setPanNumber(proposer.getPanNumber());
+		response.setAadharNumber(proposer.getAadharNumber());
+		response.setMaritalStatus(proposer.getMaritalStatus());
+		response.setGenderId(proposer.getGenderId());
+		response.setEmail(proposer.getEmail());
+		response.setMobileNumber(proposer.getMobileNumber());
+		response.setAlternateMobileNumber(proposer.getAlternateMobileNumber());
+		response.setAddressLine1(proposer.getAddressLine1());
+		response.setAddressLine2(proposer.getAddressLine2());
+		response.setAddressLine3(proposer.getAddressLine3());
+		response.setPincode(proposer.getPincode());
+		response.setArea(proposer.getArea());
+		response.setTown(proposer.getTown());
+		response.setCity(proposer.getCity());
+		response.setState(proposer.getState());
+		response.setStatus(proposer.getStatus());
+		response.setCreateAt(proposer.getCreateAt());
+		response.setUpdatedAt(proposer.getUpdatedAt());
+		
+
+		
+		return response;
+		
+	}
+
 
 	@Override
 	public Proposer registerProposer(ProposerDto proposerDto) {
@@ -130,7 +176,7 @@ public class ProposerServiceImpl implements ProposerService {
 		}
 
 		if (proposerDto.getMobileNumber() == null || proposerDto.getMobileNumber().length() != 10
-				|| !proposerDto.getMobileNumber().matches("\\d+")) {
+				|| !proposerDto.getMobileNumber().matches("^[6-9]\\d{9}$")) {
 			throw new IllegalArgumentException("Enter valid mobile no.");
 		}
 		boolean pan = proposerRepository.existsByPanNumber(proposerDto.getPanNumber());
@@ -140,12 +186,12 @@ public class ProposerServiceImpl implements ProposerService {
 		}
 		boolean aadhar = proposerRepository.existsByAadharNumber(proposerDto.getAadharNumber());
 		if (proposerDto.getAadharNumber() == null || proposerDto.getAadharNumber().length() != 12
-				|| !proposerDto.getAadharNumber().matches("\\d+") || aadhar) {
+				|| !proposerDto.getAadharNumber().matches("^[2-9]{1}[0-9]{11}$") || aadhar) {
 			throw new IllegalArgumentException("Enter a valid Aadhar Number");
 		}
 
 		if (proposerDto.getAlternateMobileNumber() == null || proposerDto.getAlternateMobileNumber().length() != 10
-				|| !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+				|| !proposerDto.getAlternateMobileNumber().matches("^[6-9]\\d{9}$")) {
 			throw new IllegalArgumentException("Enter a valid Alternate Mobile Number");
 		}
 
@@ -248,7 +294,7 @@ public class ProposerServiceImpl implements ProposerService {
 		}
 
 		if (proposerDto.getMobileNumber() != null) {
-			if (proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("\\d+")) {
+			if (proposerDto.getMobileNumber().length() != 10 || !proposerDto.getMobileNumber().matches("^[6-9]\\d{9}$")) {
 				throw new IllegalArgumentException("Enter valid mobile no.");
 			}
 			proposer.setMobileNumber(proposerDto.getMobileNumber());
@@ -265,7 +311,7 @@ public class ProposerServiceImpl implements ProposerService {
 
 		if (proposerDto.getAadharNumber() != null) {
 
-			if (proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("\\d+")) {
+			if (proposerDto.getAadharNumber().length() != 12 || !proposerDto.getAadharNumber().matches("^[2-9]{1}[0-9]{11}$")) {
 				throw new IllegalArgumentException("Enter a valid Aadhar Number");
 			}
 			proposer.setAadharNumber(proposerDto.getAadharNumber());
@@ -273,7 +319,7 @@ public class ProposerServiceImpl implements ProposerService {
 
 		if (proposerDto.getAlternateMobileNumber() != null) {
 			if (proposerDto.getAlternateMobileNumber().length() != 10
-					|| !proposerDto.getAlternateMobileNumber().matches("\\d+")) {
+					|| !proposerDto.getAlternateMobileNumber().matches("^[6-9]\\d{9}$")) {
 				throw new IllegalArgumentException("Enter a valid Alternate Mobile Number");
 			}
 			proposer.setAlternateMobileNumber(proposerDto.getAlternateMobileNumber());
@@ -397,7 +443,7 @@ public class ProposerServiceImpl implements ProposerService {
 		List<Predicate> predicates = new ArrayList<>();
 		List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
 
-//	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
+	    predicates.add(criteriaBuilder.equal(root.get("status"), 'Y'));
 		List<SearchFilter> searchFilter = proposerPage.getSearchFilters();
 
 		if (searchFilters != null) {
@@ -1604,7 +1650,7 @@ public class ProposerServiceImpl implements ProposerService {
 
 		List<Predicate> predicates = new ArrayList<>();
 		List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
-
+		
 		if (searchFilters != null) {
 			for (SearchFilter filter : searchFilters) {
 				if (filter.getFullName() != null && !filter.getFullName().trim().isEmpty()) {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.Users;
+import com.example.demo.entity.Users;
 import com.example.demo.response.ResponseHandler;
 import com.example.demo.service.UserService;
 import com.example.demo.serviceimpl.UserServiceImpl;
