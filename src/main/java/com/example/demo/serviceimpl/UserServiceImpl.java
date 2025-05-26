@@ -104,6 +104,7 @@ public class UserServiceImpl implements UserService {
 	    SessionEntity sessionEntity = new SessionEntity();
 	    sessionEntity.setSessionId(sessionId);
 	    sessionEntity.setCreatedAt(createdAt);
+	    sessionEntity.setStatus('Y');
 	    sessionEntity.setExpiredAt(expiredAt);
 	    sessionEntity.setUserId(users.getUserId());
 

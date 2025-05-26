@@ -19,22 +19,29 @@ public class SessionEntity {
 	
 	private LocalDateTime createdAt;
 
-	private LocalDateTime expiredAt; 
+	private LocalDateTime expiredAt;
+	
+	private Character status ;
 
 	public SessionEntity() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public SessionEntity(Integer id, String sessionId, Integer userId, LocalDateTime createdAt,
-			LocalDateTime expiredAt) {
+	
+
+	public SessionEntity(Integer id, String sessionId, Integer userId, LocalDateTime createdAt, LocalDateTime expiredAt,
+			Character status) {
 		super();
 		this.id = id;
 		this.sessionId = sessionId;
 		this.userId = userId;
 		this.createdAt = createdAt;
 		this.expiredAt = expiredAt;
+		this.status = status;
 	}
+
+
 
 	public Integer getId() {
 		return id;
@@ -74,6 +81,14 @@ public class SessionEntity {
 
 	public void setExpiredAt(LocalDateTime expiredAt) {
 		this.expiredAt = expiredAt;
+	}
+
+	public Character getStatus() {
+		return status;
+	}
+
+	public void setStatus(Character status) {
+		this.status = status;
 	}
 	
 	
