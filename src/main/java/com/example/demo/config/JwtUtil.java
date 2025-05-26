@@ -5,11 +5,15 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.entity.UserToken;
 import com.example.demo.entity.Users;
+import com.example.demo.repository.UserTokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -24,9 +28,10 @@ import jakarta.annotation.PostConstruct;
 public class JwtUtil {
 
     private final static String SECRET = "asdfghjklpoiuytrewqzxcvbnmkljhgfdasqwertyuiy";
-	
+    @Autowired
+    private UserTokenRepository tokenRepository;
 	private Key SECRET_KEY;
-	private final long expirationTimeMs = 1000 * 60 * 60 * 24; 
+	private final long expirationTimeMs = 1000 * 60 * 3 ;
 	@PostConstruct
 	public void init() {
 		this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
@@ -42,19 +47,83 @@ public class JwtUtil {
         claims.put("email", userlogin.getEmail());
         claims.put("role", userlogin.getRole());
         
-        if (customClaims != null) {
-            claims.putAll(customClaims); 
-        }
-       
-        return Jwts.builder()
-        		.setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(SECRET_KEY)
-                .compact();
-    }
+		if (customClaims != null) {
+			claims.putAll(customClaims);
+		}
+
+		String token = Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(now).setExpiration(expiryDate)
+				.signWith(SECRET_KEY).compact();
+
+		Boolean existsByUsername = tokenRepository.existsByUsername(username);
+		if (existsByUsername) {
+			Optional<UserToken> byUsername = tokenRepository.findByUsername(username);
+			UserToken userToken = byUsername.get();
+			userToken.setToken(token);
+			userToken.setExpiryDate(extractExpiration(token));
+			tokenRepository.save(userToken);
+		} else {
+			UserToken newtoken = new UserToken();
+			System.out.println(" Generating new token...");
+			newtoken.setToken(token);
+			newtoken.setUsername(username);
+			newtoken.setExpiryDate(extractExpiration(token));
+			tokenRepository.save(newtoken);
+		}
+
+		return token;
+	}
+
+//    public String getOrCreateToken(Users userLogin) {
+//        String username = userLogin.getUsername();
+//        Optional<UserToken> userToken = tokenRepository.findByUsername(username);
+//
+//        if (userToken.isPresent()) {
+//            UserToken tokenEntity = userToken.get();
+//            if (!isTokenExpired(tokenEntity.getToken())) {
+//            	System.out.println("token not expired");
+//            	System.out.println("11111");
+//                return tokenEntity.getToken();
+//            } else {
+//            	System.out.println("222222");
+//                String newToken = generateToken(username, userLogin, null);
+//                tokenEntity.setToken(newToken);
+//                
+//                tokenRepository.save(tokenEntity);
+//                System.out.println("new token updated");
+//                
+//                return newToken;
+//            }
+//        } else {
+//        	System.out.println("333333");
+//            String token = generateToken(username, userLogin, null);
+//            UserToken newToken = new UserToken();
+//            newToken.setUsername(username);
+//            newToken.setToken(token);
+//            newToken.setExpiryDate(extractExpiration(token));
+//            tokenRepository.save(newToken);
+//            
+//
+//            return token;
+//        }
+//    }
     
+//    public String getOrCreateToken(Users user) {
+//        String username = user.getUsername();
+//        Optional<UserToken> userToken = tokenRepository.findByUsername(username);
+//
+//      
+//            	 UserToken token = userToken.get();
+//                System.out.println("Token is expired. Generating new token...");
+//                String newToken = generateToken(username, user, null);
+////                token.setToken(newToken);
+////                token.setExpiryDate(extractExpiration(newToken));
+////                
+////                tokenRepository.save(token);
+//                return newToken;
+//            }
+//        
+    
+
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)

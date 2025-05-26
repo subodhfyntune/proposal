@@ -1,10 +1,14 @@
 package com.example.demo.serviceimpl;
 
 import com.example.demo.config.JwtUtil;
+import com.example.demo.entity.UserToken;
 import com.example.demo.entity.Users;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserTokenRepository;
 import com.example.demo.service.UserService;
 
+import org.apache.naming.java.javaURLContextFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private UserTokenRepository userTokenRepository;
 
     public UserServiceImpl(UserRepository userRepository, JwtUtil jwtUtil ) {
         this.userRepository = userRepository;
@@ -48,7 +55,21 @@ public class UserServiceImpl implements UserService {
         if (existingUser.isPresent()) {
             Users userlogin = existingUser.get();
             if (passwordEncoder.matches(password, userlogin.getPassword())) {
-                return jwtUtil.generateToken(userlogin.getUsername(), userlogin, null);
+
+				Optional<UserToken> byUsername = userTokenRepository.findByUsername(username);
+				if (byUsername.isPresent()) {
+					UserToken userToken = byUsername.get();
+					if (userToken.getExpiryDate().after(new java.util.Date())) {
+						return userToken.getToken();
+					}else {
+						return jwtUtil.generateToken(userlogin.getUsername(), userlogin, null);
+					}
+				} else {
+					return jwtUtil.generateToken(userlogin.getUsername(), userlogin, null);
+				}
+            	
+            	 
+                
             }
         }
         return "Invalid username or password";

@@ -59,6 +59,7 @@ public class UserController {
                 response.setData(token);
             }
         } catch (Exception e) {
+        	e.printStackTrace();
             response.setStatus("error");
             response.setMessage("Something went wrong during login");
             response.setData(null);
