@@ -23,48 +23,47 @@ public class UserController {
      private UserService userService;
 
    
-    @PostMapping("/register")
-    public ResponseHandler<String> register(@RequestBody Users user) {
-        ResponseHandler<String> response = new ResponseHandler<>();
-        try {
-            String result = userService.registerUser(user);
-            if ("Username already exists".equals(result) || "All fieids are manadatory".equals(result)) {
-                response.setStatus("fail");
-                response.setMessage(result);
-                
-            } else {
-                response.setStatus("success");
-                response.setMessage("User registered successfully");
-                response.setData(result);
-            }
-        } catch (Exception e) {
-            response.setStatus("error");
-            response.setMessage("Something went wrong during registration");
-           
-        }
-        return response;
-    }
+	@PostMapping("/register")
+	public ResponseHandler<String> register(@RequestBody Users user) {
+	    ResponseHandler<String> response = new ResponseHandler<>();
+	    try {
+	        String result = userService.registerUser(user);
+	        response.setStatus("success");
+	        response.setMessage(result); 
+	        response.setData(result);
+	    } catch (IllegalArgumentException e) {
+	        response.setStatus("error");
+	        response.setMessage(e.getMessage()); 
+	        response.setData(null);
+	    } catch (Exception e) {
+	        response.setStatus("error");
+	        response.setMessage("Something went wrong during registration");
+	        response.setData(null);
+	    }
+	    return response;
+	}
 
-    @PostMapping("/login")
-    public ResponseHandler<String> login(@RequestParam String username, @RequestParam String password) {
-        ResponseHandler<String> response = new ResponseHandler<>();
-        try {
-            String token = userService.loginUser(username, password);
-            if ("Invalid username or password".equals(token)) {
-                response.setStatus("fail");
-                response.setMessage(token);
-            } else {
-                response.setStatus("success");
-                response.setMessage("Login successful");
-                response.setData(token);
-            }
-        } catch (Exception e) {
-        	e.printStackTrace();
-            response.setStatus("error");
-            response.setMessage("Something went wrong during login");
-            response.setData(null);
-        }
-        return response;
-    }
+
+	@PostMapping("/login")
+	public ResponseHandler<String> login(@RequestParam String username, @RequestParam String password) {
+	    ResponseHandler<String> response = new ResponseHandler<>();
+	    try {
+	        String session = userService.loginUser(username, password);
+	        response.setStatus("success");
+	        response.setMessage("Login successful");
+	        response.setData(session);
+	    } catch (IllegalArgumentException e) {
+	        response.setStatus("error");
+	        response.setMessage(e.getMessage());
+	        response.setData(null);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.setStatus("error");
+	        response.setMessage("Something went wrong during login");
+	        response.setData(null);
+	    }
+	    return response;
+	}
+
 
 }

@@ -28,7 +28,6 @@ public class Users {
 	
 	
 
-	
 
 	public Users(Integer userId, String username, String password, String email, String role) {
 		super();
